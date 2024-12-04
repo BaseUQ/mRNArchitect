@@ -191,7 +191,7 @@ ui <- dashboardPage(
                      tags$h4(tags$b("Email: "), "basedesign@uq.edu.au"),
                      tags$h4(tags$b("Github: "), tags$a(href = "https://github.com/BaseUQ/mRNArchitect", 
                                                         "https://github.com/BaseUQ/mRNArchitect", target = "_blank")),
-                     tags$h4(tags$b("Example: "), "For guidance on how to design an mRNA, please see the step-by-step example ", tags$a(href = "https://basefacility.org.au/wp-content/uploads/2024/08/mRNArchitect_Example.pdf", 
+                     tags$h4(tags$b("Example: "), "For guidance on how to design an mRNA, please see the step-by-step example ", tags$a(href = "https://basefacility.org.au/wp-content/uploads/2024/12/mRNArchitect_Example.pdf", 
                                                                                                                                         "here", target = "_blank")), 
                      tags$h4(tags$b("Sequences: "), "Please find useful sequences (promoters, UTRs etc.) ", tags$a(href = "https://basefacility.org.au/wp-content/uploads/2024/08/mRNArchitect_ExampleSequences.txt", 
                                                                                                                    "here", target = "_blank"))
