@@ -1,3 +1,9 @@
+packages <- c(
+  "shiny", "shinydashboard", "shinyjs", "shinyBS", "shinyWidgets", "shinycustomloader",
+  "reticulate", "stringr", "dplyr", "fresh", "seqinr", "reactable", "readr", "tidyr", "tibble", "Biostrings"
+)
+check_and_install_packages(packages)
+
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
