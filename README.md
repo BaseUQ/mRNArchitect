@@ -17,11 +17,11 @@ A Docker image is also available for easy deployment. To use the Docker image:
 
 1. **Pull the Docker Image:**
 
-   ```docker pull your-docker-repo/mrnarchitect:latest```
+   ```docker pull basedesign/mrnadesign:latest```
    
 2. **Run the Docker Container:**
 
-   ```docker run -d -p 3838:3838 your-docker-repo/mrnarchitect:latest```
+   ```docker run -d -p 3838:3838 basedesign/mrnarchitect:latest```
   
 This command will run the application locally on port **3838**. You can then access the app by navigating to http://localhost:3838 in your web browser.
 
