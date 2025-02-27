@@ -1,5 +1,5 @@
-source("global.R")
 source("functions.R")
+source("global.R")
 
 ui <- dashboardPage(
   title = "mRNArchitect",

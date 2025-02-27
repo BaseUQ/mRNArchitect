@@ -1,3 +1,9 @@
+packages <- c(
+  "shiny", "shinydashboard", "shinyjs", "shinyBS", "shinyWidgets", "shinycustomloader",
+  "reticulate", "stringr", "dplyr", "fresh", "seqinr", "reactable", "readr", "tidyr", "tibble", "Biostrings"
+)
+check_and_install_packages(packages)
+
 library(shiny)
 library(shinydashboard)
 library(shinyjs)
@@ -15,13 +21,21 @@ library(readr)
 library(tidyr)
 library(tibble)
 library(Biostrings)
-library(future)
 
-PYTHON_DEPENDENCIES = c('numpy==1.26.4', 'biopython==1.83', 'dnachisel==3.2.11', 'viennarna==2.6.4')
+# Check if the 'r-reticulate' virtual environment exists
+env_name <- "r-reticulate"
+env_path <- file.path(Sys.getenv("HOME"), ".virtualenvs", env_name)  
 
-# Run the installation in the background
-future::plan(future::multisession)
-future::future(reticulate::py_install(PYTHON_DEPENDENCIES))
+# If the virtual environment does not exist, create it
+if (!dir.exists(env_path)) {
+  virtualenv_create(env_name)
+  py_install(c("numpy", "dnachisel", "biopython", "viennarna"), envname = env_name)
+  cat("Virtual environment created and packages installed!\n")
+} else {
+  cat("Virtual environment already exists.\n")
+}
+
+use_virtualenv(env_name)
 
 Bio <- reticulate::import("Bio")
 Bio.Restriction <- reticulate::import("Bio.Restriction.Restriction_Dictionary")
@@ -82,9 +96,9 @@ help_data <- data.frame(
 parameters_data <- data.frame(
   INPUT = c( "Number of sequences", "Organism", "Uridine depletion", "Avoid ribosome slip",
              "Min/Max GC content", "GC window",
-            "Avoid cut sites", "Avoid sequences", "Avoid repetitive",  
-            "Avoid PolyA/U/C/T", 
-            "Hairpin stem size", "Hairpin window"),
+             "Avoid cut sites", "Avoid sequences", "Avoid repetitive",  
+             "Avoid PolyA/U/C/T", 
+             "Hairpin stem size", "Hairpin window"),
   Explanation = c( "The number of optimized output mRNA sequences to generate. Please note that more sequences takes longer and there is a maximum of 10.",
                    "Select the target organism to be used for codon optimisation. The mRNA will be optimised using the preferred codon usage of highly expressed genes in this selected organism (1). By default, we use human codon optimisation.",
                    "If selected, this minimizes the use of uridine nucleosides in the mRNA sequence. This is achieved by avoiding codons that encode uridine at the third wobble position and can impact reactogenicity of the mRNA sequence.",
@@ -97,7 +111,7 @@ parameters_data <- data.frame(
                    "Avoid homopolymer tracts that can be difficult to synthesise and translate. We recommend 9 for poly(U)/poly(A) and 6 for poly(C)/poly(G).",
                    "Avoid stable hairpins longer than this length. We recommend 10.",
                    "Window size used to measure hairpins. We recommend 60.")
-                   )
+)
 
 results_data <- data.frame(
   INPUT = c("Full-length mRNA", "Feature", "A/U/G/C ratio", "AT/GA/GC ratio", "Uridine depletion", "CAI", "CDS MFE", "5'UTR MFE", "3'UTR MFE", "Total MFE"),

@@ -1,3 +1,44 @@
+#' Check and Install Required Packages
+#'
+#' This function checks if the specified R packages are installed. If not, it attempts
+#' to install them from CRAN. If a package is unavailable on CRAN, it tries to install
+#' it from Bioconductor. If installation fails, an error message is displayed.
+#'
+#' @param packages A character vector of package names to check and install if needed.
+#'
+#' @return None (invisible `NULL`), but installs missing packages.
+#' @export
+#'
+#' @examples
+#' check_and_install_packages(c("shiny", "ggplot2", "Biostrings"))
+check_and_install_packages <- function(packages) {
+  if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
+  }
+  
+  for (pkg in packages) {
+    if (!requireNamespace(pkg, quietly = TRUE)) {
+      message(paste("Installing missing package:", pkg))
+      tryCatch({
+        install.packages(pkg)
+        if (!requireNamespace(pkg, quietly = TRUE)) {
+          stop(paste("Failed to install", pkg, "from CRAN. Trying Bioconductor..."))
+        }
+      }, error = function(e) {
+        message(paste("Trying to install", pkg, "from Bioconductor..."))
+        tryCatch({
+          BiocManager::install(pkg)
+          if (!requireNamespace(pkg, quietly = TRUE)) {
+            stop(paste("Failed to install", pkg, "from Bioconductor. Please install it manually."))
+          }
+        }, error = function(e) {
+          stop(paste("Installation failed for package:", pkg, ". Please install it manually."))
+        })
+      })
+    }
+  }
+}
+
 #' Get Sequence Properties
 #'
 #' Calculates the nucleotide base ratios and other properties of a given nucleotide sequence.
