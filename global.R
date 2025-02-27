@@ -68,31 +68,6 @@ max_random_iters = 20000
 UTR5_default <- "ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC"
 UTR3_default <- "GCTGGAGCCTCGGTGGCCATGCTTCTTGCCCCTTGGGCCTCCCCCCAGCCCCTCCTCCCCTTCCTGCACCCGTACCCCCGTGGTCTTTGAATAAAGTCTGAGTGGGCGGCA"
 
-
-ud_table <- list(
-  '*' = list('TAA' = 0.276, 'TAG' = 0.223, 'TGA' = 0.5),
-  'A' = list('GCA' = 0.349, 'GCC' = 0.53, 'GCG' = 0.121, 'GCT' = 0),
-  'C' = list('TGC' = 1.0, 'TGT' = 0),
-  'D' = list('GAC' = 1.0, 'GAT' = 0),
-  'E' = list('GAA' = 0.459, 'GAG' = 0.541),
-  'F' = list('TTC' = 1.0, 'TTT' = 0),
-  'G' = list('GGA' = 0.328, 'GGC' = 0.379, 'GGG' = 0.294, 'GGT' = 0),
-  'H' = list('CAC' = 1.0, 'CAT' = 0),
-  'I' = list('ATA' = 0.302, 'ATC' = 0.698, 'ATT' = 0),
-  'K' = list('AAA' = 0.464, 'AAG' = 0.536),
-  'L' = list('CTA' = 0.089, 'CTC' = 0.213, 'CTG' = 0.432, 'TTA' = 0.104, 'TTG' = 0.161, 'CTT' = 0),
-  'M' = list('ATG' = 1.0),
-  'N' = list('AAC' = 1.0, 'AAT' = 0),
-  'P' = list('CCA' = 0.427, 'CCC' = 0.432, 'CCG' = 0.141, 'CCT' = 0),
-  'Q' = list('CAA' = 0.284, 'CAG' = 0.716),
-  'R' = list('AGA' = 0.259, 'AGG' = 0.236, 'CGA' = 0.125, 'CGC' = 0.17, 'CGG' = 0.21, 'CGT' = 0),
-  'S' = list('AGC' = 0.357, 'TCA' = 0.256, 'TCC' = 0.314, 'TCG' = 0.073, 'AGT' = 0, 'TCT' = 0),
-  'T' = list('ACA' = 0.413, 'ACC' = 0.447, 'ACG' = 0.14, 'ACT' = 0),
-  'V' = list('GTA' = 0.163, 'GTC' = 0.286, 'GTG' = 0.551, 'GTT' = 0),
-  'W' = list('TGG' = 1.0),
-  'Y' = list('TAC' = 1.0, 'TAT' = 0)
-)
-
 help_data <- data.frame(
   INPUT = c("CDS", "5'UTR", "3'UTR", "Poly(A) tail"),
   Explanation = c(
