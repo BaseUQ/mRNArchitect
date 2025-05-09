@@ -13,7 +13,6 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     env:
-      REPOSITORY_URI: 340752831962.dkr.ecr.ap-southeast-2.amazonaws.com/app
       REPOSITORY: app
       TAG: production-${{ github.sha }}
     steps:
