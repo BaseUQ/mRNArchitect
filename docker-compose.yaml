@@ -1,0 +1,22 @@
+services:
+  app:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - 3000:3000
+      - 3001:3001 # hmr
+    develop:
+      watch:
+        - path: ./pnpm-lock.yaml
+          action: rebuild
+        - path: ./uv.lock
+          action: rebuild
+        - path: ./
+          target: /app
+          action: sync
+          ignore:
+            - .venv/
+            - node_modules/
