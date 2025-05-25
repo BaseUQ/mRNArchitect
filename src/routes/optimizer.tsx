@@ -1,6 +1,7 @@
 import {
   Alert,
   Button,
+  Code,
   Fieldset,
   Flex,
   Group,
@@ -13,6 +14,7 @@ import {
   Space,
   Stack,
   Switch,
+  Table,
   Tabs,
   Text,
   TextInput,
@@ -24,7 +26,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import RESTRICTION_SITES from "~/data/restriction-sites.json";
-import { analyzeSequence, optimizeSequence } from "~/utils/optimize";
+import { analyzeSequence, convertToNucleicAcid, optimizeSequence } from "~/utils/optimize";
 import { OptimizationResponse, OptimizationRequest } from "~/types/optimize";
 
 const FIVE_PRIME_HUMAN_ALPHA_GLOBIN = "ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC";
@@ -34,13 +36,24 @@ const THREE_PRIME_HUMAN_ALPHA_GLOBIN =
 const optimizeSequenceServerFn = createServerFn({ method: "POST" })
   .validator((data: OptimizationRequest) => data)
   .handler(async ({ data }) => {
-    const optimizations = await Promise.all(
-      Array(data.numberOfSequences).fill(null).map(() => optimizeSequence(data)),
-    );
-    const analyses = await Promise.all(optimizations.map((opt) => analyzeSequence({ sequence: opt.output, organism: data.organism })));
-    console.log(optimizations);
-    console.log(analyses);
-    return { optimizations, analyses };
+    let sequence = data.sequence;
+    if (data.sequenceType === "amino-acid") {
+      sequence = await convertToNucleicAcid({ sequence: data.sequence, organism: data.organism });
+    }
+    const [input, ...outputs] = await Promise.all([
+      analyzeSequence({ sequence: sequence, organism: data.organism }),
+      ...Array(data.numberOfSequences).fill(null).map(() => optimizeSequence(data).then(async (opt) => {
+        return {
+          optimization: opt,
+          analysis: await analyzeSequence({ sequence: opt.output, organism: data.organism }),
+        }
+      })),
+    ]);
+    //const analyses = await Promise.all([
+    //  analyzeSequence({ sequence: data.sequence, organism: data.organism }),
+    //  ...optimizations.map((opt) => analyzeSequence({ sequence: opt.output, organism: data.organism }))
+    //]);
+    return { input, outputs: outputs.sort((a, b) => a.analysis.codon_adaptation_index > b.analysis.codon_adaptation_index ? -1 : 1) };
   });
 
 export const Route = createFileRoute("/optimizer")({
@@ -53,25 +66,50 @@ function RouteComponent() {
 }
 
 interface OptimizationResults {
-  results: OptimizationResponse[];
+  results: Awaited<ReturnType<typeof optimizeSequenceServerFn>>;
   onClickBack: () => void;
 }
 
-export const OptimizationResults = ({ onClickBack, results }: OptimizationResults) => {
+export const OptimizationResults = ({ onClickBack, results: { input, outputs } }: OptimizationResults) => {
+
+  const generateRow = (field: string, title: string, precision: number) => [
+    title,
+    input[field].toPrecision(precision),
+    ...outputs.map(({ analysis }) => analysis[field].toPrecision(2)),
+  ];
+
+  const body = [
+    generateRow("a_ratio", "A ratio", 2),
+    generateRow("tu_ratio", "T/U ratio", 2),
+    generateRow("g_ratio", "G ratio", 2),
+    generateRow("c_ratio", "C ratio", 2),
+    generateRow("at_ratio", "AT ratio", 2),
+    generateRow("ga_ratio", "GA ratio", 2),
+    generateRow("gc_ratio", "GC ratio", 2),
+    generateRow("uridine_depletion", "Uridine depletion", 2),
+    generateRow("codon_adaptation_index", "CAI", 2),
+    // generateRow("minimum_free_energy", "CDS MFE (kcal/mol)", 2),
+  ];
+
 
   return (
     <>
       <Button variant="subtle" size="sm" onClick={onClickBack}>{"< Back"}</Button>
+      <Table data={{
+        caption: "Summary of generated sequences.",
+        head: ["", "Input", ...outputs.map((_, index) => `Output ${index + 1}`)],
+        body,
+      }}
+      />
       <Tabs defaultValue={"0"}>
         <Tabs.List>
-          {results.map((_, index) => (
-            <Tabs.Tab value={index.toString()}>{`Ouput ${index}`}</Tabs.Tab>
+          {outputs.map((_, index) => (
+            <Tabs.Tab value={index.toString()}>{`Output ${index + 1}`}</Tabs.Tab>
           ))}
         </Tabs.List>
-        {results.map((value, index) => (
+        {outputs.map((value, index) => (
           <Tabs.Panel value={index.toString()}>
-            <Text>Output {index}</Text>
-            <Text>{value.output}</Text>
+            <Text ff="monospace" p="md" style={{ wordBreak: "break-all" }}>{value.optimization.output}</Text>
           </Tabs.Panel>
         ))}
       </Tabs>
@@ -165,7 +203,7 @@ export const OptimizeForm = () => {
       const results = await optimizeSequenceServerFn({
         data: values,
       });
-      setResults(results.optimizations);
+      setResults(results);
       console.log(results);
     } catch (e) {
       console.error(e);

@@ -4,13 +4,13 @@ import { AnalyzeResponse, type OptimizationRequest, OptimizationResponse } from 
 
 const execFile = utils.promisify(childProcess.execFile);
 
-export const convertSequence = async ({
+export const convertToNucleicAcid = async ({
   sequence,
   organism,
 }: { sequence: string; organism: string }): Promise<string> => {
   const { stdout } = await execFile("python", [
     "./scripts/optimize.py",
-    "convert-sequence",
+    "convert-to-nucleic-acid",
     sequence,
     organism,
   ]);

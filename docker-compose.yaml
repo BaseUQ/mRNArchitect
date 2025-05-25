@@ -6,8 +6,8 @@ services:
       dockerfile: Dockerfile
       target: dev
     ports:
-      - 3000:3000
-      - 3001:3001 # hmr
+      - 8080:8080
+      - 8081:8081 # hmr
     develop:
       watch:
         - path: ./pnpm-lock.yaml
