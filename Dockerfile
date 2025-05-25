@@ -1,37 +1,50 @@
-# Use the rocker/shiny base image
-FROM rocker/shiny:latest
+FROM node:lts-slim AS base
 
-# Install system libraries
-RUN apt-get update && apt-get install -y \
-    python3 \
-    python3-pip \
-    python3-venv \
-    libcurl4-openssl-dev \
-    libssl-dev \
-    libxml2-dev && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update -qy && apt-get install -qy wget
 
-# Install R packages
-RUN R -e "install.packages(c('shiny', 'shinydashboard', 'shinyjs', 'shinyBS', 'shinyWidgets', 'shinycustomloader', 'reticulate', 'stringr', 'dplyr', 'fresh', 'seqinr', 'reactable', 'readr', 'tidyr', 'future', 'BiocManager'), repos='https://cloud.r-project.org/'); BiocManager::install('Biostrings')"
+# Install uv
+# see: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
+COPY --from=ghcr.io/astral-sh/uv:0.7.8 /uv /uvx /bin/
 
-# Create a virtual environment for Python packages
-RUN python3 -m venv /opt/venv
+# Install pnpm 
+# see: https://pnpm.io/installation#using-corepack
+RUN corepack enable
 
-# Activate the virtual environment and install Python packages
-RUN /opt/venv/bin/pip install numpy biopython dnachisel viennarna
+# Install AWS Lambda Web Adapter
+# see: https://github.com/awslabs/aws-lambda-web-adapter
+COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.9.1 /lambda-adapter /opt/extensions/lambda-adapter
 
-# Copy the Shiny app to the Docker image
-COPY . /srv/shiny-server/
+# Install ViennaRNA
+# see: https://www.tbi.univie.ac.at/RNA/#binary_packages
+ARG VIENNARNA_URL=https://www.tbi.univie.ac.at/RNA/download/debian/debian_12/viennarna_2.7.0-1_amd64.deb
+RUN wget -qO viennarna.deb ${VIENNARNA_URL} && apt-get install -qy -f ./viennarna.deb
 
-# Change ownership of the Shiny app directory
-RUN chown -R shiny:shiny /srv/shiny-server/
+# Setup the app user
+RUN useradd -m app
+RUN mkdir /app && chown app:app /app
+WORKDIR /app
+USER app
 
-# Expose the Shiny app port
-EXPOSE 3838
+RUN --mount=type=cache,target=/root.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --locked --no-cache
+ENV PATH="/app/.venv/bin:$PATH"
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
+    --mount=type=bind,source=package.json,target=package.json \
+    pnpm install --frozen-lockfile
 
-# Set RETICULATE_PYTHON environment variable
-ENV RETICULATE_PYTHON /opt/venv/bin/python
+COPY --chown=app:app . /app/
 
-# Start the Shiny server
-CMD ["R", "-e", "shiny::runApp('/srv/shiny-server', port = 3838, host = '0.0.0.0')"]
+
+FROM base AS dev
+
+CMD ["pnpm", "dev"]
+
+
+FROM base
+
+RUN pnpm build
+CMD ["pnpm", "start"]
+

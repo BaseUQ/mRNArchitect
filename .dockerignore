@@ -1,6 +1,8 @@
+__pycache__
 .git
+.github
 .gitignore
-
+.output
+.pytest_cache_
 .venv
-
-Dockerfile
+node_modules

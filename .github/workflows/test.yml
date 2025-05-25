@@ -15,4 +15,4 @@ jobs:
         with:
           load: true
           tags: ${{ env.TAG }}
-      - run: docker run --rm $TAG echo "No tests!!!"
+      - run: docker run --rm $TAG pytest
