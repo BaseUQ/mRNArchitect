@@ -8,7 +8,9 @@ COPY --from=ghcr.io/astral-sh/uv:0.7.8 /uv /uvx /bin/
 
 # Install pnpm 
 # see: https://pnpm.io/installation#using-corepack
-RUN corepack enable
+#RUN corepack enable
+RUN wget -qO /usr/local/bin/pnpm https://github.com/pnpm/pnpm/releases/download/v10.11.0/pnpm-linux-x64 && \
+    chmod +x /usr/local/bin/pnpm
 
 # Install AWS Lambda Web Adapter
 # see: https://github.com/awslabs/aws-lambda-web-adapter
