@@ -270,6 +270,18 @@ class NucleicAcid:
         )
 
     @property
+    def at_ratio(self):
+        return self.a_ratio + self.tu_ratio
+
+    @property
+    def ga_ratio(self):
+        return self.a_ratio + self.g_ratio
+
+    @property
+    def gc_ratio(self):
+        return self.c_ratio + self.g_ratio
+
+    @property
     @functools.cache
     def uridine_depletion(self):
         """The Uridine depletion of the sequence.
@@ -559,6 +571,9 @@ if __name__ == "__main__":
                     "c_ratio": nucleic_acid.c_ratio,
                     "g_ratio": nucleic_acid.g_ratio,
                     "tu_ratio": nucleic_acid.tu_ratio,
+                    "at_ratio": nucleic_acid.at_ratio,
+                    "ga_ratio": nucleic_acid.ga_ratio,
+                    "gc_ratio": nucleic_acid.gc_ratio,
                     "uridine_depletion": nucleic_acid.uridine_depletion,
                     "codon_adaptation_index": nucleic_acid.codon_adaptation_index(
                         organism
