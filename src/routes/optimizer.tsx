@@ -40,7 +40,7 @@ const optimizeSequenceServerFn = createServerFn({ method: "POST" })
     const analyses = await Promise.all(optimizations.map((opt) => analyzeSequence({ sequence: opt.output, organism: data.organism })));
     console.log(optimizations);
     console.log(analyses);
-    return optimizations;
+    return { optimizations, analyses };
   });
 
 export const Route = createFileRoute("/optimizer")({
@@ -165,7 +165,7 @@ export const OptimizeForm = () => {
       const results = await optimizeSequenceServerFn({
         data: values,
       });
-      setResults(results);
+      setResults(results.optimizations);
       console.log(results);
     } catch (e) {
       console.error(e);
