@@ -3,9 +3,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "vinxi dev",
-    "build": "vinxi build",
-    "start": "vinxi start"
+    "dev": "vinxi dev --port 8080",
+    "build": "vinxi build --port 8080",
+    "start": "vinxi start --port 8080"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

@@ -17,7 +17,7 @@ export default defineConfig({
       vite: {
         server: {
           hmr: {
-            port: 3001
+            port: 8081
           }
         }
       }
