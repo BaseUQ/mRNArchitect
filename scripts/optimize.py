@@ -514,7 +514,7 @@ if __name__ == "__main__":
         click.echo(json.dumps(Bio.Restriction.Restriction_Dictionary.rest_dict))
 
     @app.command()
-    def convert_to_nucleic_acid(sequence: str, organism: str):
+    def convert_sequence_to_nucleic_acid(sequence: str, organism: str):
         click.echo(
             json.dumps(str(NucleicAcid.from_amino_acid(sequence, organism))), nl=False
         )
@@ -564,23 +564,20 @@ if __name__ == "__main__":
     @app.command()
     def analyze_sequence(sequence: str, organism: str):
         nucleic_acid = NucleicAcid(sequence)
-        click.echo(
-            json.dumps(
-                {
-                    "a_ratio": nucleic_acid.a_ratio,
-                    "c_ratio": nucleic_acid.c_ratio,
-                    "g_ratio": nucleic_acid.g_ratio,
-                    "tu_ratio": nucleic_acid.tu_ratio,
-                    "at_ratio": nucleic_acid.at_ratio,
-                    "ga_ratio": nucleic_acid.ga_ratio,
-                    "gc_ratio": nucleic_acid.gc_ratio,
-                    "uridine_depletion": nucleic_acid.uridine_depletion,
-                    "codon_adaptation_index": nucleic_acid.codon_adaptation_index(
-                        organism
-                    ),
-                    "minimum_free_energy": nucleic_acid.minimum_free_energy,
-                }
-            )
-        )
+        start = time.time()
+        analysis = {
+            "a_ratio": nucleic_acid.a_ratio,
+            "c_ratio": nucleic_acid.c_ratio,
+            "g_ratio": nucleic_acid.g_ratio,
+            "tu_ratio": nucleic_acid.tu_ratio,
+            "at_ratio": nucleic_acid.at_ratio,
+            "ga_ratio": nucleic_acid.ga_ratio,
+            "gc_ratio": nucleic_acid.gc_ratio,
+            "uridine_depletion": nucleic_acid.uridine_depletion,
+            "codon_adaptation_index": nucleic_acid.codon_adaptation_index(organism),
+            "minimum_free_energy": nucleic_acid.minimum_free_energy,
+        }
+        analysis["debug"] = {"time": time.time() - start}
+        click.echo(json.dumps(analysis))
 
     app()

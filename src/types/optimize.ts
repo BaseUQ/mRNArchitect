@@ -31,14 +31,6 @@ export const OptimizationRequest = z.object({
 
 export type OptimizationRequest = z.infer<typeof OptimizationRequest>;
 
-
-const SequenceAnalysis = z.object({
-  sequence: z.string().nonempty(),
-  amino: z.string().nonempty(),
-  nucleic: z.string().nonempty(),
-  cai: z.number(),
-})
-
 export const OptimizationResponse = z.object({
   input: z.string().nonempty(),
   output: z.string().nonempty(),
@@ -62,6 +54,9 @@ export const AnalyzeResponse = z.object({
   uridine_depletion: z.number().nullable(),
   codon_adaptation_index: z.number().nullable(),
   minimum_free_energy: z.tuple([z.string().nonempty(), z.number()]),
+  debug: z.object({
+    time: z.number(),
+  }),
 });
 
 export type AnalyzeResponse = z.infer<typeof AnalyzeResponse>;
