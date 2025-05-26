@@ -271,14 +271,29 @@ class NucleicAcid:
 
     @property
     def at_ratio(self):
+        """The combined ratio of A and T/U nucleotides in the sequence.
+
+        >>> NucleicAcid("ACCGGGTTTT").at_ratio
+        0.5
+        """
         return self.a_ratio + self.tu_ratio
 
     @property
     def ga_ratio(self):
+        """The combined ratio of G and A nucleotides in the sequence.
+
+        >>> NucleicAcid("ACCGGGTTTT").ga_ratio
+        0.4
+        """
         return self.a_ratio + self.g_ratio
 
     @property
     def gc_ratio(self):
+        """The combined ratio of G and C nucleotides in the sequence.
+
+        >>> NucleicAcid("ACCGGGTTTT").gc_ratio
+        0.5
+        """
         return self.c_ratio + self.g_ratio
 
     @property
