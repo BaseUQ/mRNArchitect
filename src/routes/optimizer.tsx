@@ -119,8 +119,8 @@ export const OptimizationResults = ({
       typeof field === "string" ? data[field] : field(data);
     return [
       title,
-      accessor(input).toPrecision(precision),
-      ...outputs.map(({ analysis }) => accessor(analysis).toPrecision(2)),
+      accessor(input).toFixed(precision),
+      ...outputs.map(({ analysis }) => accessor(analysis).toFixed(2)),
     ];
   };
 
