@@ -680,7 +680,7 @@ export const OptimizeForm = () => {
           </Fieldset>
         )}
         <Button type="submit" fullWidth disabled={isSubmitting}>
-          Optimize sequence
+          {isSubmitting ? "Optimization in progress..." : "Optimize sequence"}
         </Button>
       </Stack>
     </form>
