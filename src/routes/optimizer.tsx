@@ -1,7 +1,6 @@
 import {
   Alert,
   Button,
-  Code,
   Fieldset,
   Flex,
   Group,
@@ -23,14 +22,8 @@ import {
 import { useForm } from "@mantine/form";
 import { QuestionIcon } from "@phosphor-icons/react";
 import { createFileRoute } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import RESTRICTION_SITES from "~/data/restriction-sites.json";
-//import {
-//  analyzeSequence,
-//  convertToNucleicAcid,
-//  optimizeSequence,
-//} from "~/utils/optimize";
 import {
   analyzeSequence,
   convertSequenceToNucleicAcid,
@@ -45,46 +38,6 @@ import {
 const FIVE_PRIME_HUMAN_ALPHA_GLOBIN = "ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC";
 const THREE_PRIME_HUMAN_ALPHA_GLOBIN =
   "GCTGGAGCCTCGGTGGCCATGCTTCTTGCCCCTTGGGCCTCCCCCCAGCCCCTCCTCCCCTTCCTGCACCCGTACCCCCGTGGTCTTTGAATAAAGTCTGAGTGGGCGGCA";
-
-//const optimizeSequenceServerFn = createServerFn({ method: "POST" })
-//  .validator((data: OptimizationRequest) => data)
-//  .handler(async ({ data }) => {
-//    let sequence = data.sequence;
-//    if (data.sequenceType === "amino-acid") {
-//      sequence = await convertToNucleicAcid({
-//        sequence: data.sequence,
-//        organism: data.organism,
-//      });
-//    }
-//    const [input, ...outputs] = await Promise.all([
-//      analyzeSequence({ sequence: sequence, organism: data.organism }),
-//      ...Array(data.numberOfSequences)
-//        .fill(null)
-//        .map(() =>
-//          optimizeSequence(data).then(async (opt) => {
-//            return {
-//              optimization: opt,
-//              analysis: await analyzeSequence({
-//                sequence: opt.output,
-//                organism: data.organism,
-//              }),
-//            };
-//          }),
-//        ),
-//    ]);
-//    //const analyses = await Promise.all([
-//    //  analyzeSequence({ sequence: data.sequence, organism: data.organism }),
-//    //  ...optimizations.map((opt) => analyzeSequence({ sequence: opt.output, organism: data.organism }))
-//    //]);
-//    return {
-//      input,
-//      outputs: outputs.sort((a, b) =>
-//        a.analysis.codon_adaptation_index > b.analysis.codon_adaptation_index
-//          ? -1
-//          : 1,
-//      ),
-//    };
-//  });
 
 export const Route = createFileRoute("/optimizer")({
   component: RouteComponent,
