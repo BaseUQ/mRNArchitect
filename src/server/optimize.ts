@@ -25,12 +25,11 @@ export const convertSequenceToNucleicAcid = createServerFn({ method: "POST" })
 export const analyzeSequence = createServerFn({ method: "POST" })
   .validator((data: { sequence: string; organism: string }) => data)
   .handler(async ({ data: { sequence, organism } }) => {
-    const { stdout } = await execFileAsync("python", [
-      "./scripts/optimize.py",
-      "analyze-sequence",
-      sequence,
-      organism,
-    ]);
+    const { stdout } = await execFileAsync(
+      "python",
+      ["./scripts/optimize.py", "analyze-sequence", sequence, organism],
+      { shell: true, timeout: 300_000 },
+    );
     return AnalyzeResponse.parse(JSON.parse(stdout));
   });
 
@@ -78,7 +77,7 @@ export const optimizeSequence = createServerFn({ method: "POST" })
       ],
       {
         shell: true,
-        timeout: 60_000,
+        timeout: 300_000,
       },
     );
     return OptimizationResponse.parse(JSON.parse(stdout));
