@@ -17,11 +17,10 @@ export default defineConfig({
       vite: {
         server: {
           hmr: {
-            port: 8081
-          }
-        }
-      }
-    }
-  }
+            port: 8081,
+          },
+        },
+      },
+    },
+  },
 });
-

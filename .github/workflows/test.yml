@@ -15,4 +15,7 @@ jobs:
         with:
           load: true
           tags: ${{ env.TAG }}
+      - run: docker run --rm $TAG pnpm biome check
+      - run: docker run --rm $TAG uv tool run ruff format
       - run: docker run --rm $TAG pytest
+

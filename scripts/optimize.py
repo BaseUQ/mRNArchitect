@@ -196,7 +196,7 @@ class NucleicAcid:
     @property
     @functools.cache
     def is_amino_acid(self):
-        """Returns True if the sequence may be an amino acid (i.e. length % 3 == 0 and all valid codons).
+        """Returns True if the sequence may be an amino acid (i.e. length % 3 == 0).
 
         >>> NucleicAcid("AGT").is_amino_acid
         True
