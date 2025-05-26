@@ -3,8 +3,8 @@ import z from "zod";
 export const OptimizationRequest = z.object({
   sequenceType: z.union([z.literal("nucleic-acid"), z.literal("amino-acid")]),
   sequence: z.string().nonempty("Coding sequence is required."),
-  fivePrimeUTR: z.string().nonempty("5'UTR is required."),
-  threePrimeUTR: z.string().nonempty("3'UTR is required."),
+  fivePrimeUTR: z.string(),
+  threePrimeUTR: z.string(),
   polyATail: z.string(),
   numberOfSequences: z.number().int().min(1).max(10),
   organism: z.union([z.literal("h_sapiens"), z.literal("m_musculus")]),
