@@ -38,6 +38,7 @@ import {
 } from "~/server/optimize";
 import {
   type OptimizationResponse,
+  type AnalyzeResponse,
   OptimizationRequest,
 } from "~/types/optimize";
 
@@ -100,7 +101,7 @@ interface OptimizationResults {
     outputs: {
       optimization: Awaited<ReturnType<typeof optimizeSequence>>;
       analysis: Awaited<ReturnType<typeof analyzeSequence>>;
-    };
+    }[];
   };
   onClickBack: () => void;
 }
@@ -109,11 +110,19 @@ export const OptimizationResults = ({
   onClickBack,
   results: { input, outputs },
 }: OptimizationResults) => {
-  const generateRow = (field: string, title: string, precision: number) => [
-    title,
-    input[field].toPrecision(precision),
-    ...outputs.map(({ analysis }) => analysis[field].toPrecision(2)),
-  ];
+  const generateRow = (
+    field: string | ((data: AnalyzeResponse) => number),
+    title: string,
+    precision: number,
+  ) => {
+    const accessor = (data: AnalyzeResponse) =>
+      typeof field === "string" ? data[field] : field(data);
+    return [
+      title,
+      accessor(input).toPrecision(precision),
+      ...outputs.map(({ analysis }) => accessor(analysis).toPrecision(2)),
+    ];
+  };
 
   const body = [
     generateRow("a_ratio", "A ratio", 2),
@@ -125,7 +134,7 @@ export const OptimizationResults = ({
     generateRow("gc_ratio", "GC ratio", 2),
     generateRow("uridine_depletion", "Uridine depletion", 2),
     generateRow("codon_adaptation_index", "CAI", 2),
-    // generateRow("minimum_free_energy", "CDS MFE (kcal/mol)", 2),
+    generateRow((data) => data.minimum_free_energy[1], "CDS MFE (kcal/mol)", 2),
   ];
 
   return (
