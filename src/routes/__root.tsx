@@ -12,7 +12,6 @@ import {
   MantineProvider,
   Modal,
   type ModalProps,
-  Space,
   Stack,
   Text,
   Title,
@@ -20,7 +19,7 @@ import {
   mantineHtmlProps,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { DnaIcon, LinkIcon, ThumbsUpIcon } from "@phosphor-icons/react";
+import { DnaIcon, LinkIcon } from "@phosphor-icons/react";
 import {
   HeadContent,
   Link,
