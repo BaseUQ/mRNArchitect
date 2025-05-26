@@ -286,7 +286,11 @@ export const OptimizeForm = () => {
       ]);
       setResults({
         input,
-        outputs,
+        outputs: outputs.sort((a, b) =>
+          a.analysis.codon_adaptation_index > b.analysis.codon_adaptation_index
+            ? -1
+            : 1,
+        ),
       });
       console.log(input);
       console.log(outputs);
