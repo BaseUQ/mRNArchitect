@@ -1,10 +1,7 @@
 import z from "zod";
 
 export const OptimizationRequest = z.object({
-  sequenceType: z.union([
-    z.literal("nucleic-acid"),
-    z.literal("amino-acid"),
-  ]),
+  sequenceType: z.union([z.literal("nucleic-acid"), z.literal("amino-acid")]),
   sequence: z.string().nonempty("Coding sequence is required."),
   fivePrimeUTR: z.string().nonempty("5'UTR is required."),
   threePrimeUTR: z.string().nonempty("3'UTR is required."),
@@ -60,4 +57,3 @@ export const AnalyzeResponse = z.object({
 });
 
 export type AnalyzeResponse = z.infer<typeof AnalyzeResponse>;
-

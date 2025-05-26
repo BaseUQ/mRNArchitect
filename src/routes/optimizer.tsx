@@ -37,9 +37,9 @@ import {
   optimizeSequence,
 } from "~/server/optimize";
 import {
-  type OptimizationResponse,
   type AnalyzeResponse,
   OptimizationRequest,
+  type OptimizationResponse,
 } from "~/types/optimize";
 
 const FIVE_PRIME_HUMAN_ALPHA_GLOBIN = "ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC";
@@ -111,7 +111,7 @@ export const OptimizationResults = ({
   results: { input, outputs },
 }: OptimizationResults) => {
   const generateRow = (
-    field: string | ((data: AnalyzeResponse) => number),
+    field: keyof AnalyzeResponse | ((data: AnalyzeResponse) => number),
     title: string,
     precision: number,
   ) => {

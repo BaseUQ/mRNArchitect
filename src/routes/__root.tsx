@@ -9,7 +9,6 @@ import {
   Flex,
   Grid,
   Group,
-  mantineHtmlProps,
   MantineProvider,
   Modal,
   type ModalProps,
@@ -18,6 +17,7 @@ import {
   Text,
   Title,
   Tooltip,
+  mantineHtmlProps,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { DnaIcon, LinkIcon, ThumbsUpIcon } from "@phosphor-icons/react";

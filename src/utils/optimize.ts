@@ -1,6 +1,10 @@
 import childProcess from "node:child_process";
 import utils from "node:util";
-import { AnalyzeResponse, type OptimizationRequest, OptimizationResponse } from "~/types/optimize";
+import {
+  AnalyzeResponse,
+  type OptimizationRequest,
+  OptimizationResponse,
+} from "~/types/optimize";
 
 const execFile = utils.promisify(childProcess.execFile);
 
@@ -17,20 +21,22 @@ export const convertToNucleicAcid = async ({
   return JSON.parse(stdout);
 };
 
-export const analyzeSequence = async ({ sequence, organism }: { sequence: string, organism: string }): Promise<AnalyzeResponse> => {
-  const { stdout } = await execFile(
-    "python",
-    [
-      "./scripts/optimize.py",
-      "analyze-sequence",
-      sequence,
-      organism
-    ]
-  );
+export const analyzeSequence = async ({
+  sequence,
+  organism,
+}: { sequence: string; organism: string }): Promise<AnalyzeResponse> => {
+  const { stdout } = await execFile("python", [
+    "./scripts/optimize.py",
+    "analyze-sequence",
+    sequence,
+    organism,
+  ]);
   return AnalyzeResponse.parse(JSON.parse(stdout));
-}
+};
 
-export const optimizeSequence = async (request: OptimizationRequest): Promise<OptimizationResponse> => {
+export const optimizeSequence = async (
+  request: OptimizationRequest,
+): Promise<OptimizationResponse> => {
   const { stdout } = await execFile(
     "python",
     [
