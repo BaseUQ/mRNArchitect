@@ -573,7 +573,8 @@ if __name__ == "__main__":
                     avoid_uridine_depletion=avoid_uridine_depletion,
                     avoid_ribosome_slip=avoid_ribosome_slip,
                 )
-            )
+            ),
+            nl=False,
         )
 
     @app.command()
@@ -593,6 +594,6 @@ if __name__ == "__main__":
             "minimum_free_energy": nucleic_acid.minimum_free_energy,
         }
         analysis["debug"] = {"time": time.time() - start}
-        click.echo(json.dumps(analysis))
+        click.echo(json.dumps(analysis), nl=False)
 
     app()
