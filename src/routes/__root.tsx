@@ -125,20 +125,6 @@ const Menu = () => {
           </Button>
         )}
       </Link>
-      <Link to="/another-tool" style={{ textDecoration: "none" }}>
-        {({ isActive }) => (
-          <Button
-            component="span"
-            variant={isActive ? "light" : "subtle"}
-            leftSection={<ThumbsUpIcon size={14} />}
-            justify="left"
-            fullWidth
-          >
-            Another tool
-          </Button>
-        )}
-      </Link>
-      <Space h="md" />
     </Stack>
   );
 };
