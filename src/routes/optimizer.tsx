@@ -26,35 +26,64 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import RESTRICTION_SITES from "~/data/restriction-sites.json";
-import { analyzeSequence, convertToNucleicAcid, optimizeSequence } from "~/utils/optimize";
-import { OptimizationResponse, OptimizationRequest } from "~/types/optimize";
+//import {
+//  analyzeSequence,
+//  convertToNucleicAcid,
+//  optimizeSequence,
+//} from "~/utils/optimize";
+import {
+  analyzeSequence,
+  convertSequenceToNucleicAcid,
+  optimizeSequence,
+} from "~/server/optimize";
+import {
+  type OptimizationResponse,
+  OptimizationRequest,
+} from "~/types/optimize";
 
 const FIVE_PRIME_HUMAN_ALPHA_GLOBIN = "ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC";
 const THREE_PRIME_HUMAN_ALPHA_GLOBIN =
   "GCTGGAGCCTCGGTGGCCATGCTTCTTGCCCCTTGGGCCTCCCCCCAGCCCCTCCTCCCCTTCCTGCACCCGTACCCCCGTGGTCTTTGAATAAAGTCTGAGTGGGCGGCA";
 
-const optimizeSequenceServerFn = createServerFn({ method: "POST" })
-  .validator((data: OptimizationRequest) => data)
-  .handler(async ({ data }) => {
-    let sequence = data.sequence;
-    if (data.sequenceType === "amino-acid") {
-      sequence = await convertToNucleicAcid({ sequence: data.sequence, organism: data.organism });
-    }
-    const [input, ...outputs] = await Promise.all([
-      analyzeSequence({ sequence: sequence, organism: data.organism }),
-      ...Array(data.numberOfSequences).fill(null).map(() => optimizeSequence(data).then(async (opt) => {
-        return {
-          optimization: opt,
-          analysis: await analyzeSequence({ sequence: opt.output, organism: data.organism }),
-        }
-      })),
-    ]);
-    //const analyses = await Promise.all([
-    //  analyzeSequence({ sequence: data.sequence, organism: data.organism }),
-    //  ...optimizations.map((opt) => analyzeSequence({ sequence: opt.output, organism: data.organism }))
-    //]);
-    return { input, outputs: outputs.sort((a, b) => a.analysis.codon_adaptation_index > b.analysis.codon_adaptation_index ? -1 : 1) };
-  });
+//const optimizeSequenceServerFn = createServerFn({ method: "POST" })
+//  .validator((data: OptimizationRequest) => data)
+//  .handler(async ({ data }) => {
+//    let sequence = data.sequence;
+//    if (data.sequenceType === "amino-acid") {
+//      sequence = await convertToNucleicAcid({
+//        sequence: data.sequence,
+//        organism: data.organism,
+//      });
+//    }
+//    const [input, ...outputs] = await Promise.all([
+//      analyzeSequence({ sequence: sequence, organism: data.organism }),
+//      ...Array(data.numberOfSequences)
+//        .fill(null)
+//        .map(() =>
+//          optimizeSequence(data).then(async (opt) => {
+//            return {
+//              optimization: opt,
+//              analysis: await analyzeSequence({
+//                sequence: opt.output,
+//                organism: data.organism,
+//              }),
+//            };
+//          }),
+//        ),
+//    ]);
+//    //const analyses = await Promise.all([
+//    //  analyzeSequence({ sequence: data.sequence, organism: data.organism }),
+//    //  ...optimizations.map((opt) => analyzeSequence({ sequence: opt.output, organism: data.organism }))
+//    //]);
+//    return {
+//      input,
+//      outputs: outputs.sort((a, b) =>
+//        a.analysis.codon_adaptation_index > b.analysis.codon_adaptation_index
+//          ? -1
+//          : 1,
+//      ),
+//    };
+//  });
 
 export const Route = createFileRoute("/optimizer")({
   component: RouteComponent,
@@ -66,12 +95,20 @@ function RouteComponent() {
 }
 
 interface OptimizationResults {
-  results: Awaited<ReturnType<typeof optimizeSequenceServerFn>>;
+  results: {
+    input: Awaited<ReturnType<typeof analyzeSequence>>;
+    outputs: {
+      optimization: Awaited<ReturnType<typeof optimizeSequence>>;
+      analysis: Awaited<ReturnType<typeof analyzeSequence>>;
+    };
+  };
   onClickBack: () => void;
 }
 
-export const OptimizationResults = ({ onClickBack, results: { input, outputs } }: OptimizationResults) => {
-
+export const OptimizationResults = ({
+  onClickBack,
+  results: { input, outputs },
+}: OptimizationResults) => {
   const generateRow = (field: string, title: string, precision: number) => [
     title,
     input[field].toPrecision(precision),
@@ -91,34 +128,49 @@ export const OptimizationResults = ({ onClickBack, results: { input, outputs } }
     // generateRow("minimum_free_energy", "CDS MFE (kcal/mol)", 2),
   ];
 
-
   return (
     <>
-      <Button variant="subtle" size="sm" onClick={onClickBack}>{"< Back"}</Button>
-      <Table data={{
-        caption: "Summary of generated sequences.",
-        head: ["", "Input", ...outputs.map((_, index) => `Output ${index + 1}`)],
-        body,
-      }}
+      <Button variant="subtle" size="sm" onClick={onClickBack}>
+        {"< Back"}
+      </Button>
+      <Table
+        data={{
+          caption: "Summary of generated sequences.",
+          head: [
+            "",
+            "Input",
+            ...outputs.map((_, index) => `Output ${index + 1}`),
+          ],
+          body,
+        }}
       />
       <Tabs defaultValue={"0"}>
         <Tabs.List>
-          {outputs.map((_, index) => (
-            <Tabs.Tab value={index.toString()}>{`Output ${index + 1}`}</Tabs.Tab>
+          {outputs.map((output, index) => (
+            <Tabs.Tab
+              key={`${index}-${output.optimization.output}`}
+              value={index.toString()}
+            >{`Output ${index + 1}`}</Tabs.Tab>
           ))}
         </Tabs.List>
-        {outputs.map((value, index) => (
-          <Tabs.Panel value={index.toString()}>
-            <Text ff="monospace" p="md" style={{ wordBreak: "break-all" }}>{value.optimization.output}</Text>
+        {outputs.map((output, index) => (
+          <Tabs.Panel
+            key={`${index}-${output.optimization.output}`}
+            value={index.toString()}
+          >
+            <Text ff="monospace" p="md" style={{ wordBreak: "break-all" }}>
+              {output.optimization.output}
+            </Text>
           </Tabs.Panel>
         ))}
       </Tabs>
     </>
-  )
+  );
 };
 
 export const OptimizeForm = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [showParameters, setShowParameters] = useState<boolean>(false);
   const [showHelp, setShowHelp] = useState<boolean>(false);
   const [fivePrimeUTRSequenceType, setFivePrimeUTRSequenceType] = useState<
     "human-alpha-globin" | "custom"
@@ -160,7 +212,6 @@ export const OptimizeForm = () => {
       hairpinStemSize: 10,
       hairpinWindow: 60,
     },
-    enhanceGetInputProps: () => ({ disabled: isSubmitting }),
     validate: (values) => {
       const result = OptimizationRequest.safeParse(values);
       if (!result.error) {
@@ -200,11 +251,36 @@ export const OptimizeForm = () => {
   const handleOnSubmit = async (values: typeof form.values) => {
     setIsSubmitting(true);
     try {
-      const results = await optimizeSequenceServerFn({
-        data: values,
+      let sequence = values.sequence;
+      if (values.sequenceType === "amino-acid") {
+        sequence = await convertSequenceToNucleicAcid({
+          data: { sequence: values.sequence, organism: values.organism },
+        });
+      }
+      const [input, ...outputs] = await Promise.all([
+        analyzeSequence({
+          data: { sequence: sequence, organism: values.organism },
+        }),
+        ...Array(values.numberOfSequences)
+          .fill(null)
+          .map(() =>
+            optimizeSequence({ data: values }).then(async (optimization) => ({
+              optimization,
+              analysis: await analyzeSequence({
+                data: {
+                  sequence: optimization.output,
+                  organism: values.organism,
+                },
+              }),
+            })),
+          ),
+      ]);
+      setResults({
+        input,
+        outputs,
       });
-      setResults(results);
-      console.log(results);
+      console.log(input);
+      console.log(outputs);
     } catch (e) {
       console.error(e);
     }
@@ -212,13 +288,23 @@ export const OptimizeForm = () => {
   };
 
   if (results) {
-    return <OptimizationResults results={results} onClickBack={() => setResults(null)} />
+    return (
+      <OptimizationResults
+        results={results}
+        onClickBack={() => setResults(null)}
+      />
+    );
   }
 
   return (
     <form onSubmit={form.onSubmit(handleOnSubmit)}>
       <Stack>
         <Group justify="flex-end">
+          <Switch
+            label="Show additional parameters"
+            checked={showParameters}
+            onChange={(event) => setShowParameters(event.currentTarget.checked)}
+          />
           <Switch
             label="Show help"
             checked={showHelp}
@@ -255,7 +341,7 @@ export const OptimizeForm = () => {
             </Text>
           </Alert>
         )}
-        <Fieldset legend="Sequence">
+        <Fieldset legend="Sequence" disabled={isSubmitting}>
           <Stack>
             <div>
               <Radio.Group
@@ -394,190 +480,192 @@ export const OptimizeForm = () => {
             </div>
           </Stack>
         </Fieldset>
-        <Fieldset legend="Parameters">
-          <Stack>
-            <NumberInput
-              label="Number of sequences"
-              description={
-                showHelp &&
-                "The number of optimized output mRNA sequences to generate. Please note that more sequences takes longer and there is a maximum of 10."
-              }
-              min={1}
-              max={10}
-              step={1}
-              key={form.key("numberOfSequences")}
-              {...form.getInputProps("numberOfSequences")}
-            />
-            <NativeSelect
-              label="Organism"
-              description={
-                showHelp &&
-                "Select the target organism to be used for codon optimisation. The mRNA will be optimised using the preferred codon usage of highly expressed genes in this selected organism (1). By default, we use human codon optimisation."
-              }
-              data={[
-                { label: "Human", value: "h_sapiens" },
-                { label: "Mouse", value: "m_musculus" },
-              ]}
-              key={form.key("organism")}
-              {...form.getInputProps("organism")}
-            />
-            <Switch
-              label="Uridine depletion"
-              description={
-                showHelp &&
-                "If selected, this minimizes the use of uridine nucleosides in the mRNA sequence. This is achieved by avoiding codons that encode uridine at the third wobble position and can impact reactogenicity of the mRNA sequence."
-              }
-              key={form.key("avoidUridineDepletion")}
-              {...form.getInputProps("avoidUridineDepletion")}
-            />
-            <Switch
-              label="Avoid ribosome slip"
-              description={
-                showHelp &&
-                "Avoid more than 3 Us in the open-reading frame, where ribosomes can +1 frameshift at consecutive N1-methylpseudouridines (Mulroney et. al., 2024)."
-              }
-              key={form.key("avoidRibosomeSlip")}
-              {...form.getInputProps("avoidRibosomeSlip")}
-            />
-            <InputWrapper
-              label="Minimum/maximum GC content"
-              description={
-                showHelp &&
-                "Defines the minimum or maximum fraction of the mRNA sequence comprising G/C nucleotides that is associated with stability and hairpins of the mRNA. We recommend 0.4 and 0.7."
-              }
-            >
-              <RangeSlider
-                min={0}
-                max={1}
-                step={0.05}
-                minRange={0}
-                marks={[
-                  { value: 0, label: "0" },
-                  { value: 0.25, label: "0.25" },
-                  { value: 0.5, label: "0.5" },
-                  { value: 0.75, label: "0.75" },
-                  { value: 1, label: "1" },
-                ]}
-                key={form.key("minMaxGCContent")}
-                {...form.getInputProps("minMaxGCContent")}
+        {showParameters && (
+          <Fieldset legend="Parameters" disabled={isSubmitting}>
+            <Stack>
+              <NumberInput
+                label="Number of sequences"
+                description={
+                  showHelp &&
+                  "The number of optimized output mRNA sequences to generate. Please note that more sequences takes longer and there is a maximum of 10."
+                }
+                min={1}
+                max={10}
+                step={1}
+                key={form.key("numberOfSequences")}
+                {...form.getInputProps("numberOfSequences")}
               />
-            </InputWrapper>
-            <NumberInput
-              label="GC content window"
-              description={
-                showHelp &&
-                "The window size across which the min/max GC content is calculated and imposed. We recommend 100."
-              }
-              min={1}
-              step={1}
-              key={form.key("gcContentWindow")}
-              {...form.getInputProps("gcContentWindow")}
-            />
-            <MultiSelect
-              label="Avoid cut sites"
-              description={
-                showHelp && "Avoid restriction enzyme sites in the sequence."
-              }
-              placeholder="Choose sites..."
-              searchable
-              data={Object.keys(RESTRICTION_SITES)
-                .sort()
-                .map((v) => ({
-                  label: v,
-                  value: v,
-                }))}
-              key={form.key("avoidCutSites")}
-              {...form.getInputProps("avoidCutSites")}
-            />
-            <TextInput
-              label="Avoid sequences"
-              description={
-                showHelp &&
-                "Specify sequences that should be avoided in the mRNA sequence."
-              }
-              placeholder="e.g. ATGATG"
-              key={form.key("avoidSequences")}
-              {...form.getInputProps("avoidSequences")}
-            />
-            <NumberInput
-              label="Avoid repeat length"
-              description={
-                showHelp &&
-                "Avoid repeating any sequences longer than this length within the mRNA. We recommend 10 nucleotides."
-              }
-              min={6}
-              max={20}
-              step={1}
-              key={form.key("avoidRepeatLength")}
-              {...form.getInputProps("avoidRepeatLength")}
-            />
-            <InputWrapper
-              label="Avoid homopolymer tracts"
-              description={
-                showHelp &&
-                "Avoid homopolymer tracts that can be difficult to synthesise and translate. We recommend 9 for poly(U)/poly(A) and 6 for poly(C)/poly(G)."
-              }
-            >
-              <Flex
-                direction={{ base: "column", sm: "row" }}
-                justify="space-between"
-                gap="sm"
-                pl="sm"
+              <NativeSelect
+                label="Organism"
+                description={
+                  showHelp &&
+                  "Select the target organism to be used for codon optimisation. The mRNA will be optimised using the preferred codon usage of highly expressed genes in this selected organism (1). By default, we use human codon optimisation."
+                }
+                data={[
+                  { label: "Human", value: "h_sapiens" },
+                  { label: "Mouse", value: "m_musculus" },
+                ]}
+                key={form.key("organism")}
+                {...form.getInputProps("organism")}
+              />
+              <Switch
+                label="Uridine depletion"
+                description={
+                  showHelp &&
+                  "If selected, this minimizes the use of uridine nucleosides in the mRNA sequence. This is achieved by avoiding codons that encode uridine at the third wobble position and can impact reactogenicity of the mRNA sequence."
+                }
+                key={form.key("avoidUridineDepletion")}
+                {...form.getInputProps("avoidUridineDepletion")}
+              />
+              <Switch
+                label="Avoid ribosome slip"
+                description={
+                  showHelp &&
+                  "Avoid more than 3 Us in the open-reading frame, where ribosomes can +1 frameshift at consecutive N1-methylpseudouridines (Mulroney et. al., 2024)."
+                }
+                key={form.key("avoidRibosomeSlip")}
+                {...form.getInputProps("avoidRibosomeSlip")}
+              />
+              <InputWrapper
+                label="Minimum/maximum GC content"
+                description={
+                  showHelp &&
+                  "Defines the minimum or maximum fraction of the mRNA sequence comprising G/C nucleotides that is associated with stability and hairpins of the mRNA. We recommend 0.4 and 0.7."
+                }
               >
-                <NumberInput
-                  label="Poly(U)"
+                <RangeSlider
                   min={0}
-                  step={1}
-                  key={form.key("avoidPolyU")}
-                  {...form.getInputProps("avoidPolyU")}
+                  max={1}
+                  step={0.05}
+                  minRange={0}
+                  marks={[
+                    { value: 0, label: "0" },
+                    { value: 0.25, label: "0.25" },
+                    { value: 0.5, label: "0.5" },
+                    { value: 0.75, label: "0.75" },
+                    { value: 1, label: "1" },
+                  ]}
+                  key={form.key("minMaxGCContent")}
+                  {...form.getInputProps("minMaxGCContent")}
                 />
-                <NumberInput
-                  label="Poly(A)"
-                  min={0}
-                  step={1}
-                  key={form.key("avoidPolyA")}
-                  {...form.getInputProps("avoidPolyA")}
-                />
-                <NumberInput
-                  label="Poly(C)"
-                  min={0}
-                  step={1}
-                  key={form.key("avoidPolyC")}
-                  {...form.getInputProps("avoidPolyC")}
-                />
-                <NumberInput
-                  label="Poly(G)"
-                  min={0}
-                  step={1}
-                  key={form.key("avoidPolyG")}
-                  {...form.getInputProps("avoidPolyG")}
-                />
-              </Flex>
-            </InputWrapper>
-            <NumberInput
-              label="Hairpin stem size"
-              description={
-                showHelp &&
-                "Avoid stable hairpins longer than this length. We recommend 10."
-              }
-              min={0}
-              step={1}
-              key={form.key("hairpinStemSize")}
-              {...form.getInputProps("hairpinStemSize")}
-            />
-            <NumberInput
-              label="Hairpin window"
-              description={
-                showHelp &&
-                "Window size used to measure hairpins. We recommend 60."
-              }
-              min={0}
-              step={1}
-              key={form.key("hairpinWindow")}
-              {...form.getInputProps("hairpinWindow")}
-            />
-          </Stack>
-        </Fieldset>
+              </InputWrapper>
+              <NumberInput
+                label="GC content window"
+                description={
+                  showHelp &&
+                  "The window size across which the min/max GC content is calculated and imposed. We recommend 100."
+                }
+                min={1}
+                step={1}
+                key={form.key("gcContentWindow")}
+                {...form.getInputProps("gcContentWindow")}
+              />
+              <MultiSelect
+                label="Avoid cut sites"
+                description={
+                  showHelp && "Avoid restriction enzyme sites in the sequence."
+                }
+                placeholder="Choose sites..."
+                searchable
+                data={Object.keys(RESTRICTION_SITES)
+                  .sort()
+                  .map((v) => ({
+                    label: v,
+                    value: v,
+                  }))}
+                key={form.key("avoidCutSites")}
+                {...form.getInputProps("avoidCutSites")}
+              />
+              <TextInput
+                label="Avoid sequences"
+                description={
+                  showHelp &&
+                  "Specify sequences that should be avoided in the mRNA sequence."
+                }
+                placeholder="e.g. ATGATG"
+                key={form.key("avoidSequences")}
+                {...form.getInputProps("avoidSequences")}
+              />
+              <NumberInput
+                label="Avoid repeat length"
+                description={
+                  showHelp &&
+                  "Avoid repeating any sequences longer than this length within the mRNA. We recommend 10 nucleotides."
+                }
+                min={6}
+                max={20}
+                step={1}
+                key={form.key("avoidRepeatLength")}
+                {...form.getInputProps("avoidRepeatLength")}
+              />
+              <InputWrapper
+                label="Avoid homopolymer tracts"
+                description={
+                  showHelp &&
+                  "Avoid homopolymer tracts that can be difficult to synthesise and translate. We recommend 9 for poly(U)/poly(A) and 6 for poly(C)/poly(G)."
+                }
+              >
+                <Flex
+                  direction={{ base: "column", sm: "row" }}
+                  justify="space-between"
+                  gap="sm"
+                  pl="sm"
+                >
+                  <NumberInput
+                    label="Poly(U)"
+                    min={0}
+                    step={1}
+                    key={form.key("avoidPolyU")}
+                    {...form.getInputProps("avoidPolyU")}
+                  />
+                  <NumberInput
+                    label="Poly(A)"
+                    min={0}
+                    step={1}
+                    key={form.key("avoidPolyA")}
+                    {...form.getInputProps("avoidPolyA")}
+                  />
+                  <NumberInput
+                    label="Poly(C)"
+                    min={0}
+                    step={1}
+                    key={form.key("avoidPolyC")}
+                    {...form.getInputProps("avoidPolyC")}
+                  />
+                  <NumberInput
+                    label="Poly(G)"
+                    min={0}
+                    step={1}
+                    key={form.key("avoidPolyG")}
+                    {...form.getInputProps("avoidPolyG")}
+                  />
+                </Flex>
+              </InputWrapper>
+              <NumberInput
+                label="Hairpin stem size"
+                description={
+                  showHelp &&
+                  "Avoid stable hairpins longer than this length. We recommend 10."
+                }
+                min={0}
+                step={1}
+                key={form.key("hairpinStemSize")}
+                {...form.getInputProps("hairpinStemSize")}
+              />
+              <NumberInput
+                label="Hairpin window"
+                description={
+                  showHelp &&
+                  "Window size used to measure hairpins. We recommend 60."
+                }
+                min={0}
+                step={1}
+                key={form.key("hairpinWindow")}
+                {...form.getInputProps("hairpinWindow")}
+              />
+            </Stack>
+          </Fieldset>
+        )}
         <Button type="submit" fullWidth disabled={isSubmitting}>
           Optimize sequence
         </Button>
