@@ -72,6 +72,8 @@ export const OptimizationResults = ({
   onClickBack,
   results,
 }: OptimizationResults) => {
+  const [showHelp, setShowHelp] = useState<boolean>(false);
+
   const generateRow = (
     title: string,
     getter: (data: AnalyzeResponse) => number | string,
@@ -174,17 +176,70 @@ export const OptimizationResults = ({
         >
           Back
         </Button>
-        <Button
-          component="a"
-          href={URL.createObjectURL(
-            new Blob([reportText], { type: "text/plain" }),
-          )}
-          download={`report-${new Date().toISOString()}.txt`}
-          leftSection={<DownloadSimpleIcon />}
-        >
-          Download report (.txt format)
-        </Button>
+        <Group>
+          <Button
+            component="a"
+            href={URL.createObjectURL(
+              new Blob([reportText], { type: "text/plain" }),
+            )}
+            download={`report-${new Date().toISOString()}.txt`}
+            leftSection={<DownloadSimpleIcon />}
+          >
+            Download report (.txt format)
+          </Button>
+          <Switch
+            label="Show help"
+            checked={showHelp}
+            onClick={() => setShowHelp(!showHelp)}
+          />
+        </Group>
       </Group>
+      {showHelp && (
+        <Alert title="Help" variant="light" icon={<QuestionIcon />}>
+          <Table
+            data={{
+              body: [
+                [
+                  "Full-legth mRNA",
+                  "These are the output mRNA sequences that have been assembled and optimized according to the user parameters.",
+                ],
+                [
+                  "A/U/G/C ratio",
+                  "The nucleotide composition of the input and output optimised mRNA sequences. High GC content is correlated with stable secondary structure, and low U associated with reactogenicity.",
+                ],
+                [
+                  "AT/GA/GC ratio",
+                  "The dinucleotide composition of the input and output mRNA sequences. High GC content is correlated with stable secondary structure.",
+                ],
+                [
+                  "Uridine depletion",
+                  "The fraction of codons with uridine in the third nucleotide position. Maximum and minimum values are 1 (all) and 0 (no) codons with uridine in third nucleotide position.",
+                ],
+                [
+                  "CAI",
+                  "The Codon Adaptation Index (CAI) is a measure of deviation between the codon usage of the mRNA sequence from the preferred codon usage of the organism (2). The CAI score ranges from 0 (totally dissimilar) to 1 (all mRNA codons match the organism's codon usage reference table).",
+                ],
+                [
+                  "CDS MFE",
+                  "The Minimum Free Energy (MFE) is the lowest Gibbs free energy change associated with the formation of secondary structures in RNA molecules due to intramolecular base pairing (3). Lower values of MFE are associated with the formation of more stable secondary structures and hairpins that can occlude translation and expression.",
+                ],
+                [
+                  "5'UTR MFE",
+                  "The Minimum Free Energy of the 5' UTR sequences. Lower values of MFE are associated with reduced secondary structures.",
+                ],
+                [
+                  "3'UTR MFE",
+                  "The Minimum Free Energy of the 3' UTR sequences. Lower values of MFE are associated with reduced secondary structures.",
+                ],
+                [
+                  "Total MFE",
+                  "The Minimum Free Energy of the full sequence (5' UTR, coding sequence, 3' UTR and poly(A) tail). Lower values of MFE are associated with reduced secondary structures.",
+                ],
+              ],
+            }}
+          />
+        </Alert>
+      )}
       <Table
         data={{
           caption: "Summary of generated sequences.",
