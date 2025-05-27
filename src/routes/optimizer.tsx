@@ -9,6 +9,8 @@ import {
   MultiSelect,
   NativeSelect,
   NumberInput,
+  Pill,
+  PillsInput,
   Radio,
   RangeSlider,
   Space,
@@ -111,30 +113,32 @@ export const OptimizationResults = ({
   results: { input, outputs },
 }: OptimizationResults) => {
   const generateRow = (
-    field: keyof AnalyzeResponse | ((data: AnalyzeResponse) => number),
     title: string,
-    precision: number,
+    getter: (data: AnalyzeResponse) => number | string,
   ) => {
-    const accessor = (data: AnalyzeResponse) =>
-      typeof field === "string" ? data[field] : field(data);
     return [
       title,
-      accessor(input).toFixed(precision),
-      ...outputs.map(({ analysis }) => accessor(analysis).toFixed(2)),
+      getter(input),
+      ...outputs.map(({ analysis }) => getter(analysis)),
     ];
   };
 
   const body = [
-    generateRow("a_ratio", "A ratio", 2),
-    generateRow("tu_ratio", "T/U ratio", 2),
-    generateRow("g_ratio", "G ratio", 2),
-    generateRow("c_ratio", "C ratio", 2),
-    generateRow("at_ratio", "AT ratio", 2),
-    generateRow("ga_ratio", "GA ratio", 2),
-    generateRow("gc_ratio", "GC ratio", 2),
-    generateRow("uridine_depletion", "Uridine depletion", 2),
-    generateRow("codon_adaptation_index", "CAI", 2),
-    generateRow((data) => data.minimum_free_energy[1], "CDS MFE (kcal/mol)", 2),
+    generateRow("A ratio", (v) => v.a_ratio.toFixed(2)),
+    generateRow("T/U ratio", (v) => v.t_ratio.toFixed(2)),
+    generateRow("G ratio", (v) => v.g_ratio.toFixed(2)),
+    generateRow("C ratio", (v) => v.c_ratio.toFixed(2)),
+    generateRow("AT ratio", (v) => v.at_ratio.toFixed(2)),
+    generateRow("GA ratio", (v) => v.ga_ratio.toFixed(2)),
+    generateRow("GC ratio", (v) => v.gc_ratio.toFixed(2)),
+    generateRow(
+      "Uridine depletion",
+      (v) => v.uridine_depletion?.toFixed(2) ?? "-",
+    ),
+    generateRow("CAI", (v) => v.codon_adaptation_index?.toFixed(2) ?? "-"),
+    generateRow("CDS MFE (kcal/mol)", (v) =>
+      v.minimum_free_energy[1].toFixed(2),
+    ),
   ];
 
   return (
@@ -193,7 +197,9 @@ export const OptimizeForm = () => {
   const [polyATailGenerate, setPolyATailGenerate] = useState<string | number>(
     120,
   );
-  const [results, setResults] = useState<OptimizationResponse[] | null>(null);
+  const [results, setResults] = useState<OptimizationResults["results"] | null>(
+    null,
+  );
 
   // const sites = Route.useLoaderData();
 
@@ -209,12 +215,13 @@ export const OptimizeForm = () => {
       organism: "h_sapiens",
       avoidUridineDepletion: false,
       avoidRibosomeSlip: false,
-      minMaxGCContent: [0.4, 0.7],
+      gcContentMin: 0.4,
+      gcContentMax: 0.7,
       gcContentWindow: 100,
-      avoidCutSites: [],
+      avoidRestrictionSites: [],
       avoidSequences: "",
       avoidRepeatLength: 10,
-      avoidPolyU: 9,
+      avoidPolyT: 9,
       avoidPolyA: 9,
       avoidPolyC: 6,
       avoidPolyG: 6,
@@ -266,34 +273,36 @@ export const OptimizeForm = () => {
           data: { sequence: values.sequence, organism: values.organism },
         });
       }
+      const parsedValues = { ...values, sequence };
       const [input, ...outputs] = await Promise.all([
         analyzeSequence({
-          data: { sequence: sequence, organism: values.organism },
+          data: { sequence: sequence, organism: parsedValues.organism },
         }),
         ...Array(values.numberOfSequences)
           .fill(null)
           .map(() =>
-            optimizeSequence({ data: values }).then(async (optimization) => ({
-              optimization,
-              analysis: await analyzeSequence({
-                data: {
-                  sequence: optimization.output,
-                  organism: values.organism,
-                },
+            optimizeSequence({ data: parsedValues }).then(
+              async (optimization) => ({
+                optimization,
+                analysis: await analyzeSequence({
+                  data: {
+                    sequence: optimization.output,
+                    organism: parsedValues.organism,
+                  },
+                }),
               }),
-            })),
+            ),
           ),
       ]);
       setResults({
         input,
         outputs: outputs.sort((a, b) =>
-          a.analysis.codon_adaptation_index > b.analysis.codon_adaptation_index
+          (a.analysis.codon_adaptation_index ?? 0) >
+          (b.analysis.codon_adaptation_index ?? 0)
             ? -1
             : 1,
         ),
       });
-      console.log(input);
-      console.log(outputs);
     } catch (e) {
       console.error(e);
     }
@@ -559,7 +568,14 @@ export const OptimizeForm = () => {
                     { value: 1, label: "1" },
                   ]}
                   key={form.key("minMaxGCContent")}
-                  {...form.getInputProps("minMaxGCContent")}
+                  value={[
+                    form.getValues().gcContentMin,
+                    form.getValues().gcContentMax,
+                  ]}
+                  onChange={([min, max]) => {
+                    form.setFieldValue("gcContentMin", min);
+                    form.setFieldValue("gcContentMax", max);
+                  }}
                 />
               </InputWrapper>
               <NumberInput
@@ -586,8 +602,8 @@ export const OptimizeForm = () => {
                     label: v,
                     value: v,
                   }))}
-                key={form.key("avoidCutSites")}
-                {...form.getInputProps("avoidCutSites")}
+                key={form.key("avoidRestrictionSites")}
+                {...form.getInputProps("avoidRestrictionSites")}
               />
               <TextInput
                 label="Avoid sequences"
@@ -628,8 +644,8 @@ export const OptimizeForm = () => {
                     label="Poly(U)"
                     min={0}
                     step={1}
-                    key={form.key("avoidPolyU")}
-                    {...form.getInputProps("avoidPolyU")}
+                    key={form.key("avoidPolyT")}
+                    {...form.getInputProps("avoidPolyT")}
                   />
                   <NumberInput
                     label="Poly(A)"

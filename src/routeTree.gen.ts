@@ -12,7 +12,6 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as OptimizerImport } from './routes/optimizer'
-import { Route as AnotherToolImport } from './routes/another-tool'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -20,12 +19,6 @@ import { Route as IndexImport } from './routes/index'
 const OptimizerRoute = OptimizerImport.update({
   id: '/optimizer',
   path: '/optimizer',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const AnotherToolRoute = AnotherToolImport.update({
-  id: '/another-tool',
-  path: '/another-tool',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -46,13 +39,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/another-tool': {
-      id: '/another-tool'
-      path: '/another-tool'
-      fullPath: '/another-tool'
-      preLoaderRoute: typeof AnotherToolImport
-      parentRoute: typeof rootRoute
-    }
     '/optimizer': {
       id: '/optimizer'
       path: '/optimizer'
@@ -67,41 +53,36 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/another-tool': typeof AnotherToolRoute
   '/optimizer': typeof OptimizerRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/another-tool': typeof AnotherToolRoute
   '/optimizer': typeof OptimizerRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/another-tool': typeof AnotherToolRoute
   '/optimizer': typeof OptimizerRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/another-tool' | '/optimizer'
+  fullPaths: '/' | '/optimizer'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/another-tool' | '/optimizer'
-  id: '__root__' | '/' | '/another-tool' | '/optimizer'
+  to: '/' | '/optimizer'
+  id: '__root__' | '/' | '/optimizer'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AnotherToolRoute: typeof AnotherToolRoute
   OptimizerRoute: typeof OptimizerRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AnotherToolRoute: AnotherToolRoute,
   OptimizerRoute: OptimizerRoute,
 }
 
@@ -116,15 +97,11 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/another-tool",
         "/optimizer"
       ]
     },
     "/": {
       "filePath": "index.tsx"
-    },
-    "/another-tool": {
-      "filePath": "another-tool.tsx"
     },
     "/optimizer": {
       "filePath": "optimizer.tsx"
