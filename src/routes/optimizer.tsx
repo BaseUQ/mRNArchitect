@@ -28,6 +28,7 @@ import {
 } from "@phosphor-icons/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { SequenceInput } from "~/components/fields/SequenceInput";
 import RESTRICTION_SITES from "~/data/restriction-sites.json";
 import {
   analyzeSequence,
