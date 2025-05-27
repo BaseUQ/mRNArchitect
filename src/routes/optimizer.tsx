@@ -25,6 +25,7 @@ import { useForm } from "@mantine/form";
 import { QuestionIcon } from "@phosphor-icons/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { base64 } from "zod/v4-mini";
 import RESTRICTION_SITES from "~/data/restriction-sites.json";
 import {
   analyzeSequence,
@@ -51,6 +52,7 @@ function RouteComponent() {
 }
 
 interface OptimizationResults {
+  input: OptimizationRequest;
   results: {
     input: Awaited<ReturnType<typeof analyzeSequence>>;
     outputs: {
@@ -62,8 +64,9 @@ interface OptimizationResults {
 }
 
 export const OptimizationResults = ({
+  input,
   onClickBack,
-  results: { input, outputs },
+  results,
 }: OptimizationResults) => {
   const generateRow = (
     title: string,
@@ -71,8 +74,8 @@ export const OptimizationResults = ({
   ) => {
     return [
       title,
-      getter(input),
-      ...outputs.map(({ analysis }) => getter(analysis)),
+      getter(results.input),
+      ...results.outputs.map(({ analysis }) => getter(analysis)),
     ];
   };
 
@@ -94,32 +97,105 @@ export const OptimizationResults = ({
     ),
   ];
 
+  const inputReport = [
+    "---mRNArchitect",
+    "Version\t0.1",
+    `Date\t${new Date().toISOString()}`,
+    "",
+    "---Input Sequence",
+    `CDS\t\t${input.sequence}`,
+    `5'UTR\t\t${input.fivePrimeUTR}`,
+    `3'UTR\t\t${input.threePrimeUTR}`,
+    `Poly(A) tail\t${input.polyATail}`,
+    "",
+    "---Parameters",
+    `Number of sequences\t\t${input.numberOfSequences}`,
+    `Organism\t\t\t${input.organism}`,
+    `Avoid uridine depletion\t${input.avoidUridineDepletion}`,
+    `Avoid ribosome slip\t\t${input.avoidRibosomeSlip}`,
+    `GC content minimum\t\t${input.gcContentMin}`,
+    `GC content maximum\t\t${input.gcContentMax}`,
+    `GC content window\t\t${input.gcContentWindow}`,
+    `Avoid cut sites\t\t\t${input.avoidRestrictionSites}`,
+    `Avoid sequences\t\t\t${input.avoidSequences}`,
+    `Avoid repeat length\t\t${input.avoidRepeatLength}`,
+    `Avoid poly(U)\t\t\t${input.avoidPolyT}`,
+    `Avoid poly(A)\t\t\t${input.avoidPolyA}`,
+    `Avoid poly(C)\t\t\t${input.avoidPolyC}`,
+    `Avoid poly(G}\t\t\t${input.avoidPolyG}`,
+    `Hairpin stem size\t\t${input.hairpinStemSize}`,
+    `Hairpin window\t\t\t${input.hairpinWindow}`,
+  ];
+
+  const outputReports = results.outputs.map(
+    ({ optimization, analysis }, index) => [
+      `---Optimized Sequence #${index + 1}`,
+      "",
+      `CDS:\t\t\t${optimization.output}`,
+      "",
+      `Full-length mRNA:\t${input.fivePrimeUTR + optimization.output + input.threePrimeUTR + input.polyATail}`,
+      "",
+      "---Results",
+      "Metric\t\t\tInput\tOptimized",
+      `A ratio\t\t\t${results.input.a_ratio.toFixed(2)}\t${analysis.a_ratio.toFixed(2)}`,
+      `T/U ratio\t\t${results.input.t_ratio.toFixed(2)}\t${analysis.t_ratio.toFixed(2)}`,
+      `G ratio\t\t\t${results.input.g_ratio.toFixed(2)}\t${analysis.g_ratio.toFixed(2)}`,
+      `C ratio\t\t\t${results.input.c_ratio.toFixed(2)}\t${analysis.c_ratio.toFixed(2)}`,
+      `AT ratio\t\t${results.input.at_ratio.toFixed(2)}\t${analysis.at_ratio.toFixed(2)}`,
+      `GA ratio\t\t${results.input.ga_ratio.toFixed(2)}\t${analysis.ga_ratio.toFixed(2)}`,
+      `GC ratio\t\t${results.input.gc_ratio.toFixed(2)}\t${analysis.gc_ratio.toFixed(2)}`,
+      `Uridine depletion\t${results.input.uridine_depletion?.toFixed(2) ?? "-"}\t${analysis.uridine_depletion?.toFixed(2) ?? "-"}`,
+      `CAI\t\t\t${results.input.codon_adaptation_index?.toFixed(2) ?? "-"}\t${analysis.codon_adaptation_index?.toFixed(2) ?? "-"}`,
+      `CDS MFE (kcal/mol)\t${results.input.minimum_free_energy[1].toFixed(2)}\t${analysis.minimum_free_energy[1].toFixed(2)}`,
+    ],
+  );
+
+  const reportText = [
+    ...inputReport,
+    ...outputReports.reduce(
+      (accumulator, current) => accumulator.concat([""], current),
+      [],
+    ),
+    "",
+  ].join("\n");
+
   return (
-    <>
-      <Button variant="subtle" size="sm" onClick={onClickBack}>
-        {"< Back"}
-      </Button>
+    <Stack>
+      <Group justify="space-between">
+        <Button variant="subtle" size="sm" onClick={onClickBack}>
+          {"< Back"}
+        </Button>
+        <Button
+          component="a"
+          href={URL.createObjectURL(
+            new Blob([reportText], { type: "text/plain" }),
+          )}
+          download={`report-${new Date().toISOString()}.txt`}
+        >
+          Download report (.txt format)
+        </Button>
+      </Group>
       <Table
         data={{
           caption: "Summary of generated sequences.",
           head: [
             "",
             "Input",
-            ...outputs.map((_, index) => `Output ${index + 1}`),
+            ...results.outputs.map((_, index) => `Output ${index + 1}`),
           ],
           body,
         }}
       />
       <Tabs defaultValue={"0"}>
         <Tabs.List>
-          {outputs.map((output, index) => (
+          {results.outputs.map((output, index) => (
             <Tabs.Tab
               key={`${index}-${output.optimization.output}`}
               value={index.toString()}
             >{`Output ${index + 1}`}</Tabs.Tab>
           ))}
         </Tabs.List>
-        {outputs.map((output, index) => (
+        {results.outputs.map((output, index) => (
           <Tabs.Panel
             key={`${index}-${output.optimization.output}`}
             value={index.toString()}
@@ -130,7 +206,7 @@ export const OptimizationResults = ({
           </Tabs.Panel>
         ))}
       </Tabs>
-    </>
+    </Stack>
   );
 };
 
@@ -153,8 +229,6 @@ export const OptimizeForm = () => {
   const [results, setResults] = useState<OptimizationResults["results"] | null>(
     null,
   );
-
-  // const sites = Route.useLoaderData();
 
   const form = useForm<OptimizationRequest>({
     mode: "uncontrolled",
@@ -265,6 +339,7 @@ export const OptimizeForm = () => {
   if (results) {
     return (
       <OptimizationResults
+        input={form.getValues()}
         results={results}
         onClickBack={() => setResults(null)}
       />
