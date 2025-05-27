@@ -22,7 +22,11 @@ import {
   Textarea,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { QuestionIcon } from "@phosphor-icons/react";
+import {
+  CaretLeftIcon,
+  DownloadSimpleIcon,
+  QuestionIcon,
+} from "@phosphor-icons/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { base64 } from "zod/v4-mini";
@@ -162,8 +166,13 @@ export const OptimizationResults = ({
   return (
     <Stack>
       <Group justify="space-between">
-        <Button variant="subtle" size="sm" onClick={onClickBack}>
-          {"< Back"}
+        <Button
+          variant="subtle"
+          size="sm"
+          onClick={onClickBack}
+          leftSection={<CaretLeftIcon />}
+        >
+          Back
         </Button>
         <Button
           component="a"
@@ -171,6 +180,7 @@ export const OptimizationResults = ({
             new Blob([reportText], { type: "text/plain" }),
           )}
           download={`report-${new Date().toISOString()}.txt`}
+          leftSection={<DownloadSimpleIcon />}
         >
           Download report (.txt format)
         </Button>
