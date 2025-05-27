@@ -15,6 +15,9 @@ jobs:
         with:
           load: true
           tags: ${{ env.TAG }}
+          target: dev
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - run: docker run --rm $TAG pnpm biome check
       - run: docker run --rm $TAG pnpm tsc --noEmit
       - run: docker run --rm $TAG uv tool run ruff format
