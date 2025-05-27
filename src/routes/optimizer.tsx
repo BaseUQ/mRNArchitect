@@ -8,8 +8,6 @@ import {
   MultiSelect,
   NativeSelect,
   NumberInput,
-  Pill,
-  PillsInput,
   Radio,
   RangeSlider,
   Space,
@@ -30,18 +28,13 @@ import {
 } from "@phosphor-icons/react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { base64 } from "zod/v4-mini";
 import RESTRICTION_SITES from "~/data/restriction-sites.json";
 import {
   analyzeSequence,
   convertSequenceToNucleicAcid,
   optimizeSequence,
 } from "~/server/optimize";
-import {
-  type AnalyzeResponse,
-  OptimizationRequest,
-  type OptimizationResponse,
-} from "~/types/optimize";
+import { type AnalyzeResponse, OptimizationRequest } from "~/types/optimize";
 
 const FIVE_PRIME_HUMAN_ALPHA_GLOBIN = "ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC";
 const THREE_PRIME_HUMAN_ALPHA_GLOBIN =
@@ -242,6 +235,8 @@ export const OptimizationResults = ({
         </Alert>
       )}
       <Table
+        striped
+        highlightOnHover
         data={{
           caption: "Summary of generated sequences.",
           head: [

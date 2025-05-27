@@ -10,9 +10,9 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@types/bun": "latest",
-    "@types/react": "^19.1.4",
+    "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
-    "@vitejs/plugin-react": "^4.4.1",
+    "@vitejs/plugin-react": "^4.5.0",
     "postcss": "^8.5.3",
     "postcss-preset-mantine": "^1.17.0",
     "postcss-simple-vars": "^7.0.1",
@@ -22,16 +22,16 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@mantine/core": "^8.0.1",
-    "@mantine/form": "^8.0.1",
-    "@mantine/hooks": "^8.0.1",
-    "@phosphor-icons/react": "^2.1.8",
-    "@tanstack/react-router": "^1.120.5",
-    "@tanstack/react-start": "^1.120.5",
+    "@mantine/core": "^8.0.2",
+    "@mantine/form": "^8.0.2",
+    "@mantine/hooks": "^8.0.2",
+    "@phosphor-icons/react": "^2.1.10",
+    "@tanstack/react-router": "^1.120.11",
+    "@tanstack/react-start": "^1.120.11",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "vinxi": "^0.5.6",
-    "zod": "^3.25.7"
+    "zod": "^3.25.31"
   },
   "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"
 }
