@@ -6,6 +6,9 @@ export default defineConfig({
     appDirectory: "src",
   },
   vite: {
+    ssr: {
+      noExternal: ["@phosphor-icons/react"],
+    },
     plugins: [
       tsConfigPaths({
         projects: ["./tsconfig.json"],
