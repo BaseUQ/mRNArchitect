@@ -10,6 +10,7 @@
     "ignore": [
       "routeTree.gen.ts",
       ".output/**",
+      ".pnpm-store/**",
       ".vinxi/**",
       ".venv/**",
       "data/**"

@@ -1,3 +1,4 @@
+// @ts-ignore
 import mantineCssUrl from "@mantine/core/styles.css?url";
 
 import {

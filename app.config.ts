@@ -15,6 +15,7 @@ export default defineConfig({
   routers: {
     client: {
       vite: {
+        // @ts-ignore
         server: {
           hmr: {
             port: 8081,
