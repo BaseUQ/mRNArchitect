@@ -53,10 +53,16 @@ function RouteComponent() {
 interface OptimizationResults {
   input: OptimizationRequest;
   results: {
-    input: Awaited<ReturnType<typeof analyzeSequence>>;
+    input: {
+      cdsAnalysis: Awaited<ReturnType<typeof analyzeSequence>>;
+      fivePrimeUTRAnalysis: Awaited<ReturnType<typeof analyzeSequence>> | null;
+      threePrimeUTRAnalysis: Awaited<ReturnType<typeof analyzeSequence>> | null;
+      fullSequenceAnalysis: Awaited<ReturnType<typeof analyzeSequence>>;
+    };
     outputs: {
       optimization: Awaited<ReturnType<typeof optimizeSequence>>;
-      analysis: Awaited<ReturnType<typeof analyzeSequence>>;
+      cdsAnalysis: Awaited<ReturnType<typeof analyzeSequence>>;
+      fullSequenceAnalysis: Awaited<ReturnType<typeof analyzeSequence>>;
     }[];
   };
   onClickBack: () => void;
@@ -71,30 +77,53 @@ export const OptimizationResults = ({
 
   const generateRow = (
     title: string,
-    getter: (data: AnalyzeResponse) => number | string,
+    getter: (
+      data:
+        | OptimizationResults["results"]["input"]
+        | OptimizationResults["results"]["outputs"][0],
+    ) => number | string,
   ) => {
     return [
       title,
       getter(results.input),
-      ...results.outputs.map(({ analysis }) => getter(analysis)),
+      ...results.outputs.map((output) => getter(output)),
     ];
   };
 
   const body = [
-    generateRow("A ratio", (v) => v.a_ratio.toFixed(2)),
-    generateRow("T/U ratio", (v) => v.t_ratio.toFixed(2)),
-    generateRow("G ratio", (v) => v.g_ratio.toFixed(2)),
-    generateRow("C ratio", (v) => v.c_ratio.toFixed(2)),
-    generateRow("AT ratio", (v) => v.at_ratio.toFixed(2)),
-    generateRow("GA ratio", (v) => v.ga_ratio.toFixed(2)),
-    generateRow("GC ratio", (v) => v.gc_ratio.toFixed(2)),
+    generateRow("A ratio", (v) => v.cdsAnalysis.a_ratio.toFixed(2)),
+    generateRow("T/U ratio", (v) => v.cdsAnalysis.t_ratio.toFixed(2)),
+    generateRow("G ratio", (v) => v.cdsAnalysis.g_ratio.toFixed(2)),
+    generateRow("C ratio", (v) => v.cdsAnalysis.c_ratio.toFixed(2)),
+    generateRow("AT ratio", (v) => v.cdsAnalysis.at_ratio.toFixed(2)),
+    generateRow("GA ratio", (v) => v.cdsAnalysis.ga_ratio.toFixed(2)),
+    generateRow("GC ratio", (v) => v.cdsAnalysis.gc_ratio.toFixed(2)),
     generateRow(
       "Uridine depletion",
-      (v) => v.uridine_depletion?.toFixed(2) ?? "-",
+      (v) => v.cdsAnalysis.uridine_depletion?.toFixed(2) ?? "-",
     ),
-    generateRow("CAI", (v) => v.codon_adaptation_index?.toFixed(2) ?? "-"),
+    generateRow(
+      "CAI",
+      (v) => v.cdsAnalysis.codon_adaptation_index?.toFixed(2) ?? "-",
+    ),
     generateRow("CDS MFE (kcal/mol)", (v) =>
-      v.minimum_free_energy[1].toFixed(2),
+      v.cdsAnalysis.minimum_free_energy[1].toFixed(2),
+    ),
+    generateRow(
+      "5'UTR MFE (kcal/mol)",
+      (v) =>
+        results.input.fivePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ??
+        "-",
+    ),
+    generateRow(
+      "3'UTR MFE (kcal/mol)",
+      (v) =>
+        results.input.threePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(
+          2,
+        ) ?? "-",
+    ),
+    generateRow("Total MFE (kcal/mol)", (v) =>
+      v.fullSequenceAnalysis.minimum_free_energy[1].toFixed(2),
     ),
   ];
 
@@ -129,7 +158,7 @@ export const OptimizationResults = ({
   ];
 
   const outputReports = results.outputs.map(
-    ({ optimization, analysis }, index) => [
+    ({ optimization, cdsAnalysis, fullSequenceAnalysis }, index) => [
       `---Optimized Sequence #${index + 1}`,
       "",
       `CDS:\t\t\t${optimization.output}`,
@@ -138,16 +167,19 @@ export const OptimizationResults = ({
       "",
       "---Results",
       "Metric\t\t\tInput\tOptimized",
-      `A ratio\t\t\t${results.input.a_ratio.toFixed(2)}\t${analysis.a_ratio.toFixed(2)}`,
-      `T/U ratio\t\t${results.input.t_ratio.toFixed(2)}\t${analysis.t_ratio.toFixed(2)}`,
-      `G ratio\t\t\t${results.input.g_ratio.toFixed(2)}\t${analysis.g_ratio.toFixed(2)}`,
-      `C ratio\t\t\t${results.input.c_ratio.toFixed(2)}\t${analysis.c_ratio.toFixed(2)}`,
-      `AT ratio\t\t${results.input.at_ratio.toFixed(2)}\t${analysis.at_ratio.toFixed(2)}`,
-      `GA ratio\t\t${results.input.ga_ratio.toFixed(2)}\t${analysis.ga_ratio.toFixed(2)}`,
-      `GC ratio\t\t${results.input.gc_ratio.toFixed(2)}\t${analysis.gc_ratio.toFixed(2)}`,
-      `Uridine depletion\t${results.input.uridine_depletion?.toFixed(2) ?? "-"}\t${analysis.uridine_depletion?.toFixed(2) ?? "-"}`,
-      `CAI\t\t\t${results.input.codon_adaptation_index?.toFixed(2) ?? "-"}\t${analysis.codon_adaptation_index?.toFixed(2) ?? "-"}`,
-      `CDS MFE (kcal/mol)\t${results.input.minimum_free_energy[1].toFixed(2)}\t${analysis.minimum_free_energy[1].toFixed(2)}`,
+      `A ratio\t\t\t${results.input.cdsAnalysis.a_ratio.toFixed(2)}\t${cdsAnalysis.a_ratio.toFixed(2)}`,
+      `T/U ratio\t\t${results.input.cdsAnalysis.t_ratio.toFixed(2)}\t${cdsAnalysis.t_ratio.toFixed(2)}`,
+      `G ratio\t\t\t${results.input.cdsAnalysis.g_ratio.toFixed(2)}\t${cdsAnalysis.g_ratio.toFixed(2)}`,
+      `C ratio\t\t\t${results.input.cdsAnalysis.c_ratio.toFixed(2)}\t${cdsAnalysis.c_ratio.toFixed(2)}`,
+      `AT ratio\t\t${results.input.cdsAnalysis.at_ratio.toFixed(2)}\t${cdsAnalysis.at_ratio.toFixed(2)}`,
+      `GA ratio\t\t${results.input.cdsAnalysis.ga_ratio.toFixed(2)}\t${cdsAnalysis.ga_ratio.toFixed(2)}`,
+      `GC ratio\t\t${results.input.cdsAnalysis.gc_ratio.toFixed(2)}\t${cdsAnalysis.gc_ratio.toFixed(2)}`,
+      `Uridine depletion\t${results.input.cdsAnalysis.uridine_depletion?.toFixed(2) ?? "-"}\t${cdsAnalysis.uridine_depletion?.toFixed(2) ?? "-"}`,
+      `CAI\t\t\t${results.input.cdsAnalysis.codon_adaptation_index?.toFixed(2) ?? "-"}\t${cdsAnalysis.codon_adaptation_index?.toFixed(2) ?? "-"}`,
+      `CDS MFE (kcal/mol)\t${results.input.cdsAnalysis.minimum_free_energy[1].toFixed(2)}\t${cdsAnalysis.minimum_free_energy[1].toFixed(2)}`,
+      `5'UTR MFE (kcal/mol)\t${results.input.fivePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}\t${results.input.fivePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}`,
+      `3'UTR MFE (kcal/mol)\t${results.input.threePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}\t${results.input.threePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}`,
+      `Total MFE (kcal/mol)\t${results.input.fullSequenceAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}\t${fullSequenceAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}`,
     ],
   );
 
@@ -363,31 +395,81 @@ export const OptimizeForm = () => {
         });
       }
       const parsedValues = { ...values, sequence };
-      const [input, ...outputs] = await Promise.all([
+
+      const [
+        inputCdsAnalysis,
+        inputFivePrimeUTRAnalysis,
+        inputThreePrimeUTRAnalysis,
+        inputFullSequenceAnalysis,
+        ...outputs
+      ] = await Promise.all([
         analyzeSequence({
-          data: { sequence: sequence, organism: parsedValues.organism },
+          data: {
+            sequence: parsedValues.sequence,
+            organism: parsedValues.organism,
+          },
         }),
+        parsedValues.fivePrimeUTR
+          ? analyzeSequence({
+              data: {
+                sequence: parsedValues.fivePrimeUTR,
+                organism: parsedValues.organism,
+              },
+            })
+          : null,
+        parsedValues.threePrimeUTR
+          ? analyzeSequence({
+              data: {
+                sequence: parsedValues.threePrimeUTR,
+                organism: parsedValues.organism,
+              },
+            })
+          : null,
+        analyzeSequence({
+          data: {
+            sequence: `${parsedValues.fivePrimeUTR}${parsedValues.sequence}${parsedValues.threePrimeUTR}${parsedValues.polyATail}`,
+            organism: parsedValues.organism,
+          },
+        }),
+
         ...Array(values.numberOfSequences)
           .fill(null)
           .map(() =>
             optimizeSequence({ data: parsedValues }).then(
-              async (optimization) => ({
-                optimization,
-                analysis: await analyzeSequence({
-                  data: {
-                    sequence: optimization.output,
-                    organism: parsedValues.organism,
-                  },
-                }),
-              }),
+              async (optimization) => {
+                const [cdsAnalysis, fullSequenceAnalysis] = await Promise.all([
+                  analyzeSequence({
+                    data: {
+                      sequence: optimization.output,
+                      organism: parsedValues.organism,
+                    },
+                  }),
+                  analyzeSequence({
+                    data: {
+                      sequence: `${parsedValues.fivePrimeUTR}${parsedValues.sequence}${parsedValues.threePrimeUTR}${parsedValues.polyATail}`,
+                      organism: parsedValues.organism,
+                    },
+                  }),
+                ]);
+                return {
+                  optimization,
+                  cdsAnalysis,
+                  fullSequenceAnalysis,
+                };
+              },
             ),
           ),
       ]);
       setResults({
-        input,
+        input: {
+          cdsAnalysis: inputCdsAnalysis,
+          fivePrimeUTRAnalysis: inputFivePrimeUTRAnalysis,
+          threePrimeUTRAnalysis: inputThreePrimeUTRAnalysis,
+          fullSequenceAnalysis: inputFullSequenceAnalysis,
+        },
         outputs: outputs.sort((a, b) =>
-          (a.analysis.codon_adaptation_index ?? 0) >
-          (b.analysis.codon_adaptation_index ?? 0)
+          (a.cdsAnalysis.codon_adaptation_index ?? 0) >
+          (b.cdsAnalysis.codon_adaptation_index ?? 0)
             ? -1
             : 1,
         ),
