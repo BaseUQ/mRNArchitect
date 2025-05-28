@@ -15,7 +15,7 @@ export const OptimizationRequest = z.object({
   gcContentWindow: z.number().int().min(1),
   avoidRestrictionSites: z.array(z.string()),
   avoidSequences: z.string(),
-  avoidRepeatLength: z.number().int().min(6).max(20),
+  avoidRepeatLength: z.number().int().min(6),
   avoidPolyT: z.number().int().min(0),
   avoidPolyA: z.number().int().min(0),
   avoidPolyC: z.number().int().min(0),

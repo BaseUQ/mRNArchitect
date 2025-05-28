@@ -889,7 +889,6 @@ export const OptimizeForm = () => {
                     "Avoid repeating any sequences longer than this length within the mRNA. We recommend 10 nucleotides."
                   }
                   min={6}
-                  max={20}
                   step={1}
                   key={form.key("avoidRepeatLength")}
                   {...form.getInputProps("avoidRepeatLength")}
