@@ -544,7 +544,7 @@ export const OptimizeForm = () => {
           <Stack align="center">
             <Loader type="dots" />
             <Text>Optimisation in progress...</Text>
-            <Text size="s">{`Estimated time: ${formatDuration(intervalToDuration({ start: 0, end: (sequenceLength / 30 + 60) * 1000 }), { format: ["minutes"] })}`}</Text>
+            <Text size="s">{`Estimated time: < ${formatDuration(intervalToDuration({ start: 0, end: (sequenceLength / 30 + 60) * 1000 }), { format: ["minutes"] })}`}</Text>
             <Text size="s">{`Elapsed time: ${formatDuration(intervalToDuration({ start: 0, end: elapsedSeconds * 1000 }), { format: ["minutes", "seconds"], zero: true })}`}</Text>
           </Stack>
         </Center>
