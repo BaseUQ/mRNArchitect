@@ -19,7 +19,7 @@ import {
   mantineHtmlProps,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { DnaIcon, HeartIcon, LinkIcon } from "@phosphor-icons/react";
+import { AtIcon, DnaIcon, FlaskIcon, LinkIcon } from "@phosphor-icons/react";
 import {
   HeadContent,
   Link,
@@ -100,16 +100,18 @@ const Menu = () => {
       </Stack>
       <Stack>
         <Group justify="center" align="center" gap="4px">
-          <Text size="s" c="gray">
-            Made with
+          <Text size="xs" c="gray">
+            Made w/
           </Text>
-          <HeartIcon size={20} color="red" weight="fill" />
-          <Text size="s" c="gray">
-            by
-          </Text>
-          <a href="https://basefacility.org.au">
-            <BASELogo width={60} style={{ display: "block" }} />
-          </a>
+          <Tooltip label="Science!">
+            <FlaskIcon size={16} />
+          </Tooltip>
+          <AtIcon size={12} />
+          <Tooltip label="BASE mRNA facility">
+            <a href="https://basefacility.org.au">
+              <BASELogo width={60} style={{ display: "block" }} />
+            </a>
+          </Tooltip>
         </Group>
       </Stack>
     </Stack>
