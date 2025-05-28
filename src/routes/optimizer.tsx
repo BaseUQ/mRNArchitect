@@ -19,6 +19,7 @@ import {
   TextInput,
   Textarea,
   Title,
+  Tooltip,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import {
@@ -35,7 +36,11 @@ import {
   convertSequenceToNucleicAcid,
   optimizeSequence,
 } from "~/server/optimize";
-import { type AnalyzeResponse, OptimizationRequest } from "~/types/optimize";
+import {
+  type AnalyzeResponse,
+  OptimizationRequest,
+  type OptimizationResponse,
+} from "~/types/optimize";
 
 const FIVE_PRIME_HUMAN_ALPHA_GLOBIN = "ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC";
 const THREE_PRIME_HUMAN_ALPHA_GLOBIN =
@@ -43,7 +48,6 @@ const THREE_PRIME_HUMAN_ALPHA_GLOBIN =
 
 export const Route = createFileRoute("/optimizer")({
   component: RouteComponent,
-  // loader: async () => await getSites(),
 });
 
 function RouteComponent() {
@@ -54,15 +58,15 @@ interface OptimizationResults {
   input: OptimizationRequest;
   results: {
     input: {
-      cdsAnalysis: Awaited<ReturnType<typeof analyzeSequence>>;
-      fivePrimeUTRAnalysis: Awaited<ReturnType<typeof analyzeSequence>> | null;
-      threePrimeUTRAnalysis: Awaited<ReturnType<typeof analyzeSequence>> | null;
-      fullSequenceAnalysis: Awaited<ReturnType<typeof analyzeSequence>>;
+      cdsAnalysis: AnalyzeResponse;
+      fivePrimeUTRAnalysis: AnalyzeResponse | null;
+      threePrimeUTRAnalysis: AnalyzeResponse | null;
+      fullSequenceAnalysis: AnalyzeResponse;
     };
     outputs: {
-      optimization: Awaited<ReturnType<typeof optimizeSequence>>;
-      cdsAnalysis: Awaited<ReturnType<typeof analyzeSequence>>;
-      fullSequenceAnalysis: Awaited<ReturnType<typeof analyzeSequence>>;
+      optimization: OptimizationResponse;
+      cdsAnalysis: AnalyzeResponse;
+      fullSequenceAnalysis: AnalyzeResponse;
     }[];
   };
   onClickBack: () => void;
@@ -295,7 +299,24 @@ export const OptimizationResults = ({
             value={index.toString()}
           >
             <Text ff="monospace" p="md" style={{ wordBreak: "break-all" }}>
-              {output.optimization.output}
+              <Tooltip label="5'UTR">
+                <Text component="span" c="green">
+                  {input.fivePrimeUTR}
+                </Text>
+              </Tooltip>
+              <Tooltip label="Coding sequence">
+                <Text component="span">{output.optimization.output}</Text>
+              </Tooltip>
+              <Tooltip label="3'UTR">
+                <Text component="span" c="green">
+                  {input.threePrimeUTR}
+                </Text>
+              </Tooltip>
+              <Tooltip label="Poly(A) tail">
+                <Text component="span" c="blue">
+                  {input.polyATail}
+                </Text>
+              </Tooltip>
             </Text>
           </Tabs.Panel>
         ))}
