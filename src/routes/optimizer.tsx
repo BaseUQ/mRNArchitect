@@ -272,8 +272,10 @@ export const OptimizationResults = ({
         </Alert>
       )}
       <Table
-        striped
         highlightOnHover
+        stickyHeader
+        stickyHeaderOffset={79}
+        striped
         data={{
           caption: "Summary of generated sequences.",
           head: [
