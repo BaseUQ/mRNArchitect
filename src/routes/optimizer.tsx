@@ -34,7 +34,7 @@ import {
   QuestionIcon,
 } from "@phosphor-icons/react";
 import { createFileRoute } from "@tanstack/react-router";
-import { formatDuration } from "date-fns";
+import { formatDuration, intervalToDuration } from "date-fns";
 import { useEffect, useState } from "react";
 import RESTRICTION_SITES from "~/data/restriction-sites.json";
 import {
@@ -526,6 +526,11 @@ export const OptimizeForm = () => {
     );
   }
 
+  const sequenceLength =
+    form.getValues().sequenceType === "amino-acid"
+      ? form.getValues().sequence.length * 3
+      : form.getValues().sequence.length;
+
   return (
     <>
       <Modal
@@ -539,7 +544,8 @@ export const OptimizeForm = () => {
           <Stack align="center">
             <Loader type="dots" />
             <Text>Optimisation in progress...</Text>
-            <Text>{`Elapsed time: ${formatDuration({ seconds: elapsedSeconds }, { zero: true })}`}</Text>
+            <Text size="s">{`Estimated time: ${formatDuration(intervalToDuration({ start: 0, end: (sequenceLength / 30 + 60) * 1000 }), { format: ["minutes"] })}`}</Text>
+            <Text size="s">{`Elapsed time: ${formatDuration(intervalToDuration({ start: 0, end: elapsedSeconds * 1000 }), { format: ["minutes", "seconds"], zero: true })}`}</Text>
           </Stack>
         </Center>
       </Modal>
