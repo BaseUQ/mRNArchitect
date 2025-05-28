@@ -39,7 +39,7 @@ jobs:
             --function-name ${{ env.LAMBDA_FUNCTION_NAME }}
       - name: Pre-warm lambda function - "${{ env.LAMBDA_FUNCTION_NAME }}"
         run: |
-          FUNCTION_URL = $( \
+          FUNCTION_URL=$( \
             aws lambda get-function-url-config \
             --function-name=${{ env.LAMBDA_FUNCTION_NAME }} \
             --query "FunctionUrl" \
