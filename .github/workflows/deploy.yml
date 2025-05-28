@@ -43,5 +43,7 @@ jobs:
             aws lambda get-function-url-config \
             --function-name=${{ env.LAMBDA_FUNCTION_NAME }} \
             --query "FunctionUrl" \
+            --output text \
           )
+          echo "Pinging function ${{ env.LAMBDA_FUNCTION_NAME }} at $FUNCTION_URL"
           curl $FUNCTION_URL
