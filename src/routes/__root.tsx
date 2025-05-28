@@ -7,7 +7,6 @@ import {
   Button,
   ColorSchemeScript,
   Container,
-  Flex,
   Grid,
   Group,
   MantineProvider,
@@ -20,7 +19,7 @@ import {
   mantineHtmlProps,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { DnaIcon, LinkIcon } from "@phosphor-icons/react";
+import { DnaIcon, HeartIcon, LinkIcon } from "@phosphor-icons/react";
 import {
   HeadContent,
   Link,
@@ -33,35 +32,7 @@ import { type ReactNode, useEffect } from "react";
 import { BASELogo } from "../components/logos/BASELogo";
 import { BASELogoSmall } from "../components/logos/BASELogoSmall";
 
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      {
-        charSet: "utf-8",
-      },
-      {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1",
-      },
-      {
-        title: "mRNArchitect - BASE mRNA facility",
-      },
-    ],
-    links: [
-      {
-        rel: "icon",
-        href: "/public/favicon.png",
-      },
-      {
-        rel: "stylesheet",
-        href: mantineCssUrl,
-      },
-    ],
-  }),
-  component: RootComponent,
-});
-
-function RootComponent() {
+const RootComponent = () => {
   return (
     <RootDocument>
       <MantineProvider>
@@ -69,9 +40,9 @@ function RootComponent() {
       </MantineProvider>
     </RootDocument>
   );
-}
+};
 
-function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
+const RootDocument = ({ children }: Readonly<{ children: ReactNode }>) => {
   return (
     <html lang="en" {...mantineHtmlProps}>
       <head>
@@ -84,7 +55,7 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
       </body>
     </html>
   );
-}
+};
 
 const ContactUsModal = (props: ModalProps) => (
   <Modal {...props}>
@@ -111,20 +82,36 @@ const ContactUsModal = (props: ModalProps) => (
 
 const Menu = () => {
   return (
-    <Stack gap="xs">
-      <Link to="/optimizer" style={{ textDecoration: "none" }}>
-        {({ isActive }) => (
-          <Button
-            component="span"
-            variant={isActive ? "light" : "subtle"}
-            leftSection={<DnaIcon size={14} />}
-            justify="left"
-            fullWidth
-          >
-            Optimizer
-          </Button>
-        )}
-      </Link>
+    <Stack justify="space-between" h="100%">
+      <Stack gap="xs">
+        <Link to="/optimizer" style={{ textDecoration: "none" }}>
+          {({ isActive }) => (
+            <Button
+              component="span"
+              variant={isActive ? "light" : "subtle"}
+              leftSection={<DnaIcon size={14} />}
+              justify="left"
+              fullWidth
+            >
+              Optimizer
+            </Button>
+          )}
+        </Link>
+      </Stack>
+      <Stack>
+        <Group justify="center" align="center" gap="4px">
+          <Text size="s" c="gray">
+            Made with
+          </Text>
+          <HeartIcon size={20} color="red" weight="fill" />
+          <Text size="s" c="gray">
+            by
+          </Text>
+          <a href="https://basefacility.org.au">
+            <BASELogo width={60} style={{ display: "block" }} />
+          </a>
+        </Group>
+      </Stack>
     </Stack>
   );
 };
@@ -147,12 +134,9 @@ const Shell = () => {
       header={{ height: "80" }}
       padding="md"
       navbar={{
-        width: 240,
+        width: 300,
         breakpoint: "sm",
         collapsed: { mobile: !navBarOpened },
-      }}
-      footer={{
-        height: 40,
       }}
     >
       <AppShell.Header>
@@ -189,13 +173,34 @@ const Shell = () => {
           <Outlet />
         </Container>
       </AppShell.Main>
-      <AppShell.Footer>
-        <Flex w="100%" h="100%" p="md" justify="end" align="center">
-          <a href="https://basefacility.org.au">
-            <BASELogo width={70} style={{ display: "block" }} />
-          </a>
-        </Flex>
-      </AppShell.Footer>
     </AppShell>
   );
 };
+
+export const Route = createRootRoute({
+  head: () => ({
+    meta: [
+      {
+        charSet: "utf-8",
+      },
+      {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1",
+      },
+      {
+        title: "mRNArchitect - BASE mRNA facility",
+      },
+    ],
+    links: [
+      {
+        rel: "icon",
+        href: "/public/favicon.png",
+      },
+      {
+        rel: "stylesheet",
+        href: mantineCssUrl,
+      },
+    ],
+  }),
+  component: RootComponent,
+});
