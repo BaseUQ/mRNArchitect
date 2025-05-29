@@ -106,7 +106,7 @@ const Menu = () => {
           <Tooltip label="Science!">
             <FlaskIcon size={16} />
           </Tooltip>
-          <AtIcon size={12} />
+          <AtIcon size={12} color="gray" />
           <Tooltip label="BASE mRNA facility">
             <a href="https://basefacility.org.au">
               <BASELogo width={60} style={{ display: "block" }} />
