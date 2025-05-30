@@ -27,7 +27,6 @@ export const OptimizationRequest = z.object({
 export type OptimizationRequest = z.infer<typeof OptimizationRequest>;
 
 export const OptimizationResponse = z.object({
-  input: z.string().nonempty(),
   output: z.string().nonempty(),
   debug: z.object({
     constraints: z.string().nonempty(),

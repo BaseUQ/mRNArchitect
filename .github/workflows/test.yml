@@ -20,6 +20,6 @@ jobs:
           cache-to: type=gha,mode=max
       - run: docker run --rm $TAG pnpm biome check
       - run: docker run --rm $TAG pnpm tsc --noEmit
-      - run: docker run --rm $TAG uv tool run ruff format
+      - run: docker run --rm $TAG uv run ruff check --diff
+      - run: docker run --rm $TAG uv run pyright
       - run: docker run --rm $TAG pytest
-
