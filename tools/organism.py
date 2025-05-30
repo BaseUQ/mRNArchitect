@@ -166,9 +166,12 @@ CODON_TO_AMINO_ACID_MAP: dict[Codon, AminoAcid] = {
 """Maps a codon to an amino acid 1-letter symbol."""
 
 Organism = typing.Literal["h_sapiens", "m_musculus"]
+"""Supported organisms."""
 
 
 class CodonUsage(msgspec.Struct):
+    """Codon usage for a particular codon and organism."""
+
     codon: Codon
     """The codon this usage relates to."""
 
@@ -191,8 +194,10 @@ class CodonUsage(msgspec.Struct):
 
 
 CodonUsageTable = dict[Codon, CodonUsage]
+"""Maps a codon to it's usage."""
 
 MaxCodonUsageTable = dict[AminoAcid, CodonUsage]
+"""Maps an amino acid to the maximum codon usage amongs all codons for that amino acid."""
 
 
 class OrganismTable(msgspec.Struct):
@@ -201,6 +206,7 @@ class OrganismTable(msgspec.Struct):
 
 
 OrganismTables = dict[Organism, OrganismTable]
+"""Maps an organism to its codon usage tables."""
 
 
 class Organisms(msgspec.Struct):
