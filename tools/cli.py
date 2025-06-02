@@ -4,8 +4,8 @@ import typing
 
 import msgspec
 
-from nucleic_acid import NucleicAcid
 from organism import Organism, Organisms
+from sequence import NucleicAcid
 
 
 if __name__ == "__main__":
