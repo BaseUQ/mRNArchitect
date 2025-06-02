@@ -6,13 +6,17 @@ import typing
 
 import msgspec
 
-from organism import (
+from .organism import (
     AminoAcid,
     CODON_TO_AMINO_ACID_MAP,
     Codon,
     Organism,
     Organisms,
 )
+
+
+class OptimizationException(Exception):
+    pass
 
 
 class NucleicAcid(msgspec.Struct):
@@ -349,18 +353,21 @@ class NucleicAcid(msgspec.Struct):
                 CodonOptimize(species=organism, method="use_best_codon"),
                 UniquifyAllKmers(k=avoid_repeat_length),
             ],
+            logger=None,  # type: ignore
         )
         optimization_problem.max_random_iters = MAX_RANDOM_ITERS
 
         try:
             optimization_problem.resolve_constraints()
         except Exception as e:
-            raise RuntimeError(f"Input sequence is invalid, cannot optimize: {e}")
+            raise OptimizationException(
+                f"Input sequence is invalid, cannot optimize: {e}"
+            )
 
         try:
             optimization_problem.optimize()
         except Exception as e:
-            raise RuntimeError(f"Optimization process failed: {e}")
+            raise OptimizationException(f"Optimization process failed: {e}")
 
         return (
             NucleicAcid(optimization_problem.sequence),
