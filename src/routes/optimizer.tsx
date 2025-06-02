@@ -352,6 +352,7 @@ export const OptimizeForm = () => {
   const [results, setResults] = useState<OptimizationResults["results"] | null>(
     null,
   );
+  const [error, setError] = useState<string | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
   const elapsedInterval = useInterval(
     () => setElapsedSeconds((s) => s + 1),
@@ -511,6 +512,9 @@ export const OptimizeForm = () => {
         ),
       });
     } catch (e) {
+      setError(
+        "Error resolving constraints. Sequence cannot be optimised. Please verify your input sequence or adjust input parameters (e.g. increase GC content/window).",
+      );
       console.error(e);
     }
     setIsSubmitting(false);
@@ -548,6 +552,21 @@ export const OptimizeForm = () => {
             <Text size="s">{`Elapsed time: ${formatDuration(intervalToDuration({ start: 0, end: elapsedSeconds * 1000 }), { format: ["minutes", "seconds"], zero: true })}`}</Text>
           </Stack>
         </Center>
+      </Modal>
+      <Modal
+        opened={error !== null}
+        onClose={() => setError(null)}
+        withCloseButton={true}
+        centered
+        transitionProps={{ transition: "fade", duration: 200 }}
+      >
+        <Alert
+          variant="light"
+          color="red"
+          title="Optimization could not complete"
+        >
+          {error}
+        </Alert>
       </Modal>
       <form onSubmit={form.onSubmit(handleOnSubmit)}>
         <Box pos="relative">
