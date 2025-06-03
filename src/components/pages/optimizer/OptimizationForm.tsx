@@ -37,6 +37,9 @@ import {
 } from "~/server/optimize";
 import { OptimizationRequest } from "~/types/optimize";
 
+const EGFP =
+  "MVSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITLGMDELYK";
+
 const FIVE_PRIME_HUMAN_ALPHA_GLOBIN = "ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC";
 const THREE_PRIME_HUMAN_ALPHA_GLOBIN =
   "GCTGGAGCCTCGGTGGCCATGCTTCTTGCCCCTTGGGCCTCCCCCCAGCCCCTCCTCCCCTTCCTGCACCCGTACCCCCGTGGTCTTTGAATAAAGTCTGAGTGGGCGGCA";
@@ -302,7 +305,7 @@ export const OptimizeForm = () => {
           </Group>
           {showHelp && (
             <Alert title="Help" variant="light" icon={<QuestionIcon />}>
-              <Text>
+              <Text size="sm">
                 For guidance on how to design an mRNA, please see the
                 step-by-step example{" "}
                 <a href="https://basefacility.org.au/wp-content/uploads/2024/12/mRNArchitect_Example.pdf">
@@ -311,14 +314,34 @@ export const OptimizeForm = () => {
                 .
               </Text>
               <Space h="xs" />
-              <Text>
+              <Text size="sm">
                 Please find useful sequences (promoters, UTRs etc.){" "}
                 <a href="https://basefacility.org.au/wp-content/uploads/2024/12/mRNArchitect_ExampleSequences.txt">
                   here
                 </a>
                 .
               </Text>
-              <Title order={5} pt="sm">
+              <Space h="xs" />
+              <Text size="sm">
+                To get started, you can use the button below to prefill the form
+                with the{" "}
+                <a href="https://en.wikipedia.org/wiki/Green_fluorescent_protein">
+                  green fluorescent protein
+                </a>
+                . Then click the 'Optimize Sequence' button to start
+                optimization.
+              </Text>
+              <Space h="xs" />
+              <Button
+                onClick={() => {
+                  form.reset();
+                  form.setFieldValue("sequenceType", "amino-acid");
+                  form.setFieldValue("sequence", EGFP);
+                }}
+              >
+                Pre-fill eGFP
+              </Button>
+              <Title order={6} pt="sm">
                 References
               </Title>
               <ul>
