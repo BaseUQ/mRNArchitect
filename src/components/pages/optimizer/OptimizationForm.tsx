@@ -365,6 +365,8 @@ export const OptimizeForm = () => {
                   </Group>
                 </Radio.Group>
                 <Textarea
+                  label="Coding sequence textarea"
+                  labelProps={{ display: "none" }}
                   placeholder="Paste your sequence here..."
                   autosize
                   minRows={5}

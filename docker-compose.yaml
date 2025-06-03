@@ -20,3 +20,24 @@ services:
           ignore:
             - .venv/
             - node_modules/
+  e2e:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: e2e
+    command: pnpm playwright test --ui-host 0.0.0.0 --ui-port 2345
+    ports:
+      - 2345:2345
+    develop:
+      watch:
+        - path: ./pnpm-lock.yaml
+          action: rebuild
+        - path: ./uv.lock
+          action: rebuild
+        - path: ./
+          target: /app
+          action: sync
+          ignore:
+            - .venv/
+            - node_modules/

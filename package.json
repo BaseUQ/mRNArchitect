@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "@playwright/test": "^1.52.0",
     "@types/bun": "latest",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
