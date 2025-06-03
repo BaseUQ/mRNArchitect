@@ -323,12 +323,12 @@ export const OptimizeForm = () => {
               </Text>
               <Space h="xs" />
               <Text size="sm">
-                To get started, you can use the button below to prefill the form
-                with the{" "}
+                To get started, you can use the button below to prefill the
+                Coding sequence input with the{" "}
                 <a href="https://en.wikipedia.org/wiki/Green_fluorescent_protein">
                   green fluorescent protein
                 </a>
-                . Then click the 'Optimize Sequence' button to start
+                . Then click the 'Optimize sequence' button to start
                 optimization.
               </Text>
               <Space h="xs" />
