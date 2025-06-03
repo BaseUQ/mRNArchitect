@@ -46,4 +46,4 @@ jobs:
             --output text \
           )
           echo "Pinging function ${{ env.LAMBDA_FUNCTION_NAME }} at $FUNCTION_URL"
-          curl $FUNCTION_URL
+          for n in {1..5}; do curl $FUNCTION_URL; done
