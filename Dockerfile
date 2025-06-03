@@ -37,16 +37,26 @@ RUN --mount=type=cache,id=pnpm,target=/home/app/.local/share/pnpm/store \
   --mount=type=bind,source=package.json,target=package.json \
   pnpm install --frozen-lockfile
 
-COPY --chown=app:app . /app/
 
+FROM base AS e2e
+
+USER root
+RUN npx playwright install-deps
+USER app
+RUN npx playwright install
+COPY --chown=app:app . /app/
+RUN pnpm build
+CMD ["pnpm", "playwright", "test"]
 
 FROM base AS dev
 
+COPY --chown=app:app . /app/
 CMD ["pnpm", "dev"]
 
 
 FROM base
 
+COPY --chown=app:app . /app/
 RUN pnpm build
 CMD ["pnpm", "start"]
 
