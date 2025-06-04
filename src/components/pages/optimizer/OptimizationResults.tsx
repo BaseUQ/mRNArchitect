@@ -294,7 +294,7 @@ export const OptimizationResults = ({
             value={index.toString()}
           >
             <Text ff="monospace" p="md" style={{ wordBreak: "break-all" }}>
-              <Tooltip label="5'UTR">
+              <Tooltip label="5' UTR">
                 <Text component="span" c="green">
                   {input.fivePrimeUTR}
                 </Text>
@@ -302,7 +302,7 @@ export const OptimizationResults = ({
               <Tooltip label="Coding sequence">
                 <Text component="span">{output.optimization.output}</Text>
               </Tooltip>
-              <Tooltip label="3'UTR">
+              <Tooltip label="3' UTR">
                 <Text component="span" c="green">
                   {input.threePrimeUTR}
                 </Text>
