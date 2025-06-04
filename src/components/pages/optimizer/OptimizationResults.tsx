@@ -82,13 +82,13 @@ export const OptimizationResults = ({
       v.cdsAnalysis.minimum_free_energy[1].toFixed(2),
     ),
     generateRow(
-      "5'UTR MFE (kcal/mol)",
+      "5' UTR MFE (kcal/mol)",
       (v) =>
         results.input.fivePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ??
         "-",
     ),
     generateRow(
-      "3'UTR MFE (kcal/mol)",
+      "3' UTR MFE (kcal/mol)",
       (v) =>
         results.input.threePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(
           2,
@@ -106,8 +106,8 @@ export const OptimizationResults = ({
     "",
     "---Input Sequence",
     `CDS\t\t${input.sequence}`,
-    `5'UTR\t\t${input.fivePrimeUTR}`,
-    `3'UTR\t\t${input.threePrimeUTR}`,
+    `5' UTR\t\t${input.fivePrimeUTR}`,
+    `3' UTR\t\t${input.threePrimeUTR}`,
     `Poly(A) tail\t${input.polyATail}`,
     "",
     "---Parameters",
@@ -149,8 +149,8 @@ export const OptimizationResults = ({
       `Uridine depletion\t${results.input.cdsAnalysis.uridine_depletion?.toFixed(2) ?? "-"}\t${cdsAnalysis.uridine_depletion?.toFixed(2) ?? "-"}`,
       `CAI\t\t\t${results.input.cdsAnalysis.codon_adaptation_index?.toFixed(2) ?? "-"}\t${cdsAnalysis.codon_adaptation_index?.toFixed(2) ?? "-"}`,
       `CDS MFE (kcal/mol)\t${results.input.cdsAnalysis.minimum_free_energy[1].toFixed(2)}\t${cdsAnalysis.minimum_free_energy[1].toFixed(2)}`,
-      `5'UTR MFE (kcal/mol)\t${results.input.fivePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}\t${results.input.fivePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}`,
-      `3'UTR MFE (kcal/mol)\t${results.input.threePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}\t${results.input.threePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}`,
+      `5' UTR MFE (kcal/mol)\t${results.input.fivePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}\t${results.input.fivePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}`,
+      `3' UTR MFE (kcal/mol)\t${results.input.threePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}\t${results.input.threePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}`,
       `Total MFE (kcal/mol)\t${results.input.fullSequenceAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}\t${fullSequenceAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}`,
     ],
   );
