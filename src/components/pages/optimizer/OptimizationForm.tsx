@@ -344,7 +344,7 @@ export const OptimizeForm = () => {
               <Title order={6} pt="sm">
                 References
               </Title>
-              <ul>
+              <ol>
                 <li>
                   Zulkower, V., & Rosser, S. (2020). DNA Chisel, a versatile
                   sequence optimizer. Bioinformatics, 36(16), 2874-2875.
@@ -366,7 +366,7 @@ export const OptimizeForm = () => {
                   N1-methylpseudouridylation of mRNA causes +1 ribosomal
                   frameshifting. Nature 625, 189–194.
                 </li>
-              </ul>
+              </ol>
             </Alert>
           )}
           <Fieldset legend="Sequence" disabled={isSubmitting}>
@@ -402,10 +402,10 @@ export const OptimizeForm = () => {
 
               <div>
                 <Radio.Group
-                  label="5'UTR"
+                  label="5' UTR"
                   description={
                     showHelp &&
-                    "Add your 5' untranslated sequence here. The 5'UTR is bound and scanned by the ribosome and is needed for translation. By default, we use the human alpha-globin (HBA1; Gene ID 3039) 5’UTR that has been validated in different cell types and applications."
+                    "Paste your 5' untranslated sequence here. The 5' untranslated region (UTR) is bound and scanned by the ribosome and is needed for translation. We provide a well-validated option, the human alpha-globin (HBA1; Gene ID 3039) 5' UTR sequence that has been validated in different cell types and applications. By default, no 5' UTR will be added."
                   }
                   withAsterisk
                   value={fivePrimeUTRSequenceType}
@@ -437,10 +437,10 @@ export const OptimizeForm = () => {
 
               <div>
                 <Radio.Group
-                  label="3'UTR"
+                  label="3' UTR"
                   description={
                     showHelp &&
-                    "Paste your 3’ untranslated sequence here. The 3'UTR is regulated by microRNAs and RNA-binding proteins and plays a key role in cell-specific mRNA stability and expression. By default, we use the human alpha-globin (HBA1; Gene ID 3039) 3’UTR that has been validated in different cell types and applications."
+                    "Paste your 3' untranslated sequence here. The 3' untranslated region (UTR) is regulated by microRNAs and RNA-binding proteins and plays a key role in cell-specific mRNA stability and expression. We provide a well-validated option, the human alpha-globin (HBA1; Gene ID 3039) 3' UTR sequence that has been validated in different cell types and applications. By default, no 3' UTR will be added."
                   }
                   withAsterisk
                   value={threePrimeUTRSequenceType}
@@ -475,7 +475,7 @@ export const OptimizeForm = () => {
                   label="Poly(A) tail"
                   description={
                     showHelp &&
-                    "Specify the length of the poly(A) tail or alternatively paste more complex designs. The length of the poly(A) tail plays a critical role in mRNA translation and stability. By default, no tail will be added."
+                    "Specify the length of the poly(A) tail or alternatively paste more complex designs. The length of the poly(A) tail plays a critical role in mRNA translation and stability. By default, no poly(A) tail will be added."
                   }
                   withAsterisk
                   value={polyATailType}
@@ -517,7 +517,7 @@ export const OptimizeForm = () => {
                   label="Number of sequences"
                   description={
                     showHelp &&
-                    "The number of optimized output mRNA sequences to generate. Please note that more sequences takes longer and there is a maximum of 10."
+                    "The number of optimized output mRNA sequences to generate. Please note that there is a maximum of 10."
                   }
                   min={1}
                   max={10}
@@ -542,7 +542,7 @@ export const OptimizeForm = () => {
                   label="Uridine depletion"
                   description={
                     showHelp &&
-                    "If selected, this minimizes the use of uridine nucleosides in the mRNA sequence. This is achieved by avoiding codons that encode uridine at the third wobble position and can impact reactogenicity of the mRNA sequence."
+                    "If selected, this minimizes the use of uridine nucleosides in the mRNA sequence. This is achieved by avoiding codons that encode uridine at the third wobble position and can impact the reactogenicity of the mRNA sequence."
                   }
                   key={form.key("avoidUridineDepletion")}
                   {...form.getInputProps("avoidUridineDepletion")}
@@ -551,7 +551,7 @@ export const OptimizeForm = () => {
                   label="Avoid ribosome slip"
                   description={
                     showHelp &&
-                    "Avoid more than 3 Us in the open-reading frame, where ribosomes can +1 frameshift at consecutive N1-methylpseudouridines (Mulroney et. al., 2024)."
+                    "Avoid more than 3 consecutive Us in the open-reading frame, where ribosomes can +1 frameshift at consecutive N1-methylpseudouridines."
                   }
                   key={form.key("avoidRibosomeSlip")}
                   {...form.getInputProps("avoidRibosomeSlip")}
@@ -560,7 +560,7 @@ export const OptimizeForm = () => {
                   label="Minimum/maximum GC content"
                   description={
                     showHelp &&
-                    "Defines the minimum or maximum fraction of the mRNA sequence comprising G/C nucleotides that is associated with stability and hairpins of the mRNA. We recommend 0.4 and 0.7."
+                    "Defines the minimum or maximum fraction of the mRNA sequence comprising G/C nucleotides that is associated with stability and hairpins of the mRNA. We recommend 0.4 to 0.7."
                   }
                 >
                   <RangeSlider

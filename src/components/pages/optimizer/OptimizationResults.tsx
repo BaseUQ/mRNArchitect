@@ -7,6 +7,7 @@ import {
   Table,
   Tabs,
   Text,
+  Title,
   Tooltip,
 } from "@mantine/core";
 import {
@@ -198,44 +199,69 @@ export const OptimizationResults = ({
             data={{
               body: [
                 [
-                  "Full-legth mRNA",
-                  "These are the output mRNA sequences that have been assembled and optimized according to the user parameters.",
+                  "Full-length mRNA",
+                  "The output mRNA sequence(s) that have been assembled and optimized according to the specified optimisation parameters.",
                 ],
                 [
                   "A/U/G/C ratio",
-                  "The nucleotide composition of the input and output optimised mRNA sequences. High GC content is correlated with stable secondary structure, and low U associated with reactogenicity.",
+                  "The nucleotide composition of the input and output optimised mRNA sequences. High GC content is associated with the formation of stable secondary structures, and lower U content is associated with low reactogenicity.",
                 ],
                 [
                   "AT/GA/GC ratio",
-                  "The dinucleotide composition of the input and output mRNA sequences. High GC content is correlated with stable secondary structure.",
+                  "The dinucleotide composition of the input and output mRNA sequences. High GC content is associated with the formation of stable secondary structures.",
                 ],
                 [
                   "Uridine depletion",
-                  "The fraction of codons with uridine in the third nucleotide position. Maximum and minimum values are 1 (all) and 0 (no) codons with uridine in third nucleotide position.",
+                  "The fraction of codons with Uridine in the third nucleotide position. Maximum and minimum values are 1 (all) and 0 (no) codons with uridine in third nucleotide position.",
                 ],
                 [
                   "CAI",
-                  "The Codon Adaptation Index (CAI) is a measure of deviation between the codon usage of the mRNA sequence from the preferred codon usage of the organism (2). The CAI score ranges from 0 (totally dissimilar) to 1 (all mRNA codons match the organism's codon usage reference table).",
+                  "The Codon Adaptation Index (CAI) is a measure of deviation between the codon usage of an mRNA sequence from the preferred codon usage of the organism (3). The CAI score ranges from 0 (totally dissimilar) to 1 (all mRNA codons match the organism's codon usage reference table).",
                 ],
                 [
                   "CDS MFE",
-                  "The Minimum Free Energy (MFE) is the lowest Gibbs free energy change associated with the formation of secondary structures in RNA molecules due to intramolecular base pairing (3). Lower values of MFE are associated with the formation of more stable secondary structures and hairpins that can occlude translation and expression.",
+                  "The Minimum Free Energy (MFE) is the lowest Gibbs free energy change associated with the formation of secondary structures in RNA molecules due to intramolecular base pairing (4). Lower values of MFE are associated with the formation of stable secondary structures and hairpins that can occlude protein expression.",
                 ],
                 [
-                  "5'UTR MFE",
-                  "The Minimum Free Energy of the 5' UTR sequences. Lower values of MFE are associated with reduced secondary structures.",
+                  "5' UTR MFE",
+                  "The Minimum Free Energy of the 5' UTR sequence. Lower values of MFE are associated with the formation of stable secondary structures.",
                 ],
                 [
-                  "3'UTR MFE",
-                  "The Minimum Free Energy of the 3' UTR sequences. Lower values of MFE are associated with reduced secondary structures.",
+                  "3' UTR MFE",
+                  "The Minimum Free Energy of the 3' UTR sequences. Lower values of MFE are associated with the formation of stable secondary structures",
                 ],
                 [
                   "Total MFE",
-                  "The Minimum Free Energy of the full sequence (5' UTR, coding sequence, 3' UTR and poly(A) tail). Lower values of MFE are associated with reduced secondary structures.",
+                  "The Minimum Free Energy of the full sequence (5' UTR, coding sequence, 3' UTR and poly(A) tail). Lower values of MFE are associated with the formation of stable secondary structures.",
                 ],
               ],
             }}
           />
+          <Title order={6} pt="sm">
+            References
+          </Title>
+
+          <ol>
+            <li>
+              Zulkower, V., & Rosser, S. (2020). DNA Chisel, a versatile
+              sequence optimizer. Bioinformatics, 36(16), 2874-2875.
+            </li>
+            <li>
+              Sharp, P. M., & Li, W. H. (1987). The Codon Adaptation Index—a
+              measure of directional synonymous codon usage bias, and its
+              potential applications. Nucleic Acids Research 15(3), 1281-1295.
+            </li>
+            <li>
+              Lorenz, R., Bernhart, S. H., Höner Zu Siederdissen, C., Tafer, H.,
+              Flamm, C., Stadler, P. F., & Hofacker, I. L. (2011). ViennaRNA
+              Package 2.0. Algorithms for Molecular Biology, 6(1), 26.
+            </li>
+            <li>
+              Mulroney, T.E., Pöyry, T., Yam-Puc, J.C. et al. (2024).
+              N1-methylpseudouridylation of mRNA causes +1 ribosomal
+              frameshifting. Nature 625, 189–194.
+            </li>
+          </ol>
         </Alert>
       )}
       <Table
