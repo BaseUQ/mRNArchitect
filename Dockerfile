@@ -1,6 +1,8 @@
 FROM node:lts-slim AS base
 
-RUN apt-get update -qy && apt-get install -qy wget
+RUN apt-get update -qy && \
+  apt-get install -qy wget=1.21.3-1+deb12u1 && \
+  rm -rf /var/lib/apt/lists/*
 
 # Install uv
 # see: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
@@ -18,7 +20,9 @@ COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.9.1 /lambda-adapter /opt
 # Install ViennaRNA
 # see: https://www.tbi.univie.ac.at/RNA/#binary_packages
 RUN wget -qO viennarna.deb https://www.tbi.univie.ac.at/RNA/download/debian/debian_12/viennarna_2.7.0-1_amd64.deb && \
-  apt-get install -qy -f ./viennarna.deb
+  apt-get update -qy && \
+  apt-get install -qy -f ./viennarna.deb && \
+  rm -rf /var/lib/apt/lists/*
 
 
 # Setup the app user
