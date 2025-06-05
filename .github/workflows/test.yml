@@ -20,8 +20,7 @@ jobs:
           load: true
           tags: ${{ env.TAG }}
           target: dev
-          #cache-from: type=gha
-          #cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:buildcache
       - run: docker run --rm $TAG pnpm biome check
       - run: docker run --rm $TAG pnpm tsc --noEmit
       - run: docker run --rm $TAG uv run ruff check --diff
