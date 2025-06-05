@@ -315,18 +315,10 @@ export const OptimizeForm = () => {
               </Text>
               <Space h="xs" />
               <Text size="sm">
-                Please find useful sequences (promoters, UTRs etc.){" "}
-                <a href="https://basefacility.org.au/wp-content/uploads/2024/12/mRNArchitect_ExampleSequences.txt">
-                  here
-                </a>
-                .
-              </Text>
-              <Space h="xs" />
-              <Text size="sm">
                 To get started, you can use the button below to prefill the
                 Coding sequence input with the{" "}
-                <a href="https://en.wikipedia.org/wiki/Green_fluorescent_protein">
-                  green fluorescent protein
+                <a href="https://pubmed.ncbi.nlm.nih.gov/10857375/">
+                  enhanced green fluorescent protein
                 </a>
                 . Then click the 'Optimize sequence' button to start
                 optimization.
@@ -347,7 +339,12 @@ export const OptimizeForm = () => {
               <ol>
                 <li>
                   Zulkower, V., & Rosser, S. (2020). DNA Chisel, a versatile
-                  sequence optimizer. Bioinformatics, 36(16), 2874-2875.
+                  sequence optimizer. Bioinformatics, 36(16), 4508-4509.
+                </li>
+                <li>
+                  Mulroney, T.E., Pöyry, T., Yam-Puc, J.C. et al. (2024).
+                  N1-methylpseudouridylation of mRNA causes +1 ribosomal
+                  frameshifting. Nature 625, 189–194.
                 </li>
                 <li>
                   Sharp, P. M., & Li, W. H. (1987). The Codon Adaptation Index—a
@@ -358,13 +355,7 @@ export const OptimizeForm = () => {
                 <li>
                   Lorenz, R., Bernhart, S. H., Höner Zu Siederdissen, C., Tafer,
                   H., Flamm, C., Stadler, P. F., & Hofacker, I. L. (2011).
-                  ViennaRNA Package 2.0. Algorithms for Molecular Biology, 6(1),
-                  26.
-                </li>
-                <li>
-                  Mulroney, T.E., Pöyry, T., Yam-Puc, J.C. et al. (2024).
-                  N1-methylpseudouridylation of mRNA causes +1 ribosomal
-                  frameshifting. Nature 625, 189–194.
+                  ViennaRNA Package 2.0. Algorithms for Molecular Biology, 6:26.
                 </li>
               </ol>
             </Alert>
@@ -551,7 +542,7 @@ export const OptimizeForm = () => {
                   label="Avoid ribosome slip"
                   description={
                     showHelp &&
-                    "Avoid more than 3 consecutive Us in the open-reading frame, where ribosomes can +1 frameshift at consecutive N1-methylpseudouridines."
+                    "Avoid more than 3 consecutive Us in the open-reading frame, where ribosomes can +1 frameshift at consecutive N1-methylpseudouridines (2)."
                   }
                   key={form.key("avoidRibosomeSlip")}
                   {...form.getInputProps("avoidRibosomeSlip")}
@@ -601,7 +592,7 @@ export const OptimizeForm = () => {
                   label="Avoid cut sites"
                   description={
                     showHelp &&
-                    "Avoid restriction enzyme sites in the sequence."
+                    "Specify restriction enzyme sites that should be avoided in the mRNA sequence."
                   }
                   placeholder="Choose sites..."
                   searchable

@@ -30,6 +30,8 @@ jobs:
           push: true
           tags: ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.ECR_TAG }}
           provenance: false
+          cache-from: type=registry,ref=${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }:buildcache
+          cache-to: type=registry,ref=${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }:buildcache,mode=max
       - name: Update lambda function - "${{ env.LAMBDA_FUNCTION_NAME }}"
         run: |
           aws lambda update-function-code \
