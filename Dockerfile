@@ -45,7 +45,6 @@ RUN npx playwright install-deps
 USER app
 RUN npx playwright install chromium --no-shell
 COPY --chown=app:app . /app/
-RUN pnpm build
 CMD ["pnpm", "playwright", "test"]
 
 FROM base AS dev
