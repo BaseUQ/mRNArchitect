@@ -26,8 +26,7 @@ jobs:
           load: true
           tags: ${{ env.TAG }}
           target: e2e
-          #cache-from: type=gha
-          #cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:buildcache
       - run: |
           docker run --rm -e CI=true -e PLAYWRIGHT_BASE_URL=${{ inputs.playwright-base-url }} $TAG \
             pnpm playwright test
