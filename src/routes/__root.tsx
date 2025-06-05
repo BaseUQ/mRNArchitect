@@ -135,21 +135,21 @@ const Shell = () => {
     <AppShell
       header={{ height: "80" }}
       padding="md"
-      navbar={{
-        width: 300,
-        breakpoint: "sm",
-        collapsed: { mobile: !navBarOpened },
-      }}
+      //navbar={{
+      //  width: 300,
+      //  breakpoint: "sm",
+      //  collapsed: { mobile: !navBarOpened },
+      //}}
     >
       <AppShell.Header>
         <Group justify="space-between" align="center" h="100%" pl="md" pr="md">
           <Group gap="xs">
-            <Burger
+            {/*<Burger
               opened={navBarOpened}
               onClick={navBarToggle}
               hiddenFrom="sm"
               size="sm"
-            />
+            />*/}
             <BASELogoSmall width={30} height={30} />
             <Title order={5}>mRNArchitect</Title>
           </Group>
@@ -167,9 +167,9 @@ const Shell = () => {
           </Group>
         </Group>
       </AppShell.Header>
-      <AppShell.Navbar p="md">
+      {/*<AppShell.Navbar p="md">
         <Menu />
-      </AppShell.Navbar>
+      </AppShell.Navbar>*/}
       <AppShell.Main>
         <Container size="md">
           <Outlet />
