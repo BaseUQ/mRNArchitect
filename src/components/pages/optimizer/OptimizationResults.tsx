@@ -228,7 +228,7 @@ export const OptimizationResults = ({
                 ],
                 [
                   "3' UTR MFE",
-                  "The Minimum Free Energy of the 3' UTR sequences. Lower values of MFE are associated with the formation of stable secondary structures",
+                  "The Minimum Free Energy of the 3' UTR sequences. Lower values of MFE are associated with the formation of stable secondary structures.",
                 ],
                 [
                   "Total MFE",
