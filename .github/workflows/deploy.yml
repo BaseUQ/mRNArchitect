@@ -43,5 +43,5 @@ jobs:
     needs: [build]
     uses: ./.github/workflows/e2e.yml
     with:
-      playwright-config-file: playwright-deploy.config.ts
+      playwright-base-url: https://test-app.basefacility.org.au
 
