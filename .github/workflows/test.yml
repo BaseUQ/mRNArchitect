@@ -27,3 +27,5 @@ jobs:
       - run: docker run --rm $TAG uv run ruff check --diff
       - run: docker run --rm $TAG uv run pyright
       - run: docker run --rm $TAG pytest
+  e2e:
+    uses: ./.github/workflows/e2e.yml
