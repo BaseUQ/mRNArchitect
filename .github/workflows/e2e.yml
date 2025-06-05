@@ -1,9 +1,15 @@
 name: e2e
 on:
-  pull_request:
+  workflow_call:
+    inputs:
+      playwright-config-file:
+        description: "The playwright config file to use."
+        type: string
+        required: false
+        default: playwright.config.ts
 
 jobs:
-  test:
+  e2e:
     name: e2e
     runs-on: ubuntu-latest
     env:
@@ -22,4 +28,6 @@ jobs:
           target: e2e
           #cache-from: type=gha
           #cache-to: type=gha,mode=max
-      - run: docker run --rm --env CI=true $TAG pnpm playwright test
+      - run: |
+          docker run --rm --env CI=true $TAG \
+            pnpm playwright test -c ${{ inputs.playwright-config-file }}
