@@ -1,3 +1,10 @@
+/**
+ * Use the environment variable PLAYWRIGHT_BASE_URL to set the target baseUrl.
+ * If given, the test web server is not started.
+ * If not given or empty, the test web server is started and will be the target
+ * of the tests.
+ */
+
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
@@ -17,11 +24,11 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
 
   // Reporter to use
-  reporter: "html",
+  reporter: "line",
 
   use: {
     // Base URL to use in actions like `await page.goto('/')`.
-    baseURL: "http://localhost:8080",
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:8080",
 
     // Collect trace when retrying the failed test.
     trace: "on-first-retry",
@@ -30,13 +37,18 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        channel: "chromium", // use new headless mode
+      },
     },
   ],
   // Run your local dev server before starting the tests.
-  webServer: {
-    command: "pnpm start",
-    url: "http://localhost:8080",
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: process.env.PLAYWRIGHT_BASE_URL
+    ? undefined
+    : {
+        command: "pnpm start",
+        url: "http://localhost:8080",
+        reuseExistingServer: !process.env.CI,
+      },
 });

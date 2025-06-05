@@ -2,11 +2,11 @@ name: e2e
 on:
   workflow_call:
     inputs:
-      playwright-config-file:
-        description: "The playwright config file to use."
+      playwright-base-url:
+        description: "The playwright baseURL setting."
         type: string
         required: false
-        default: playwright.config.ts
+        default: ''
 
 jobs:
   e2e:
@@ -29,5 +29,5 @@ jobs:
           #cache-from: type=gha
           #cache-to: type=gha,mode=max
       - run: |
-          docker run --rm --env CI=true $TAG \
-            pnpm playwright test -c ${{ inputs.playwright-config-file }}
+          docker run --rm -e CI=true -e PLAYWRIGHT_BASE_URL=${{ inputs.playwright-base-url }} $TAG \
+            pnpm playwright test
