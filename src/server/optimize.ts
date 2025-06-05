@@ -34,7 +34,7 @@ export const analyzeSequence = createServerFn({ method: "POST" })
     const { stdout } = await execFileAsync(
       "python",
       ["-m", "tools.cli", "analyze-sequence", sequence, organism],
-      { shell: false, timeout: 300_000 },
+      { shell: false, timeout: 900_000 },
     );
     return AnalyzeResponse.parse(JSON.parse(stdout));
   });
@@ -57,7 +57,7 @@ export const optimizeSequence = createServerFn({ method: "POST" })
       ],
       {
         shell: false,
-        timeout: 300_000,
+        timeout: 900_000,
       },
     );
     return OptimizationResponse.parse(JSON.parse(stdout));
