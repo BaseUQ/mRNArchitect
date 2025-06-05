@@ -43,7 +43,7 @@ FROM base AS e2e
 USER root
 RUN npx playwright install-deps
 USER app
-RUN npx playwright install
+RUN npx playwright install chromium
 COPY --chown=app:app . /app/
 RUN pnpm build
 CMD ["pnpm", "playwright", "test"]
