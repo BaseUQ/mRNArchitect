@@ -8,10 +8,16 @@ const loggingMiddleware = createMiddleware().server(async ({ next, data }) => {
   const startTime = Date.now();
   const result = await next();
   const endTime = Date.now();
-  console.log({
-    ...result,
-    time: differenceInMilliseconds(endTime, startTime),
-  });
+  try {
+    console.log(
+      JSON.stringify({
+        ...result,
+        time: differenceInMilliseconds(endTime, startTime),
+      }),
+    );
+  } catch (e) {
+    console.error("Could not log request/response: ", e);
+  }
   return result;
 });
 
