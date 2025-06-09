@@ -1,0 +1,10 @@
+name: pr
+on:
+  pull_request:
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+  e2e:
+    uses: ./.github/workflows/e2e.yml
+
