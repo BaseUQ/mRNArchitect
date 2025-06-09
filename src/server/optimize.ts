@@ -5,14 +5,21 @@ import { getHeaders } from "@tanstack/react-start/server";
 import z from "zod";
 import {
   AnalyzeResponse,
-  type OptimizationRequest,
+  OptimizationRequest,
   OptimizationResponse,
 } from "~/types/optimize";
 
 const execFileAsync = utils.promisify(childProcess.execFile);
 
+const SequenceAndOrganism = z.object({
+  sequence: z.string().nonempty(),
+  organism: z.string().nonempty(),
+});
+
+type SequenceAndOrganism = z.infer<typeof SequenceAndOrganism>;
+
 export const convertSequenceToNucleicAcid = createServerFn({ method: "POST" })
-  .validator((data: { sequence: string; organism: string }) => data)
+  .validator((data: SequenceAndOrganism) => SequenceAndOrganism.parse(data))
   .handler(async ({ data: { sequence, organism } }) => {
     const { stdout } = await execFileAsync(
       "python",
@@ -29,7 +36,7 @@ export const convertSequenceToNucleicAcid = createServerFn({ method: "POST" })
   });
 
 export const analyzeSequence = createServerFn({ method: "POST" })
-  .validator((data: { sequence: string; organism: string }) => data)
+  .validator((data: SequenceAndOrganism) => SequenceAndOrganism.parse(data))
   .handler(async ({ data: { sequence, organism } }) => {
     const { stdout } = await execFileAsync(
       "python",
@@ -40,7 +47,7 @@ export const analyzeSequence = createServerFn({ method: "POST" })
   });
 
 export const optimizeSequence = createServerFn({ method: "POST" })
-  .validator((data: OptimizationRequest) => data)
+  .validator((data: OptimizationRequest) => OptimizationRequest.parse(data))
   .handler(async ({ data }) => {
     const headers = getHeaders();
     console.log(
