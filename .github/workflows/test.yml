@@ -1,6 +1,7 @@
 name: test
+description: Runs tests (including linting, formatting and unit tests) on the repository.
 on:
-  pull_request:
+  workflow_call:
 
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -36,5 +37,3 @@ jobs:
       - run: docker run --rm $TAG uv run ruff check --diff
       - run: docker run --rm $TAG uv run pyright
       - run: docker run --rm $TAG pytest
-  e2e:
-    uses: ./.github/workflows/e2e.yml
