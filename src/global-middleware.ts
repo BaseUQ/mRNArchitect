@@ -4,7 +4,7 @@ import {
 } from "@tanstack/react-start";
 import { differenceInMilliseconds } from "date-fns";
 
-const loggingMiddleware = createMiddleware().server(async ({ next, data }) => {
+const loggingMiddleware = createMiddleware().server(async ({ next }) => {
   const startTime = Date.now();
   const result = await next();
   const endTime = Date.now();
