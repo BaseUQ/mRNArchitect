@@ -16,7 +16,7 @@ const loggingMiddleware = createMiddleware().server(async ({ next, data }) => {
         request: data,
         response: result,
         ip: headers["x-forwarded-for"] ?? "unknown",
-        timeMilliseconds: differenceInMilliseconds(endTime, startTime),
+        requestTimeMilliseconds: differenceInMilliseconds(endTime, startTime),
       }),
     );
   } catch (e) {
