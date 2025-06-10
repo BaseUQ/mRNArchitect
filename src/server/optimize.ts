@@ -1,7 +1,6 @@
 import childProcess from "node:child_process";
 import utils from "node:util";
 import { createServerFn } from "@tanstack/react-start";
-import { getHeaders } from "@tanstack/react-start/server";
 import z from "zod";
 import {
   AnalyzeResponse,
@@ -49,10 +48,6 @@ export const analyzeSequence = createServerFn({ method: "POST" })
 export const optimizeSequence = createServerFn({ method: "POST" })
   .validator((data: OptimizationRequest) => OptimizationRequest.parse(data))
   .handler(async ({ data }) => {
-    const headers = getHeaders();
-    console.log(
-      `optimizeSequence: x-forwarded-for=${headers["x-forwarded-for"] ?? "unknown"} sequence=${data.sequence}`,
-    );
     const { stdout } = await execFileAsync(
       "python",
       [
