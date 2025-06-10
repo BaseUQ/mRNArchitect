@@ -188,13 +188,13 @@ export const OptimizeForm = () => {
                 const [cdsAnalysis, fullSequenceAnalysis] = await Promise.all([
                   analyzeSequence({
                     data: {
-                      sequence: optimization.output,
+                      sequence: optimization.output.sequence,
                       organism: parsedValues.organism,
                     },
                   }),
                   analyzeSequence({
                     data: {
-                      sequence: `${parsedValues.fivePrimeUTR}${parsedValues.sequence}${parsedValues.threePrimeUTR}${parsedValues.polyATail}`,
+                      sequence: `${parsedValues.fivePrimeUTR}${optimization.output.sequence}${parsedValues.threePrimeUTR}${parsedValues.polyATail}`,
                       organism: parsedValues.organism,
                     },
                   }),
@@ -216,8 +216,8 @@ export const OptimizeForm = () => {
           fullSequenceAnalysis: inputFullSequenceAnalysis,
         },
         outputs: outputs.sort((a, b) =>
-          (a.cdsAnalysis.codon_adaptation_index ?? 0) >
-          (b.cdsAnalysis.codon_adaptation_index ?? 0)
+          (a.cdsAnalysis.codonAdaptationIndex ?? 0) >
+          (b.cdsAnalysis.codonAdaptationIndex ?? 0)
             ? -1
             : 1,
         ),

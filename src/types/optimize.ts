@@ -27,29 +27,34 @@ export const OptimizationRequest = z.object({
 export type OptimizationRequest = z.infer<typeof OptimizationRequest>;
 
 export const OptimizationResponse = z.object({
-  output: z.string().nonempty(),
+  output: z.object({
+    sequence: z.string().nonempty(),
+  }),
   debug: z.object({
     constraints: z.string().nonempty(),
     objectives: z.string().nonempty(),
-    time: z.number(),
+    timeSeconds: z.number(),
   }),
 });
 
 export type OptimizationResponse = z.infer<typeof OptimizationResponse>;
 
 export const AnalyzeResponse = z.object({
-  a_ratio: z.number(),
-  c_ratio: z.number(),
-  g_ratio: z.number(),
-  t_ratio: z.number(),
-  at_ratio: z.number(),
-  ga_ratio: z.number(),
-  gc_ratio: z.number(),
-  uridine_depletion: z.number().nullable(),
-  codon_adaptation_index: z.number().nullable(),
-  minimum_free_energy: z.tuple([z.string().nonempty(), z.number()]),
+  aRatio: z.number(),
+  cRatio: z.number(),
+  gRatio: z.number(),
+  tRatio: z.number(),
+  atRatio: z.number(),
+  gaRatio: z.number(),
+  gcRatio: z.number(),
+  uridineDepletion: z.number().nullable(),
+  codonAdaptationIndex: z.number().nullable(),
+  minimumFreeEnergy: z.object({
+    structure: z.string().nonempty(),
+    energy: z.number(),
+  }),
   debug: z.object({
-    time: z.number(),
+    timeSeconds: z.number(),
   }),
 });
 
