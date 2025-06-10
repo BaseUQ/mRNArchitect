@@ -13,10 +13,10 @@ const loggingMiddleware = createMiddleware().server(async ({ next, data }) => {
   try {
     console.log(
       JSON.stringify({
-        request: data,
-        response: result,
-        ip: headers["x-forwarded-for"] ?? "unknown",
+        requestData: data,
+        requestIp: headers["x-forwarded-for"] ?? "unknown",
         requestTimeMilliseconds: differenceInMilliseconds(endTime, startTime),
+        result,
       }),
     );
   } catch (e) {
