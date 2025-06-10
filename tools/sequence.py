@@ -19,6 +19,65 @@ class OptimizationException(Exception):
     pass
 
 
+class MinimumFreeEnergy(msgspec.Struct, kw_only=True, rename="camel"):
+    structure: str
+    energy: float
+
+
+class Analysis(msgspec.Struct, kw_only=True, rename="camel"):
+    class Debug(msgspec.Struct, kw_only=True, rename="camel"):
+        time_seconds: float
+
+    a_ratio: float
+    c_ratio: float
+    g_ratio: float
+    t_ratio: float
+    at_ratio: float
+    ga_ratio: float
+    gc_ratio: float
+    uridine_depletion: float | None
+    codon_adaptation_index: float | None
+    minimum_free_energy: MinimumFreeEnergy
+    debug: Debug
+
+
+class OptimizationConfiguration(msgspec.Struct, kw_only=True, rename="camel"):
+    organism: typing.Literal["h_sapiens", "m_musculus"]
+    avoid_uridine_depletion: bool
+    avoid_ribosome_slip: bool
+    gc_content_min: float
+    gc_content_max: float
+    gc_content_window: int
+    avoid_restriction_sites: list[str]
+    avoid_sequences: str | list[str]
+    avoid_repeat_length: int
+    avoid_poly_a: int
+    avoid_poly_c: int
+    avoid_poly_g: int
+    avoid_poly_t: int
+    hairpin_stem_size: int
+    hairpin_window: int
+
+    def __post_init__(self):
+        if isinstance(self.avoid_sequences, str):
+            self.avoid_sequences = self.avoid_sequences.split(",")
+        if self.gc_content_min > self.gc_content_max:
+            raise ValueError("GC content minmum must be less than maximum.")
+
+    def to_dict(self):
+        return {f: getattr(self, f) for f in self.__struct_fields__}
+
+
+class OptimizationResult(msgspec.Struct, kw_only=True, rename="camel"):
+    class Debug(msgspec.Struct, kw_only=True, rename="camel"):
+        time_seconds: float
+        constraints: str
+        objectives: str
+
+    output: "NucleicAcid"
+    debug: Debug
+
+
 class NucleicAcid(msgspec.Struct):
     """A nucleic acid sequence.
 
@@ -180,7 +239,7 @@ class NucleicAcid(msgspec.Struct):
 
     @property
     @functools.cache
-    def uridine_depletion(self):
+    def uridine_depletion(self) -> float | None:
         """The Uridine depletion of the sequence.
 
         >>> NucleicAcid("AAAAAT").uridine_depletion
@@ -218,34 +277,39 @@ class NucleicAcid(msgspec.Struct):
 
     @property
     @functools.cache
-    def minimum_free_energy(self) -> tuple[str, float]:
+    def minimum_free_energy(self) -> MinimumFreeEnergy:
         """Calculate the minimum free energy of the sequence.
 
         >>> NucleicAcid("ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC").minimum_free_energy
-        ('.((((.((((((......))).)))))))........', -10.199999809265137)
+        MinimumFreeEnergy(structure='.((((.((((((......))).)))))))........', energy=-10.199999809265137)
         """
         import RNA
 
-        return tuple(RNA.fold_compound(str(self)).mfe())
+        mfe = RNA.fold_compound(str(self)).mfe()
+        return MinimumFreeEnergy(structure=mfe[0], energy=mfe[1])
+
+    def analyze(self, organism: Organism) -> Analysis:
+        """Collect and return a set of statistics about the sequence."""
+        start = time.time()
+        minimum_free_energy = self.minimum_free_energy
+        return Analysis(
+            a_ratio=self.a_ratio,
+            c_ratio=self.c_ratio,
+            g_ratio=self.g_ratio,
+            t_ratio=self.t_ratio,
+            at_ratio=self.at_ratio,
+            ga_ratio=self.ga_ratio,
+            gc_ratio=self.gc_ratio,
+            uridine_depletion=self.uridine_depletion,
+            codon_adaptation_index=self.codon_adaptation_index(organism),
+            minimum_free_energy=minimum_free_energy,
+            debug=Analysis.Debug(time_seconds=time.time() - start),
+        )
 
     def optimize(
         self,
-        organism: str = "h_sapiens",
-        gc_content_min: float = 0.4,
-        gc_content_max: float = 0.7,
-        gc_content_window: int = 100,
-        avoid_restriction_sites: list[str] | None = None,
-        avoid_sequences: list[str] | None = None,
-        avoid_repeat_length: int = 10,
-        hairpin_stem_size: int = 10,
-        hairpin_window: int = 60,
-        avoid_poly_a: int = 9,
-        avoid_poly_c: int = 6,
-        avoid_poly_g: int = 6,
-        avoid_poly_t: int = 9,
-        avoid_uridine_depletion: bool = False,
-        avoid_ribosome_slip: bool = False,
-    ) -> tuple["NucleicAcid", dict]:
+        config: OptimizationConfiguration,
+    ) -> OptimizationResult:
         from dnachisel import DnaOptimizationProblem
         from dnachisel.builtin_specifications import (
             AvoidPattern,
@@ -309,38 +373,40 @@ class NucleicAcid(msgspec.Struct):
         """Used to calculate uridine depletion."""
 
         constraints = [
-            EnforceGCContent(mini=gc_content_min, maxi=gc_content_max),  # type: ignore
+            EnforceGCContent(mini=config.gc_content_min, maxi=config.gc_content_max),  # type: ignore
             EnforceGCContent(
-                mini=gc_content_min,  # type: ignore
-                maxi=gc_content_max,
-                window=gc_content_window,
+                mini=config.gc_content_min,  # type: ignore
+                maxi=config.gc_content_max,
+                window=config.gc_content_window,
             ),
-            AvoidHairpins(stem_size=hairpin_stem_size, hairpin_window=hairpin_window),
-            AvoidPattern(f"{avoid_poly_a}xA"),
-            AvoidPattern(f"{avoid_poly_c}xC"),
-            AvoidPattern(f"{avoid_poly_g}xG"),
+            AvoidHairpins(
+                stem_size=config.hairpin_stem_size, hairpin_window=config.hairpin_window
+            ),
+            AvoidPattern(f"{config.avoid_poly_a}xA"),
+            AvoidPattern(f"{config.avoid_poly_c}xC"),
+            AvoidPattern(f"{config.avoid_poly_g}xG"),
             EnforceTranslation(),
         ]
 
-        if avoid_uridine_depletion:
+        if config.avoid_uridine_depletion:
             constraints.append(
                 AvoidRareCodons(0.1, codon_usage_table=URIDINE_DEPLETION_TABLE)
             )
 
-        if avoid_ribosome_slip:
+        if config.avoid_ribosome_slip:
             constraints.append(AvoidPattern("3xT"))
         else:
-            constraints.append(AvoidPattern(f"{avoid_poly_t}xT"))
+            constraints.append(AvoidPattern(f"{config.avoid_poly_t}xT"))
 
         cut_site_constraints = [
             AvoidPattern(f"{site}_site")
-            for site in avoid_restriction_sites or []
+            for site in config.avoid_restriction_sites or []
             if site
         ]
         constraints.extend(cut_site_constraints)
 
         custom_pattern_constraints = [
-            AvoidPattern(it) for it in avoid_sequences or [] if it
+            AvoidPattern(it) for it in config.avoid_sequences or [] if it
         ]
         constraints.extend(custom_pattern_constraints)
 
@@ -350,8 +416,8 @@ class NucleicAcid(msgspec.Struct):
             sequence=self.sequence,
             constraints=constraints,
             objectives=[
-                CodonOptimize(species=organism, method="use_best_codon"),
-                UniquifyAllKmers(k=avoid_repeat_length),
+                CodonOptimize(species=config.organism, method="use_best_codon"),
+                UniquifyAllKmers(k=config.avoid_repeat_length),
             ],
             logger=None,  # type: ignore
         )
@@ -369,11 +435,11 @@ class NucleicAcid(msgspec.Struct):
         except Exception as e:
             raise OptimizationException(f"Optimization process failed: {e}")
 
-        return (
-            NucleicAcid(optimization_problem.sequence),
-            {
-                "time": (time.time() - start),
-                "constraints": optimization_problem.constraints_text_summary(),
-                "objectives": optimization_problem.objectives_text_summary(),
-            },
+        return OptimizationResult(
+            output=NucleicAcid(optimization_problem.sequence),
+            debug=OptimizationResult.Debug(
+                time_seconds=(time.time() - start),
+                constraints=optimization_problem.constraints_text_summary(),
+                objectives=optimization_problem.objectives_text_summary(),
+            ),
         )

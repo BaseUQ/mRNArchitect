@@ -63,39 +63,40 @@ export const OptimizationResults = ({
   };
 
   const body = [
-    generateRow("A ratio", (v) => v.cdsAnalysis.a_ratio.toFixed(2)),
-    generateRow("T/U ratio", (v) => v.cdsAnalysis.t_ratio.toFixed(2)),
-    generateRow("G ratio", (v) => v.cdsAnalysis.g_ratio.toFixed(2)),
-    generateRow("C ratio", (v) => v.cdsAnalysis.c_ratio.toFixed(2)),
-    generateRow("AT ratio", (v) => v.cdsAnalysis.at_ratio.toFixed(2)),
-    generateRow("GA ratio", (v) => v.cdsAnalysis.ga_ratio.toFixed(2)),
-    generateRow("GC ratio", (v) => v.cdsAnalysis.gc_ratio.toFixed(2)),
+    generateRow("A ratio", (v) => v.cdsAnalysis.aRatio.toFixed(2)),
+    generateRow("T/U ratio", (v) => v.cdsAnalysis.tRatio.toFixed(2)),
+    generateRow("G ratio", (v) => v.cdsAnalysis.gRatio.toFixed(2)),
+    generateRow("C ratio", (v) => v.cdsAnalysis.cRatio.toFixed(2)),
+    generateRow("AT ratio", (v) => v.cdsAnalysis.atRatio.toFixed(2)),
+    generateRow("GA ratio", (v) => v.cdsAnalysis.gaRatio.toFixed(2)),
+    generateRow("GC ratio", (v) => v.cdsAnalysis.gcRatio.toFixed(2)),
     generateRow(
       "Uridine depletion",
-      (v) => v.cdsAnalysis.uridine_depletion?.toFixed(2) ?? "-",
+      (v) => v.cdsAnalysis.uridineDepletion?.toFixed(2) ?? "-",
     ),
     generateRow(
       "CAI",
-      (v) => v.cdsAnalysis.codon_adaptation_index?.toFixed(2) ?? "-",
+      (v) => v.cdsAnalysis.codonAdaptationIndex?.toFixed(2) ?? "-",
     ),
     generateRow("CDS MFE (kcal/mol)", (v) =>
-      v.cdsAnalysis.minimum_free_energy[1].toFixed(2),
+      v.cdsAnalysis.minimumFreeEnergy.energy.toFixed(2),
     ),
     generateRow(
       "5' UTR MFE (kcal/mol)",
       (v) =>
-        results.input.fivePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ??
-        "-",
+        results.input.fivePrimeUTRAnalysis?.minimumFreeEnergy.energy.toFixed(
+          2,
+        ) ?? "-",
     ),
     generateRow(
       "3' UTR MFE (kcal/mol)",
       (v) =>
-        results.input.threePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(
+        results.input.threePrimeUTRAnalysis?.minimumFreeEnergy.energy.toFixed(
           2,
         ) ?? "-",
     ),
     generateRow("Total MFE (kcal/mol)", (v) =>
-      v.fullSequenceAnalysis.minimum_free_energy[1].toFixed(2),
+      v.fullSequenceAnalysis.minimumFreeEnergy.energy.toFixed(2),
     ),
   ];
 
@@ -139,19 +140,19 @@ export const OptimizationResults = ({
       "",
       "---Results",
       "Metric\t\t\tInput\tOptimized",
-      `A ratio\t\t\t${results.input.cdsAnalysis.a_ratio.toFixed(2)}\t${cdsAnalysis.a_ratio.toFixed(2)}`,
-      `T/U ratio\t\t${results.input.cdsAnalysis.t_ratio.toFixed(2)}\t${cdsAnalysis.t_ratio.toFixed(2)}`,
-      `G ratio\t\t\t${results.input.cdsAnalysis.g_ratio.toFixed(2)}\t${cdsAnalysis.g_ratio.toFixed(2)}`,
-      `C ratio\t\t\t${results.input.cdsAnalysis.c_ratio.toFixed(2)}\t${cdsAnalysis.c_ratio.toFixed(2)}`,
-      `AT ratio\t\t${results.input.cdsAnalysis.at_ratio.toFixed(2)}\t${cdsAnalysis.at_ratio.toFixed(2)}`,
-      `GA ratio\t\t${results.input.cdsAnalysis.ga_ratio.toFixed(2)}\t${cdsAnalysis.ga_ratio.toFixed(2)}`,
-      `GC ratio\t\t${results.input.cdsAnalysis.gc_ratio.toFixed(2)}\t${cdsAnalysis.gc_ratio.toFixed(2)}`,
-      `Uridine depletion\t${results.input.cdsAnalysis.uridine_depletion?.toFixed(2) ?? "-"}\t${cdsAnalysis.uridine_depletion?.toFixed(2) ?? "-"}`,
-      `CAI\t\t\t${results.input.cdsAnalysis.codon_adaptation_index?.toFixed(2) ?? "-"}\t${cdsAnalysis.codon_adaptation_index?.toFixed(2) ?? "-"}`,
-      `CDS MFE (kcal/mol)\t${results.input.cdsAnalysis.minimum_free_energy[1].toFixed(2)}\t${cdsAnalysis.minimum_free_energy[1].toFixed(2)}`,
-      `5' UTR MFE (kcal/mol)\t${results.input.fivePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}\t${results.input.fivePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}`,
-      `3' UTR MFE (kcal/mol)\t${results.input.threePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}\t${results.input.threePrimeUTRAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}`,
-      `Total MFE (kcal/mol)\t${results.input.fullSequenceAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}\t${fullSequenceAnalysis?.minimum_free_energy[1].toFixed(2) ?? "-"}`,
+      `A ratio\t\t\t${results.input.cdsAnalysis.aRatio.toFixed(2)}\t${cdsAnalysis.aRatio.toFixed(2)}`,
+      `T/U ratio\t\t${results.input.cdsAnalysis.tRatio.toFixed(2)}\t${cdsAnalysis.tRatio.toFixed(2)}`,
+      `G ratio\t\t\t${results.input.cdsAnalysis.gRatio.toFixed(2)}\t${cdsAnalysis.gRatio.toFixed(2)}`,
+      `C ratio\t\t\t${results.input.cdsAnalysis.cRatio.toFixed(2)}\t${cdsAnalysis.cRatio.toFixed(2)}`,
+      `AT ratio\t\t${results.input.cdsAnalysis.atRatio.toFixed(2)}\t${cdsAnalysis.atRatio.toFixed(2)}`,
+      `GA ratio\t\t${results.input.cdsAnalysis.gaRatio.toFixed(2)}\t${cdsAnalysis.gaRatio.toFixed(2)}`,
+      `GC ratio\t\t${results.input.cdsAnalysis.gcRatio.toFixed(2)}\t${cdsAnalysis.gcRatio.toFixed(2)}`,
+      `Uridine depletion\t${results.input.cdsAnalysis.uridineDepletion?.toFixed(2) ?? "-"}\t${cdsAnalysis.uridineDepletion?.toFixed(2) ?? "-"}`,
+      `CAI\t\t\t${results.input.cdsAnalysis.codonAdaptationIndex?.toFixed(2) ?? "-"}\t${cdsAnalysis.codonAdaptationIndex?.toFixed(2) ?? "-"}`,
+      `CDS MFE (kcal/mol)\t${results.input.cdsAnalysis.minimumFreeEnergy.energy.toFixed(2)}\t${cdsAnalysis.minimumFreeEnergy.energy.toFixed(2)}`,
+      `5' UTR MFE (kcal/mol)\t${results.input.fivePrimeUTRAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}\t${results.input.fivePrimeUTRAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}`,
+      `3' UTR MFE (kcal/mol)\t${results.input.threePrimeUTRAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}\t${results.input.threePrimeUTRAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}`,
+      `Total MFE (kcal/mol)\t${results.input.fullSequenceAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}\t${fullSequenceAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}`,
     ],
   );
 
@@ -300,7 +301,9 @@ export const OptimizationResults = ({
                 </Text>
               </Tooltip>
               <Tooltip label="Coding sequence">
-                <Text component="span">{output.optimization.output}</Text>
+                <Text component="span">
+                  {output.optimization.output.sequence}
+                </Text>
               </Tooltip>
               <Tooltip label="3' UTR">
                 <Text component="span" c="green">
