@@ -22,12 +22,13 @@ COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.9.1 /lambda-adapter /opt
 RUN wget -qO viennarna.deb https://www.tbi.univie.ac.at/RNA/download/debian/debian_12/viennarna_2.7.0-1_amd64.deb && \
   apt-get update -qy && \
   apt-get install -qy -f ./viennarna.deb && \
-  rm -rf /var/lib/apt/lists/*
+  rm -rf viennarna.deb /var/lib/apt/lists/*
 
 # Install BLAST+
 # see: https://blast.ncbi.nlm.nih.gov/doc/blast-help/downloadblastdata.html
-RUN --mount=type=bind,source=ncbi-blast-2.16.0+-x64-linux.tar.gz,target=ncbi-blast.tar.gz \
-  tar -xvf ncbi-blast.tar.gz --strip-components=2 -C /usr/bin/ --wildcards "*/bin/*"
+RUN wget -qO ncbi-blast.tar.gz https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.16.0+-x64-linux.tar.gz && \
+  tar -xvf ncbi-blast.tar.gz --strip-components=2 -C /usr/bin/ --wildcards "*/bin/*" && \
+  rm ncbi-blast.tar.gz
 
 # Setup the app directory
 RUN useradd -m app

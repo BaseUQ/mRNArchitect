@@ -8,18 +8,18 @@ permissions:
   id-token: write # This is required for requesting the JWT
   contents: read # This is required for actions/checkout
 
+env:
+  LAMBDA_FUNCTION_NAME: app
+
 jobs:
-  build:
-    name: build
+  build-and-deploy:
     runs-on: ubuntu-latest
+    outputs:
+      lambda-version: ${{ steps.deploy-lambda.outputs.lambda-version }}
+      function-url: ${{ steps.deploy-lambda.outputs.function-url }}
     env:
-      ECR_REPOSITORY: app
       ECR_TAG: production-${{ github.sha }}
-      LAMBDA_FUNCTION_NAME: app
     steps:
-      - uses: actions/checkout@v4
-        with:
-          lfs: true
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ap-southeast-2
@@ -29,24 +29,46 @@ jobs:
       - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v6
         with:
-          context: .  # required to use actions/checkout and lfs
           push: true
-          tags: ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.ECR_TAG }}
+          tags: ${{ steps.ecr.outputs.registry }}/app:${{ env.ECR_TAG }}
           provenance: false
-          cache-from: type=registry,ref=${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:buildcache
-          cache-to: type=registry,ref=${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:buildcache,mode=max
-      - name: Update lambda function - "${{ env.LAMBDA_FUNCTION_NAME }}"
+          cache-from: type=registry,ref=${{ steps.ecr.outputs.registry }}/app:buildcache
+          cache-to: type=registry,ref=${{ steps.ecr.outputs.registry }}/app:buildcache,mode=max
+      - id: deploy-lambda
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
         run: |
-          aws lambda update-function-code \
-            --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
-            --image-uri "${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.ECR_TAG }}"
-          aws lambda wait function-updated-v2 \
-            --function-name ${{ env.LAMBDA_FUNCTION_NAME }}
+          NEW_VERSION=$( \
+            aws lambda update-function-code \
+            --function-name app \
+            --image-uri "$REGISTRY/app:$ECR_TAG" \
+            --publish \
+            --output text --query "Version" \
+          )
+          aws lambda wait published-version-active \
+            --function-name "app:$VERSION"
+          aws lambda update-alias --function-name app --name TEST --function-version $NEW_VERSION
+          FUNCTION_URL=$(aws get-function-url-config --function-name app --qualifier TEST --output text --query "FunctionUrl")
+          echo "lambda-version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "function-url=$FUNCTION_URL" >> "$GITHUB_OUTPUT"
 
   e2e:
-    name: e2e
-    needs: [build]
+    needs: [build-and-deploy]
     uses: ./.github/workflows/e2e.yml
     with:
-      playwright-base-url: https://test-app.basefacility.org.au
+      playwright-base-url: ${{ step.build-and-deploy.outputs.function-url }}
+
+  deploy-production:
+    needs: [build-and-deploy, e2e]
+    runs-on: ubuntu-latest
+    env:
+      LAMBDA_VERSION: ${{ needs.build-and-deploy.outputs.lambda-version }}
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::340752831962:role/deploy
+      - name: Publish lambda version for PRODUCTION
+        run: |
+          aws lambda update-alias --function-name app --name PRODUCTION --function-version $LAMBDA_VERSION
 

@@ -9,14 +9,10 @@ permissions:
 
 jobs:
   test:
-    name: test
     runs-on: ubuntu-latest
     env:
       TAG: ${{ github.sha }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          lfs: true
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ap-southeast-2
@@ -30,7 +26,6 @@ jobs:
           driver: docker
       - uses: docker/build-push-action@v6
         with:
-          context: .
           load: true
           tags: ${{ env.TAG }}
           target: dev
