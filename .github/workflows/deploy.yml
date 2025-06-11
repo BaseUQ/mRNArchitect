@@ -48,8 +48,16 @@ jobs:
           )
           aws lambda wait published-version-active \
             --function-name "app:$NEW_VERSION"
-          aws lambda update-alias --function-name app --name TEST --function-version $NEW_VERSION
-          FUNCTION_URL=$(aws lambda get-function-url-config --function-name app --qualifier TEST --output text --query "FunctionUrl")
+          aws lambda update-alias \
+            --function-name app \
+            --name TEST \
+            --function-version $NEW_VERSION
+          FUNCTION_URL=$( \
+            aws lambda get-function-url-config \
+            --function-name app \
+            --qualifier TEST \
+            --output text --query "FunctionUrl" \
+          )
           echo "lambda-version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           echo "function-url=$FUNCTION_URL" >> "$GITHUB_OUTPUT"
 
@@ -71,7 +79,10 @@ jobs:
           role-to-assume: arn:aws:iam::340752831962:role/deploy
       - name: Publish lambda version for PRODUCTION
         run: |
-          aws lambda update-alias --function-name app --name PRODUCTION --function-version $LAMBDA_VERSION
+          aws lambda update-alias \
+            --function-name app \
+            --name PRODUCTION \
+            --function-version $LAMBDA_VERSION
 
   e2e-production:
     needs: [deploy-production]
