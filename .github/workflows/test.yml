@@ -9,12 +9,10 @@ permissions:
 
 jobs:
   test:
-    name: test
     runs-on: ubuntu-latest
     env:
       TAG: ${{ github.sha }}
     steps:
-      - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ap-southeast-2
