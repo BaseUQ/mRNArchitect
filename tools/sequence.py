@@ -42,21 +42,21 @@ class Analysis(msgspec.Struct, kw_only=True, rename="camel"):
 
 
 class OptimizationConfiguration(msgspec.Struct, kw_only=True, rename="camel"):
-    organism: typing.Literal["h_sapiens", "m_musculus"]
-    avoid_uridine_depletion: bool
-    avoid_ribosome_slip: bool
-    gc_content_min: float
-    gc_content_max: float
-    gc_content_window: int
-    avoid_restriction_sites: list[str]
-    avoid_sequences: str | list[str]
-    avoid_repeat_length: int
-    avoid_poly_a: int
-    avoid_poly_c: int
-    avoid_poly_g: int
-    avoid_poly_t: int
-    hairpin_stem_size: int
-    hairpin_window: int
+    organism: typing.Literal["h_sapiens", "m_musculus"] = "h_sapiens"
+    avoid_uridine_depletion: bool = False
+    avoid_ribosome_slip: bool = False
+    gc_content_min: float = 0.4
+    gc_content_max: float = 0.7
+    gc_content_window: int = 100
+    avoid_restriction_sites: list[str] = msgspec.field(default_factory=list)
+    avoid_sequences: str | list[str] = msgspec.field(default_factory=list)
+    avoid_repeat_length: int = 10
+    avoid_poly_a: int = 9
+    avoid_poly_c: int = 6
+    avoid_poly_g: int = 6
+    avoid_poly_t: int = 9
+    hairpin_stem_size: int = 10
+    hairpin_window: int = 60
 
     def __post_init__(self):
         if isinstance(self.avoid_sequences, str):

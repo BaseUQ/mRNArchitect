@@ -3,6 +3,6 @@ __pycache__
 .github
 .gitignore
 .output
-.pytest_cache_
+.pytest_cache
 .venv
 node_modules

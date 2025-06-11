@@ -9,8 +9,10 @@
     "ignoreUnknown": false,
     "ignore": [
       "routeTree.gen.ts",
+      ".nitro/**",
       ".output/**",
       ".pnpm-store/**",
+      ".tanstack/**",
       ".vinxi/**",
       ".venv/**",
       "data/**"

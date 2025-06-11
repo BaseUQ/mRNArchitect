@@ -21,6 +21,8 @@ jobs:
       TAG: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ap-southeast-2
@@ -34,6 +36,7 @@ jobs:
           driver: docker
       - uses: docker/build-push-action@v6
         with:
+          context: .  # required to use actions/checkout and lfs
           load: true
           tags: ${{ env.TAG }}
           target: e2e

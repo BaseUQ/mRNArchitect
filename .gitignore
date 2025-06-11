@@ -1,5 +1,9 @@
 __pycache__/
+.nitro/
 .output/
+.pytest_cache/
+.ruff_cache/
+.tanstack/
 .venv/
 .vinxi/
 .vscode/
