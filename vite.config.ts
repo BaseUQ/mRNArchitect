@@ -9,5 +9,8 @@ export default defineConfig({
     },
     port: 8080,
   },
+  ssr: {
+    noExternal: ["@phosphor-icons/react"],
+  },
   plugins: [tsConfigPaths(), tanstackStart()],
 });
