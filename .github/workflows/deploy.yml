@@ -34,7 +34,8 @@ jobs:
           provenance: false
           cache-from: type=registry,ref=${{ steps.ecr.outputs.registry }}/app:buildcache
           cache-to: type=registry,ref=${{ steps.ecr.outputs.registry }}/app:buildcache,mode=max
-      - id: deploy-lambda
+      - name: deploy lambda
+        id: deploy-lambda
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
         run: |
