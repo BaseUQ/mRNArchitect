@@ -47,7 +47,7 @@ jobs:
             --output text --query "Version" \
           )
           aws lambda wait published-version-active \
-            --function-name "app:$VERSION"
+            --function-name "app:$NEW_VERSION"
           aws lambda update-alias --function-name app --name TEST --function-version $NEW_VERSION
           FUNCTION_URL=$(aws get-function-url-config --function-name app --qualifier TEST --output text --query "FunctionUrl")
           echo "lambda-version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
