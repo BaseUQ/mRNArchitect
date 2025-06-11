@@ -30,8 +30,10 @@ RUN --mount=type=bind,source=ncbi-blast-2.16.0+-x64-linux.tar.gz,target=ncbi-bla
   tar -xvf ncbi-blast.tar.gz --strip-components=2 -C /usr/bin/ --wildcards "*/bin/*"
 
 # Setup the app directory
-RUN mkdir /app
+RUN useradd -m app
+RUN mkdir /app && chown app:app /app
 WORKDIR /app
+USER app
 
 RUN --mount=type=cache,target=/root/.cache/uv \
   --mount=type=bind,source=uv.lock,target=uv.lock \
@@ -46,23 +48,29 @@ RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
 
 FROM base AS e2e
 
+USER root
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
   --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=bind,source=package.json,target=package.json \
-  pnpm playwright install chromium --no-shell --with-deps
-COPY . .
+  pnpm playwright install-deps
+USER app
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
+  --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
+  --mount=type=bind,source=package.json,target=package.json \
+  pnpm playwright install chromium --no-shell
+COPY --chown=app:app . .
 CMD ["pnpm", "playwright", "test"]
 
 
 FROM base AS dev
 
-COPY . .
+COPY --chown=app:app . .
 CMD ["pnpm", "dev"]
 
 
 FROM base
 
-COPY . .
+COPY --chown=app:app . .
 RUN pnpm build
 CMD ["pnpm", "start"]
 

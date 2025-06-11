@@ -10,7 +10,7 @@ export default defineConfig({
     port: 8080,
   },
   ssr: {
-    noExternal: ["@phosphor-icons/react"],
+    noExternal: ["@phosphor-icons/react"], // fixes "too many open files" error
   },
   plugins: [tsConfigPaths(), tanstackStart()],
 });
