@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("run optimization", async ({ page }) => {
-  await page.goto("/optimizer");
+  await page.goto("/");
   await page.waitForTimeout(1_000); // brief wait for the form to load, should make this better
   await page.getByRole("radio", { name: "Amino acid" }).click();
   await page
@@ -19,7 +19,7 @@ test("run optimization", async ({ page }) => {
 });
 
 test("run pre-fill eGFP optimization", async ({ page }) => {
-  await page.goto("/optimizer");
+  await page.goto("/");
   await page.waitForTimeout(1_000); // brief wait for the form to load, should make this better
   await page.getByText("Show help").click(); // Can't click hidden switch input
   await page.getByRole("button", { name: "Pre-fill eGFP" }).click();

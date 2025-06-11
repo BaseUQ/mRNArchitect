@@ -53,14 +53,14 @@ jobs:
           echo "lambda-version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           echo "function-url=$FUNCTION_URL" >> "$GITHUB_OUTPUT"
 
-  e2e:
+  e2e-test:
     needs: [build-and-deploy]
     uses: ./.github/workflows/e2e.yml
     with:
       playwright-base-url: ${{ needs.build-and-deploy.outputs.function-url }}
 
   deploy-production:
-    needs: [build-and-deploy, e2e]
+    needs: [build-and-deploy, e2e-test]
     runs-on: ubuntu-latest
     env:
       LAMBDA_VERSION: ${{ needs.build-and-deploy.outputs.lambda-version }}
@@ -72,4 +72,10 @@ jobs:
       - name: Publish lambda version for PRODUCTION
         run: |
           aws lambda update-alias --function-name app --name PRODUCTION --function-version $LAMBDA_VERSION
+
+  e2e-production:
+    needs: [deploy-production]
+    uses: ./.github/workflows/e2e.yml
+    with:
+      playwright-base-url: https://app.basefacility.org.au
 
