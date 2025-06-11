@@ -56,7 +56,7 @@ jobs:
     needs: [build-and-deploy]
     uses: ./.github/workflows/e2e.yml
     with:
-      playwright-base-url: ${{ step.build-and-deploy.outputs.function-url }}
+      playwright-base-url: ${{ needs.build-and-deploy.outputs.function-url }}
 
   deploy-production:
     needs: [build-and-deploy, e2e]
