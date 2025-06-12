@@ -31,10 +31,9 @@ RUN wget -qO ncbi-blast.tar.gz https://ftp.ncbi.nlm.nih.gov/blast/executables/bl
   rm ncbi-blast.tar.gz
 
 # Setup the app directory
-RUN useradd -m app
-RUN mkdir /app && chown app:app /app
+RUN mkdir /app && chown node:node /app
 WORKDIR /app
-USER app
+USER node
 
 RUN --mount=type=cache,target=/root/.cache/uv \
   --mount=type=bind,source=uv.lock,target=uv.lock \
@@ -54,24 +53,24 @@ RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
   --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=bind,source=package.json,target=package.json \
   pnpm playwright install-deps
-USER app
+USER node
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
   --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=bind,source=package.json,target=package.json \
   pnpm playwright install chromium --no-shell
-COPY --chown=app:app . .
+COPY --chown=node:node . .
 CMD ["pnpm", "playwright", "test"]
 
 
 FROM base AS dev
 
-COPY --chown=app:app . .
+COPY --chown=node:node . .
 CMD ["pnpm", "dev"]
 
 
 FROM base
 
-COPY --chown=app:app . .
+COPY --chown=node:node . .
 RUN pnpm build
 CMD ["pnpm", "start"]
 
