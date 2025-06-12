@@ -1,3 +1,4 @@
+import csv
 import re
 import typing
 
@@ -71,6 +72,8 @@ Codon = typing.Literal[
 ]
 """The three letter codon (DNA-style, i.e with "T" instead of "U")."""
 
+CODONS = set(typing.get_args(Codon))
+
 AminoAcid = typing.Literal[
     "*",
     "A",
@@ -96,6 +99,7 @@ AminoAcid = typing.Literal[
 ]
 """The 1-letter symbol for an amino acid."""
 
+AMINO_ACIDS = set(typing.get_args(AminoAcid))
 
 CODON_TO_AMINO_ACID_MAP: dict[Codon, AminoAcid] = {
     "TAA": "*",
@@ -169,7 +173,7 @@ Organism = typing.Literal["h_sapiens", "m_musculus"]
 """Supported organisms."""
 
 
-class CodonUsage(msgspec.Struct):
+class CodonUsage(msgspec.Struct, frozen=True):
     """Codon usage for a particular codon and organism."""
 
     codon: Codon
@@ -181,8 +185,11 @@ class CodonUsage(msgspec.Struct):
     number: int
     """The raw number of codons."""
 
+    frequency: float
+    """The frequency of this codon relative to other codons for the same amino acid."""
+
     def __post_init__(self):
-        if self.codon not in typing.get_args(Codon):
+        if self.codon not in CODONS:
             raise ValueError(f"`codon` is not valid: {self.codon}")
         if self.organism not in typing.get_args(Organism):
             raise ValueError(f"`organism` is not valid: {self.organism}")
@@ -200,7 +207,7 @@ MaxCodonUsageTable = dict[AminoAcid, CodonUsage]
 """Maps an amino acid to the maximum codon usage amongs all codons for that amino acid."""
 
 
-class OrganismTable(msgspec.Struct):
+class OrganismTable(msgspec.Struct, frozen=True):
     codon_usage_table: CodonUsageTable
     max_codon_usage_table: MaxCodonUsageTable
 
@@ -209,7 +216,7 @@ OrganismTables = dict[Organism, OrganismTable]
 """Maps an organism to its codon usage tables."""
 
 
-class Organisms(msgspec.Struct):
+class Organisms(msgspec.Struct, frozen=True):
     tables: OrganismTables
 
     def weight(self, organism: Organism, codon: Codon) -> float:
@@ -227,16 +234,16 @@ class Organisms(msgspec.Struct):
             f.write(msgspec.json.encode(self))
 
     @classmethod
-    def load(cls):
+    def load(cls) -> "Organisms":
         return msgspec.json.decode(open("data/organisms.json", "rb").read(), type=cls)
 
     @classmethod
-    def load_from_kazusa(cls):
+    def load_from_kazusa(cls) -> "Organisms":
         import urllib.request
         from string import Template
 
         KAZUSA_URL = Template(
-            "https://www.kazusa.or.jp/codon/cgi-bin/showcodon.cgi?species=$SPECIES&aa=1&style=GCG"
+            "https://www.kazusa.or.jp/codon/cgi-bin/showcodon.cgi?species=$SPECIES_ID&aa=1&style=GCG"
         )
 
         ORGANISMS: dict[Organism, int] = {
@@ -246,12 +253,10 @@ class Organisms(msgspec.Struct):
 
         TABLE_REGEX = r"(?:<PRE>)([\s\S]*)(?:</PRE>)"
 
-        def _fetch_codon_table(
-            organism: Organism, species_number: int
-        ) -> OrganismTable:
+        def _fetch_codon_table(organism: Organism, species_id: int) -> OrganismTable:
             contents = (
                 urllib.request.urlopen(
-                    KAZUSA_URL.substitute({"SPECIES": species_number})
+                    KAZUSA_URL.substitute({"SPECIES_ID": species_id})
                 )
                 .read()
                 .decode("utf-8")
@@ -259,17 +264,27 @@ class Organisms(msgspec.Struct):
             if (match := re.search(TABLE_REGEX, contents)) is None:
                 raise RuntimeError(f"Could not parse {organism}")
             table_string = match.group(1)
+            table_rows = list(
+                csv.DictReader(
+                    [line for line in table_string.split("\n") if line.strip()],
+                    delimiter=" ",
+                    skipinitialspace=True,
+                )
+            )
 
             codon_usages: list[CodonUsage] = [
                 CodonUsage(
-                    codon=typing.cast(Codon, it[1].upper().replace("U", "T")),
+                    codon=typing.cast(Codon, row["Codon"].upper().replace("U", "T")),
                     organism=organism,
-                    number=int(float(it[2])),
+                    number=int(float(row["Number"])),
+                    frequency=float(row["Number"])
+                    / sum(
+                        float(r["Number"])
+                        for r in table_rows
+                        if r["AmAcid"] == row["AmAcid"]
+                    ),
                 )
-                for it in [
-                    row.split() for row in table_string.split("\n") if row.strip()
-                ]
-                if not it[0] == "AmAcid"  # Skip header
+                for row in table_rows
             ]
             codon_usage_table: CodonUsageTable = {it.codon: it for it in codon_usages}
 
@@ -278,7 +293,7 @@ class Organisms(msgspec.Struct):
                     (it for it in codon_usages if it.amino_acid == amino_acid),
                     key=lambda x: x.number,
                 )[-1]
-                for amino_acid in set(CODON_TO_AMINO_ACID_MAP.values())
+                for amino_acid in AMINO_ACIDS
             }
 
             return OrganismTable(
@@ -288,7 +303,7 @@ class Organisms(msgspec.Struct):
 
         return cls(
             tables={
-                organism: _fetch_codon_table(organism, species_number)
-                for organism, species_number in ORGANISMS.items()
+                organism: _fetch_codon_table(organism, species_id)
+                for organism, species_id in ORGANISMS.items()
             }
         )

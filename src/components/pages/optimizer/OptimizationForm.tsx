@@ -81,7 +81,7 @@ export const OptimizeForm = () => {
       polyATail: "",
       numberOfSequences: 3,
       organism: "h_sapiens",
-      avoidUridineDepletion: false,
+      enableUridineDepletion: false,
       avoidRibosomeSlip: false,
       gcContentMin: 0.4,
       gcContentMax: 0.7,

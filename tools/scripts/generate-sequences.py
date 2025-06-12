@@ -9,19 +9,21 @@ from ..sequence import NucleicAcid, OptimizationConfiguration
 def _optimize(
     index: int,
     sequence: str,
-    avoid_uridine_depletion: bool,
+    enable_uridine_depletion: bool,
     avoid_ribosome_slip: bool,
     gc_content_min: float,
     gc_content_max: float,
+    gc_content_window: int,
     avoid_repeat_length: int,
 ) -> tuple[dict, dict | None, Exception | None]:
     print(f"#{index}: Starting...")
     input = {
         "sequence": sequence,
-        "avoid_uridine_depletion": avoid_uridine_depletion,
+        "enable_uridine_depletion": enable_uridine_depletion,
         "avoid_ribosome_slip": avoid_ribosome_slip,
         "gc_content_min": gc_content_min,
         "gc_content_max": gc_content_max,
+        "gc_content_window": gc_content_window,
         "avoid_repeat_length": avoid_repeat_length,
     }
     result, error = None, None
@@ -30,7 +32,8 @@ def _optimize(
             OptimizationConfiguration(
                 gc_content_min=gc_content_min,
                 gc_content_max=gc_content_max,
-                avoid_uridine_depletion=avoid_uridine_depletion,
+                gc_content_window=gc_content_window,
+                enable_uridine_depletion=enable_uridine_depletion,
                 avoid_ribosome_slip=avoid_ribosome_slip,
                 avoid_repeat_length=avoid_repeat_length,
             )
@@ -58,20 +61,22 @@ if __name__ == "__main__":
     sequence = "MEDAKNIKKGPAPFYPLEDGTAGEQLHKAMKRYALVPGTIAFTDAHIEVDITYAEYFEMSVRLAEAMKRYGLNTNHRIVVCSENSLQFFMPVLGALFIGVAVAPANDIYNERELLNSMGISQPTVVFVSKKGLQKILNVQKKLPIIQKIIIMDSKTDYQGFQSMYTFVTSHLPPGFNEYDFVPESFDRDKTIALIMNSSGSTGLPKGVALPHRTACVRFSHARDPIFGNQIIPDTAILSVVPFHHGFGMFTTLGYLICGFRVVLMYRFEEELFLRSLQDYKIQSALLVPTLFSFFAKSTLIDKYDLSNLHEIASGGAPLSKEVGEAVAKRFHLPGIRQGYGLTETTSAILITPEGDDKPGAVGKVVPFFEAKVVDLDTGKTLGVNQRGELCVRGPMIMSGYVNNPEATNALIDKDGWLHSGDIAYWDEDEHFFIVDRLKSLIKYKGYQVAPAELESILLQHPNIFDAGVAGLPDDDAGELPAAVVVLEHGKTMTEKEIVDYVASQVTTAKKLRGGVVFVDEVPKGLTGKLDARKIREILIKAKKGGKIAV"
     """Luciferase"""
 
-    avoid_uridine_depletion_range = [True, False]
+    enable_uridine_depletion_range = [True, False]
     avoid_ribosome_slip_range = [True, False]
     gc_content_min_range = list(i / 20 for i in range(0, 21))
     gc_content_max_range = list(i / 20 for i in range(0, 21))
+    gc_content_window = list(range(0, 201, 20))
     avoid_repeat_length_range = list(range(5, 16))
 
     parameters = list(
         p
         for p in itertools.product(
             [sequence],
-            avoid_uridine_depletion_range,
+            enable_uridine_depletion_range,
             avoid_ribosome_slip_range,
             gc_content_min_range,
             gc_content_max_range,
+            gc_content_window,
             avoid_repeat_length_range,
         )
         if p[3] <= p[4]
@@ -96,10 +101,11 @@ if __name__ == "__main__":
                 fieldnames=[
                     "status",
                     "reason",
-                    "avoid_uridine_depletion",
+                    "enable_uridine_depletion",
                     "avoid_ribosome_slip",
                     "gc_content_min",
                     "gc_content_max",
+                    "gc_content_window",
                     "avoid_repeat_length",
                     "output_sequence",
                     "a_ratio",

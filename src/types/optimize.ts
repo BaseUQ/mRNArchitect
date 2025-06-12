@@ -8,7 +8,7 @@ export const OptimizationRequest = z.object({
   polyATail: z.string(),
   numberOfSequences: z.number().int().min(1).max(10),
   organism: z.union([z.literal("h_sapiens"), z.literal("m_musculus")]),
-  avoidUridineDepletion: z.boolean(),
+  enableUridineDepletion: z.boolean(),
   avoidRibosomeSlip: z.boolean(),
   gcContentMin: z.number().min(0).max(1),
   gcContentMax: z.number().min(0).max(1),

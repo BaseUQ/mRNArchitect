@@ -43,7 +43,7 @@ class Analysis(msgspec.Struct, kw_only=True, rename="camel"):
 
 class OptimizationConfiguration(msgspec.Struct, kw_only=True, rename="camel"):
     organism: typing.Literal["h_sapiens", "m_musculus"] = "h_sapiens"
-    avoid_uridine_depletion: bool = False
+    enable_uridine_depletion: bool = False
     avoid_ribosome_slip: bool = False
     gc_content_min: float = 0.4
     gc_content_max: float = 0.7
@@ -326,52 +326,6 @@ class NucleicAcid(msgspec.Struct):
         MAX_RANDOM_ITERS = 20_000
         """The maximum number of iterations to run when optimizing."""
 
-        URIDINE_DEPLETION_TABLE = {
-            "*": {"TAA": 0.276, "TAG": 0.223, "TGA": 0.5},
-            "A": {"GCA": 0.349, "GCC": 0.53, "GCG": 0.121, "GCT": 0},
-            "C": {"TGC": 1.0, "TGT": 0},
-            "D": {"GAC": 1.0, "GAT": 0},
-            "E": {"GAA": 0.459, "GAG": 0.541},
-            "F": {"TTC": 1.0, "TTT": 0},
-            "G": {"GGA": 0.328, "GGC": 0.379, "GGG": 0.294, "GGT": 0},
-            "H": {"CAC": 1.0, "CAT": 0},
-            "I": {"ATA": 0.302, "ATC": 0.698, "ATT": 0},
-            "K": {"AAA": 0.464, "AAG": 0.536},
-            "L": {
-                "CTA": 0.089,
-                "CTC": 0.213,
-                "CTG": 0.432,
-                "TTA": 0.104,
-                "TTG": 0.161,
-                "CTT": 0,
-            },
-            "M": {"ATG": 1.0},
-            "N": {"AAC": 1.0, "AAT": 0},
-            "P": {"CCA": 0.427, "CCC": 0.432, "CCG": 0.141, "CCT": 0},
-            "Q": {"CAA": 0.284, "CAG": 0.716},
-            "R": {
-                "AGA": 0.259,
-                "AGG": 0.236,
-                "CGA": 0.125,
-                "CGC": 0.17,
-                "CGG": 0.21,
-                "CGT": 0,
-            },
-            "S": {
-                "AGC": 0.357,
-                "TCA": 0.256,
-                "TCC": 0.314,
-                "TCG": 0.073,
-                "AGT": 0,
-                "TCT": 0,
-            },
-            "T": {"ACA": 0.413, "ACC": 0.447, "ACG": 0.14, "ACT": 0},
-            "V": {"GTA": 0.163, "GTC": 0.286, "GTG": 0.551, "GTT": 0},
-            "W": {"TGG": 1.0},
-            "Y": {"TAC": 1.0, "TAT": 0},
-        }
-        """Used to calculate uridine depletion."""
-
         constraints = [
             EnforceGCContent(mini=config.gc_content_min, maxi=config.gc_content_max),  # type: ignore
             EnforceGCContent(
@@ -388,9 +342,19 @@ class NucleicAcid(msgspec.Struct):
             EnforceTranslation(),
         ]
 
-        if config.avoid_uridine_depletion:
+        if config.enable_uridine_depletion:
+            uridine_depletion_codon_usage_table = {
+                amino_acid: {
+                    codon: (0.0 if codon[-1] == "T" else 1.0)
+                    for codon, aa in CODON_TO_AMINO_ACID_MAP.items()
+                    if aa == amino_acid
+                }
+                for amino_acid in set(CODON_TO_AMINO_ACID_MAP.values())
+            }
             constraints.append(
-                AvoidRareCodons(0.1, codon_usage_table=URIDINE_DEPLETION_TABLE)
+                AvoidRareCodons(
+                    0.5, codon_usage_table=uridine_depletion_codon_usage_table
+                )
             )
 
         if config.avoid_ribosome_slip:
