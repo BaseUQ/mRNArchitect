@@ -7,6 +7,7 @@ import {
   OptimizationRequest,
   OptimizationResponse,
 } from "~/types/optimize";
+import { loggingMiddleware } from "~/global-middleware";
 
 const execFileAsync = utils.promisify(childProcess.execFile);
 
@@ -18,6 +19,7 @@ const SequenceAndOrganism = z.object({
 type SequenceAndOrganism = z.infer<typeof SequenceAndOrganism>;
 
 export const convertSequenceToNucleicAcid = createServerFn({ method: "POST" })
+  .middleware([loggingMiddleware])
   .validator((data: SequenceAndOrganism) => SequenceAndOrganism.parse(data))
   .handler(async ({ data: { sequence, organism } }) => {
     const { stdout } = await execFileAsync(
@@ -35,6 +37,7 @@ export const convertSequenceToNucleicAcid = createServerFn({ method: "POST" })
   });
 
 export const analyzeSequence = createServerFn({ method: "POST" })
+  .middleware([loggingMiddleware])
   .validator((data: SequenceAndOrganism) => SequenceAndOrganism.parse(data))
   .handler(async ({ data: { sequence, organism } }) => {
     const { stdout } = await execFileAsync(
@@ -46,6 +49,7 @@ export const analyzeSequence = createServerFn({ method: "POST" })
   });
 
 export const optimizeSequence = createServerFn({ method: "POST" })
+  .middleware([loggingMiddleware])
   .validator((data: OptimizationRequest) => OptimizationRequest.parse(data))
   .handler(async ({ data }) => {
     const { stdout } = await execFileAsync(

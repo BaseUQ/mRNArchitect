@@ -5,14 +5,14 @@ import {
 import { getHeaders } from "@tanstack/react-start/server";
 import { differenceInMilliseconds } from "date-fns";
 
-const loggingMiddleware = createMiddleware({ type: "function" }).server(
+export const loggingMiddleware = createMiddleware({ type: "function" }).server(
   async ({ next, data }) => {
     const startTime = Date.now();
     const result = await next();
     const endTime = Date.now();
     const headers = getHeaders();
     try {
-      console.log(
+      console.info(
         JSON.stringify({
           requestData: data,
           requestIp: headers["x-forwarded-for"] ?? "unknown",
