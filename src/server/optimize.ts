@@ -29,7 +29,7 @@ export const convertSequenceToNucleicAcid = createServerFn({ method: "POST" })
         sequence,
         organism,
       ],
-      { shell: true, timeout: 5_000 },
+      { shell: false, timeout: 5_000 },
     );
     return z.string().nonempty().parse(JSON.parse(stdout));
   });
