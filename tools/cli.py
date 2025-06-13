@@ -4,7 +4,7 @@ import typing
 import msgspec
 
 from .organism import Organism, Organisms
-from .sequence import NucleicAcid, OptimizationConfiguration
+from .sequence import Sequence, OptimizationConfiguration
 
 
 if __name__ == "__main__":
@@ -27,18 +27,17 @@ if __name__ == "__main__":
         organism = typing.cast(Organism, sys.argv[3])
         print(
             msgspec.json.encode(
-                str(NucleicAcid.from_amino_acid(sequence, organism))
+                str(Sequence.from_amino_acid_sequence(sequence, organism))
             ).decode(),
             end="",
         )
     elif command == "analyze-sequence":
-        sequence = sys.argv[2]
+        sequence = Sequence(sys.argv[2])
         organism = typing.cast(Organism, sys.argv[3])
-        nucleic_acid = NucleicAcid(sequence)
-        result = nucleic_acid.analyze(organism)
+        result = sequence.analyze(organism)
         print(msgspec.json.encode(result).decode(), end="")
     elif command == "optimize-sequence":
-        sequence = NucleicAcid(sequence=sys.argv[2])
+        sequence = Sequence(sys.argv[2])
         config = msgspec.json.decode(sys.argv[3], type=OptimizationConfiguration)
         result = sequence.optimize(config)
         print(

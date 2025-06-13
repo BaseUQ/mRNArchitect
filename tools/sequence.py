@@ -74,40 +74,42 @@ class OptimizationResult(msgspec.Struct, kw_only=True, rename="camel"):
         constraints: str
         objectives: str
 
-    output: "NucleicAcid"
+    output: "Sequence"
     debug: Debug
 
 
-class NucleicAcid(msgspec.Struct):
-    """A nucleic acid sequence.
+class Sequence(msgspec.Struct):
+    """A sequence.
 
-    >>> str(NucleicAcid("att"))
+    >>> str(Sequence("att"))
     'ATT'
 
-    >>> str(NucleicAcid("AtU"))
+    >>> str(Sequence("AtU"))
     'ATT'
     """
 
-    sequence: str
+    nucleic_acid_sequence: str
     """The nucleic acid sequence."""
 
     def __post_init__(self):
         # Normalize sequence to be DNA-like
-        self.sequence = self.sequence.upper().replace("U", "T")
-        if match := re.search(r"[^ACGT]+", self.sequence):
+        self.nucleic_acid_sequence = self.nucleic_acid_sequence.upper().replace(
+            "U", "T"
+        )
+        if match := re.search(r"[^ACGT]+", self.nucleic_acid_sequence):
             raise ValueError(f"`sequence` contains invalid character: {match.group(0)}")
 
     @classmethod
-    def from_amino_acid(
+    def from_amino_acid_sequence(
         cls, amino_acid_sequence: str, organism: Organism = "h_sapiens"
-    ) -> "NucleicAcid":
+    ) -> "Sequence":
         """Create a NucleicAcid from an amino acid sequence.
 
-        >>> str(NucleicAcid.from_amino_acid("IR"))
+        >>> str(Sequence.from_amino_acid_sequence("IR"))
         'ATCAGA'
         """
         organisms = Organisms.load()
-        return NucleicAcid(
+        return cls(
             "".join(
                 organisms.max_codon(organism, typing.cast(AminoAcid, amino_acid))
                 for amino_acid in amino_acid_sequence
@@ -117,55 +119,55 @@ class NucleicAcid(msgspec.Struct):
     def __len__(self):
         """The nucleotide length of the nucleic acid.
 
-        >>> len(NucleicAcid("ATACGG"))
+        >>> len(Sequence("ATACGG"))
         6
         """
-        return len(self.sequence)
+        return len(self.nucleic_acid_sequence)
 
     def __iter__(self):
         """Iterate over each codon triplet in the sequence."""
-        return iter(self.sequence)
+        return iter(self.nucleic_acid_sequence)
 
     def __str__(self) -> str:
-        return self.sequence
+        return self.nucleic_acid_sequence
 
-    def __add__(self, other: "NucleicAcid") -> "NucleicAcid":
-        return NucleicAcid(sequence=self.sequence + other.sequence)
+    def __add__(self, other: "Sequence") -> "Sequence":
+        return Sequence(self.nucleic_acid_sequence + other.nucleic_acid_sequence)
 
     def __bool__(self) -> bool:
-        return bool(self.sequence)
+        return bool(self.nucleic_acid_sequence)
 
     def __hash__(self):
-        return hash(self.sequence)
+        return hash(self.nucleic_acid_sequence)
 
     @property
     @functools.cache
-    def is_amino_acid(self):
+    def is_amino_acid_sequence(self):
         """Returns True if the sequence may be an amino acid (i.e. length % 3 == 0).
 
-        >>> NucleicAcid("AGT").is_amino_acid
+        >>> Sequence("AGT").is_amino_acid_sequence
         True
 
-        >>> NucleicAcid("U").is_amino_acid
+        >>> Sequence("U").is_amino_acid_sequence
         False
         """
-        return len(self.sequence) % 3 == 0
+        return len(self.nucleic_acid_sequence) % 3 == 0
 
     @property
     def codons(self) -> typing.Iterator[Codon]:
-        if not self.is_amino_acid:
+        if not self.is_amino_acid_sequence:
             raise ValueError(
                 "Nucleic acid sequence length must be a multiple of 3 to be a valid amino acid sequence."
             )
-        for i in range(0, len(self.sequence), 3):
-            yield typing.cast(Codon, self.sequence[i : i + 3])
+        for i in range(0, len(self.nucleic_acid_sequence), 3):
+            yield typing.cast(Codon, self.nucleic_acid_sequence[i : i + 3])
 
     @property
     @functools.cache
-    def amino_acid(self) -> str:
+    def amino_acid_sequence(self) -> str:
         """Returns the nucleic acid sequence as an amino acid sequence.
 
-        >>> NucleicAcid("ATACGG").amino_acid
+        >>> Sequence("ATACGG").amino_acid_sequence
         'IR'
         """
         return "".join(CODON_TO_AMINO_ACID_MAP[codon] for codon in self.codons)
@@ -175,46 +177,54 @@ class NucleicAcid(msgspec.Struct):
     def a_ratio(self):
         """The ratio of A nucleotides in the sequence.
 
-        >>> NucleicAcid("ACCGGGTTTT").a_ratio
+        >>> Sequence("ACCGGGTTTT").a_ratio
         0.1
         """
-        return len([it for it in self.sequence if it == "A"]) / len(self.sequence)
+        return len([it for it in self.nucleic_acid_sequence if it == "A"]) / len(
+            self.nucleic_acid_sequence
+        )
 
     @property
     @functools.cache
     def c_ratio(self):
         """The ratio of C nucleotides in the sequence.
 
-        >>> NucleicAcid("ACCGGGTTTT").c_ratio
+        >>> Sequence("ACCGGGTTTT").c_ratio
         0.2
         """
-        return len([it for it in self.sequence if it == "C"]) / len(self.sequence)
+        return len([it for it in self.nucleic_acid_sequence if it == "C"]) / len(
+            self.nucleic_acid_sequence
+        )
 
     @property
     @functools.cache
     def g_ratio(self):
         """The ratio of G nucleotides in the sequence.
 
-        >>> NucleicAcid("ACCGGGTTTT").g_ratio
+        >>> Sequence("ACCGGGTTTT").g_ratio
         0.3
         """
-        return len([it for it in self.sequence if it == "G"]) / len(self.sequence)
+        return len([it for it in self.nucleic_acid_sequence if it == "G"]) / len(
+            self.nucleic_acid_sequence
+        )
 
     @property
     @functools.cache
     def t_ratio(self):
         """The ratio of T nucleotides in the sequence.
 
-        >>> NucleicAcid("ACCGGGTTTT").t_ratio
+        >>> Sequence("ACCGGGTTTT").t_ratio
         0.4
         """
-        return len([it for it in self.sequence if it == "T"]) / len(self.sequence)
+        return len([it for it in self.nucleic_acid_sequence if it == "T"]) / len(
+            self.nucleic_acid_sequence
+        )
 
     @property
     def at_ratio(self):
         """The combined ratio of A and T/U nucleotides in the sequence.
 
-        >>> NucleicAcid("ACCGGGTTTT").at_ratio
+        >>> Sequence("ACCGGGTTTT").at_ratio
         0.5
         """
         return self.a_ratio + self.t_ratio
@@ -223,7 +233,7 @@ class NucleicAcid(msgspec.Struct):
     def ga_ratio(self):
         """The combined ratio of G and A nucleotides in the sequence.
 
-        >>> NucleicAcid("ACCGGGTTTT").ga_ratio
+        >>> Sequence("ACCGGGTTTT").ga_ratio
         0.4
         """
         return self.a_ratio + self.g_ratio
@@ -232,7 +242,7 @@ class NucleicAcid(msgspec.Struct):
     def gc_ratio(self):
         """The combined ratio of G and C nucleotides in the sequence.
 
-        >>> NucleicAcid("ACCGGGTTTT").gc_ratio
+        >>> Sequence("ACCGGGTTTT").gc_ratio
         0.5
         """
         return self.c_ratio + self.g_ratio
@@ -242,10 +252,10 @@ class NucleicAcid(msgspec.Struct):
     def uridine_depletion(self) -> float | None:
         """The Uridine depletion of the sequence.
 
-        >>> NucleicAcid("AAAAAT").uridine_depletion
+        >>> Sequence("AAAAAT").uridine_depletion
         0.5
         """
-        if not self.is_amino_acid:
+        if not self.is_amino_acid_sequence:
             return None
 
         codons = list(self.codons)
@@ -255,19 +265,19 @@ class NucleicAcid(msgspec.Struct):
     def codon_adaptation_index(self, organism: Organism) -> float | None:
         """Calculate the Codon Adaptation Index of the sequence using the provided codon table.
 
-        >>> NucleicAcid("ATACGG").codon_adaptation_index("h_sapiens")
+        >>> Sequence("ATACGG").codon_adaptation_index("h_sapiens")
         0.5812433943953039
 
-        >>> NucleicAcid("ATACGG").codon_adaptation_index("m_musculus")
+        >>> Sequence("ATACGG").codon_adaptation_index("m_musculus")
         0.5232073207377501
 
-        >>> NucleicAcid("A").codon_adaptation_index("h_sapiens")
+        >>> Sequence("A").codon_adaptation_index("h_sapiens")
 
 
-        >>> NucleicAcid("").codon_adaptation_index("h_sapiens")
+        >>> Sequence("").codon_adaptation_index("h_sapiens")
 
         """
-        if not self.sequence or not self.is_amino_acid:
+        if not self.nucleic_acid_sequence or not self.is_amino_acid_sequence:
             return None
 
         organisms = Organisms.load()
@@ -280,7 +290,7 @@ class NucleicAcid(msgspec.Struct):
     def minimum_free_energy(self) -> MinimumFreeEnergy:
         """Calculate the minimum free energy of the sequence.
 
-        >>> NucleicAcid("ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC").minimum_free_energy
+        >>> Sequence("ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC").minimum_free_energy
         MinimumFreeEnergy(structure='.((((.((((((......))).)))))))........', energy=-10.199999809265137)
         """
         import RNA
@@ -377,7 +387,7 @@ class NucleicAcid(msgspec.Struct):
         start = time.time()
 
         optimization_problem = DnaOptimizationProblem(
-            sequence=self.sequence,
+            sequence=self.nucleic_acid_sequence,
             constraints=constraints,
             objectives=[
                 CodonOptimize(species=config.organism, method="use_best_codon"),
@@ -400,7 +410,7 @@ class NucleicAcid(msgspec.Struct):
             raise OptimizationException(f"Optimization process failed: {e}")
 
         return OptimizationResult(
-            output=NucleicAcid(optimization_problem.sequence),
+            output=Sequence(optimization_problem.sequence),
             debug=OptimizationResult.Debug(
                 time_seconds=(time.time() - start),
                 constraints=optimization_problem.constraints_text_summary(),

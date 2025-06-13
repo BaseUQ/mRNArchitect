@@ -8,6 +8,8 @@ import boto3
 import msgspec
 from botocore.config import Config
 
+from ..constants import SEQUENCE_EGFP
+
 if __name__ == "__main__":
     logs = boto3.client("logs", config=Config(region_name="ap-southeast-2"))
 
@@ -51,6 +53,13 @@ if __name__ == "__main__":
         key=lambda x: f"{x['requestIp']}-{x['_time']}",
     )
     print(f"Full sequences: {len(full_sequences)}")
+
+    full_sequences = [
+        it
+        for it in full_sequences
+        if it["requestData"]["sequence"] != str(SEQUENCE_EGFP)
+    ]
+    print(f"Full sequences (excl. EGFP): {len(full_sequences)}")
 
     # Remove sequences that have been submitted together
     # i.e. the same input sequence, from the same IP address, and submitted within 10 seconds of each other
@@ -119,3 +128,7 @@ if __name__ == "__main__":
         fieldnames=columns,
         delimiter="\t",
     )
+    with open("sequence-report-data.json", "w") as f:
+        import json
+
+        f.write(json.dumps(list(reader)))

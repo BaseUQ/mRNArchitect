@@ -28,7 +28,7 @@ export type OptimizationRequest = z.infer<typeof OptimizationRequest>;
 
 export const OptimizationResponse = z.object({
   output: z.object({
-    sequence: z.string().nonempty(),
+    nucleic_acid_sequence: z.string().nonempty(),
   }),
   debug: z.object({
     constraints: z.string().nonempty(),

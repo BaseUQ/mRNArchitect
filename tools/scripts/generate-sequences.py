@@ -3,7 +3,7 @@ import itertools
 import multiprocessing
 
 
-from ..sequence import NucleicAcid, OptimizationConfiguration
+from ..sequence import Sequence, OptimizationConfiguration
 
 
 def _optimize(
@@ -28,7 +28,7 @@ def _optimize(
     }
     result, error = None, None
     try:
-        optimized = NucleicAcid.from_amino_acid(sequence).optimize(
+        optimized = Sequence.from_amino_acid_sequence(sequence).optimize(
             OptimizationConfiguration(
                 gc_content_min=gc_content_min,
                 gc_content_max=gc_content_max,
@@ -39,7 +39,7 @@ def _optimize(
             )
         )
         result = {
-            "output_sequence": optimized.output.sequence,
+            "output_sequence": optimized.output.nucleic_acid_sequence,
             "a_ratio": optimized.output.a_ratio,
             "c_ratio": optimized.output.c_ratio,
             "g_ratio": optimized.output.g_ratio,

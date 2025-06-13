@@ -83,14 +83,14 @@ export const OptimizationResults = ({
     ),
     generateRow(
       "5' UTR MFE (kcal/mol)",
-      (v) =>
+      () =>
         results.input.fivePrimeUTRAnalysis?.minimumFreeEnergy.energy.toFixed(
           2,
         ) ?? "-",
     ),
     generateRow(
       "3' UTR MFE (kcal/mol)",
-      (v) =>
+      () =>
         results.input.threePrimeUTRAnalysis?.minimumFreeEnergy.energy.toFixed(
           2,
         ) ?? "-",
@@ -134,9 +134,9 @@ export const OptimizationResults = ({
     ({ optimization, cdsAnalysis, fullSequenceAnalysis }, index) => [
       `---Optimized Sequence #${index + 1}`,
       "",
-      `CDS:\t\t\t${optimization.output}`,
+      `CDS:\t\t\t${optimization.output.nucleic_acid_sequence}`,
       "",
-      `Full-length mRNA:\t${input.fivePrimeUTR + optimization.output + input.threePrimeUTR + input.polyATail}`,
+      `Full-length mRNA:\t${input.fivePrimeUTR + optimization.output.nucleic_acid_sequence + input.threePrimeUTR + input.polyATail}`,
       "",
       "---Results",
       "Metric\t\t\tInput\tOptimized",
@@ -300,7 +300,7 @@ export const OptimizationResults = ({
               </Tooltip>
               <Tooltip label="Coding sequence">
                 <Text component="span">
-                  {output.optimization.output.sequence}
+                  {output.optimization.output.nucleic_acid_sequence}
                 </Text>
               </Tooltip>
               <Tooltip label="3' UTR">
