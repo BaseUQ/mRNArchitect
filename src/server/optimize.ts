@@ -1,15 +1,15 @@
-import childProcess from "node:child_process";
+import { execFile } from "node:child_process";
 import utils from "node:util";
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
+import { loggingMiddleware } from "~/global-middleware";
 import {
   AnalyzeResponse,
   OptimizationRequest,
   OptimizationResponse,
 } from "~/types/optimize";
-import { loggingMiddleware } from "~/global-middleware";
 
-const execFileAsync = utils.promisify(childProcess.execFile);
+const execFileAsync = utils.promisify(execFile);
 
 const SequenceAndOrganism = z.object({
   sequence: z.string().nonempty(),

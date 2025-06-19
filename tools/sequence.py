@@ -6,13 +6,15 @@ import typing
 
 import msgspec
 
-from .organism import (
-    AminoAcid,
+from .constants import (
     CODON_TO_AMINO_ACID_MAP,
-    Codon,
-    Organism,
-    Organisms,
 )
+from .organism import (
+    KAZUSA_HOMO_SAPIENS,
+    load_organism,
+    Organism,
+)
+from .types import AminoAcid, Codon
 
 
 class OptimizationException(Exception):
@@ -42,7 +44,11 @@ class Analysis(msgspec.Struct, kw_only=True, rename="camel"):
 
 
 class OptimizationConfiguration(msgspec.Struct, kw_only=True, rename="camel"):
-    organism: typing.Literal["h_sapiens", "m_musculus"] = "h_sapiens"
+    class OrganismDef(msgspec.Struct, kw_only=True, rename="camel"):
+        source: typing.Literal["kazusa"]
+        id: str
+
+    organism: Organism | str = KAZUSA_HOMO_SAPIENS
     enable_uridine_depletion: bool = False
     avoid_ribosome_slip: bool = False
     gc_content_min: float = 0.4
@@ -78,13 +84,10 @@ class OptimizationResult(msgspec.Struct, kw_only=True, rename="camel"):
     debug: Debug
 
 
-class Sequence(msgspec.Struct):
+class Sequence(msgspec.Struct, frozen=True):
     """A sequence.
 
-    >>> str(Sequence("att"))
-    'ATT'
-
-    >>> str(Sequence("AtU"))
+    >>> str(Sequence("ATT"))
     'ATT'
     """
 
@@ -92,29 +95,50 @@ class Sequence(msgspec.Struct):
     """The nucleic acid sequence."""
 
     def __post_init__(self):
-        # Normalize sequence to be DNA-like
-        self.nucleic_acid_sequence = self.nucleic_acid_sequence.upper().replace(
-            "U", "T"
-        )
         if match := re.search(r"[^ACGT]+", self.nucleic_acid_sequence):
             raise ValueError(f"`sequence` contains invalid character: {match.group(0)}")
 
     @classmethod
-    def from_amino_acid_sequence(
-        cls, amino_acid_sequence: str, organism: Organism = "h_sapiens"
-    ) -> "Sequence":
-        """Create a NucleicAcid from an amino acid sequence.
+    def from_nucleic_acid_sequence(cls, nucleic_acid_sequence: str) -> "Sequence":
+        """Create a Sequence from a nucleic acid sequence.
+        Ensures that the sequence will be upper cased and any `U` codons replaced with `T`.
 
-        >>> str(Sequence.from_amino_acid_sequence("IR"))
+        >>> str(Sequence.from_nucleic_acid_sequence("AuT"))
+        'ATT'
+        """
+        return cls(nucleic_acid_sequence.upper().replace("U", "T"))
+
+    @classmethod
+    def from_nn(cls, nucleic_acid_sequence: str) -> "Sequence":
+        """Alias of Sequence.from_nucleic_acid_sequence(...)"""
+        return cls.from_nucleic_acid_sequence(nucleic_acid_sequence)
+
+    @classmethod
+    def from_amino_acid_sequence(
+        cls,
+        amino_acid_sequence: str,
+        organism: Organism | str = KAZUSA_HOMO_SAPIENS,
+    ) -> "Sequence":
+        """Create a Sequence from an amino acid sequence.
+        The nucleic acid sequence will be codon optimized for the given `organism`.
+
+        >>> str(Sequence.from_amino_acid_sequence("Ir"))
         'ATCAGA'
         """
-        organisms = Organisms.load()
+        organism = load_organism(organism)
         return cls(
             "".join(
-                organisms.max_codon(organism, typing.cast(AminoAcid, amino_acid))
-                for amino_acid in amino_acid_sequence
-            )
+                organism.max_codon(typing.cast(AminoAcid, amino_acid))
+                for amino_acid in amino_acid_sequence.upper()
+            ).upper()
         )
+
+    @classmethod
+    def from_aa(
+        cls, amino_acid_sequence, organism: Organism | str = KAZUSA_HOMO_SAPIENS
+    ) -> "Sequence":
+        """Alias from Sequence.from_amino_acid_sequence(...)"""
+        return cls.from_amino_acid_sequence(amino_acid_sequence, organism)
 
     def __len__(self):
         """The nucleotide length of the nucleic acid.
@@ -140,6 +164,9 @@ class Sequence(msgspec.Struct):
     def __hash__(self):
         return hash(self.nucleic_acid_sequence)
 
+    def __getitem__(self, val) -> "Sequence":
+        return Sequence(self.nucleic_acid_sequence[val])
+
     @property
     @functools.cache
     def is_amino_acid_sequence(self):
@@ -148,7 +175,7 @@ class Sequence(msgspec.Struct):
         >>> Sequence("AGT").is_amino_acid_sequence
         True
 
-        >>> Sequence("U").is_amino_acid_sequence
+        >>> Sequence("T").is_amino_acid_sequence
         False
         """
         return len(self.nucleic_acid_sequence) % 3 == 0
@@ -262,26 +289,26 @@ class Sequence(msgspec.Struct):
         return len([it for it in codons if it[2] == "T"]) / len(codons)
 
     @functools.cache
-    def codon_adaptation_index(self, organism: Organism) -> float | None:
+    def codon_adaptation_index(
+        self, organism: Organism | str = KAZUSA_HOMO_SAPIENS
+    ) -> float | None:
         """Calculate the Codon Adaptation Index of the sequence using the provided codon table.
 
-        >>> Sequence("ATACGG").codon_adaptation_index("h_sapiens")
+        >>> Sequence("ATACGG").codon_adaptation_index()
         0.5812433943953039
 
-        >>> Sequence("ATACGG").codon_adaptation_index("m_musculus")
-        0.5232073207377501
-
-        >>> Sequence("A").codon_adaptation_index("h_sapiens")
+        >>> Sequence("A").codon_adaptation_index()
 
 
-        >>> Sequence("").codon_adaptation_index("h_sapiens")
+        >>> Sequence("").codon_adaptation_index()
 
         """
         if not self.nucleic_acid_sequence or not self.is_amino_acid_sequence:
             return None
 
-        organisms = Organisms.load()
-        weights = [organisms.weight(organism, codon) for codon in self.codons]
+        organism = load_organism(organism)
+
+        weights = [organism.weight(codon) for codon in self.codons]
         cai = math.prod(weights) ** (1 / len(weights))
         return cai
 
@@ -298,7 +325,7 @@ class Sequence(msgspec.Struct):
         mfe = RNA.fold_compound(str(self)).mfe()
         return MinimumFreeEnergy(structure=mfe[0], energy=mfe[1])
 
-    def analyze(self, organism: Organism) -> Analysis:
+    def analyze(self, organism: Organism | None = None) -> Analysis:
         """Collect and return a set of statistics about the sequence."""
         start = time.time()
         minimum_free_energy = self.minimum_free_energy
@@ -320,6 +347,11 @@ class Sequence(msgspec.Struct):
         self,
         config: OptimizationConfiguration,
     ) -> OptimizationResult:
+        """Optimize the sequence based on the configuration parameters.
+
+        >>> Sequence("ACGACCATTAAA").optimize(OptimizationConfiguration()).output
+        Sequence(nucleic_acid_sequence='ACCACCATCAAG')
+        """
         from dnachisel import DnaOptimizationProblem
         from dnachisel.builtin_specifications import (
             AvoidPattern,
@@ -386,11 +418,15 @@ class Sequence(msgspec.Struct):
 
         start = time.time()
 
+        organism = load_organism(config.organism)
         optimization_problem = DnaOptimizationProblem(
             sequence=self.nucleic_acid_sequence,
             constraints=constraints,
             objectives=[
-                CodonOptimize(species=config.organism, method="use_best_codon"),
+                CodonOptimize(
+                    codon_usage_table=organism.to_dnachisel_dict(),
+                    method="use_best_codon",
+                ),
                 UniquifyAllKmers(k=config.avoid_repeat_length),
             ],
             logger=None,  # type: ignore

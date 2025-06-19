@@ -8,18 +8,22 @@ services:
     ports:
       - 8080:8080
       - 8081:8081 # hmr
+    volumes:
+      - .:/app
+      - /app/node_modules
     develop:
       watch:
         - path: ./pnpm-lock.yaml
           action: rebuild
         - path: ./uv.lock
           action: rebuild
-        - path: ./
-          target: /app
-          action: sync
-          ignore:
-            - .venv/
-            - node_modules/
+        #- path: ./
+        #  target: /app
+        #  action: sync
+        #  ignore:
+        #    - .venv/
+        #    - node_modules/
+        #    - notebooks/
   e2e:
     restart: always
     build:
@@ -41,3 +45,15 @@ services:
           ignore:
             - .venv/
             - node_modules/
+            - notebooks/
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    command: jupyter lab --ip 0.0.0.0 --port 8888 --notebook-dir=./notebooks/ --IdentityProvider.token="" --ServerApp.password=""
+    ports:
+      - 8888:8888
+    volumes:
+      - ./notebooks/:/app/notebooks/
+      - /home/jon/.aws:/home/node/.aws

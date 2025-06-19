@@ -128,7 +128,14 @@ if __name__ == "__main__":
         fieldnames=columns,
         delimiter="\t",
     )
+    rows = list(reader)
     with open("sequence-report-data.json", "w") as f:
         import json
 
-        f.write(json.dumps(list(reader)))
+        f.write(json.dumps(rows))
+    with open("sequence-report-data.csv", "w") as f:
+        writer = csv.DictWriter(f, delimiter=",", fieldnames=["sequence"] + columns)
+        writer.writeheader()
+        writer.writerows(
+            [{**row, "sequence": s} for row, s in zip(rows, unique_sequences)]
+        )

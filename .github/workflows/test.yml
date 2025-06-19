@@ -1,5 +1,4 @@
 name: test
-description: Runs tests (including linting, formatting and unit tests) on the repository.
 on:
   workflow_call:
 
@@ -9,10 +8,14 @@ permissions:
 
 jobs:
   test:
+    name: test
     runs-on: ubuntu-latest
     env:
       TAG: ${{ github.sha }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ap-southeast-2
@@ -26,12 +29,13 @@ jobs:
           driver: docker
       - uses: docker/build-push-action@v6
         with:
+          context: .  # required to use actions/checkout and lfs
           load: true
           tags: ${{ env.TAG }}
           target: dev
           cache-from: type=registry,ref=${{ steps.ecr.outputs.registry }}/app:buildcache
       - run: docker run --rm $TAG pnpm biome check
       - run: docker run --rm $TAG pnpm tsc --noEmit
-      - run: docker run --rm $TAG uv run ruff check --diff
-      - run: docker run --rm $TAG uv run pyright
+      - run: docker run --rm $TAG ruff check --diff
+      - run: docker run --rm $TAG pyright
       - run: docker run --rm $TAG pytest

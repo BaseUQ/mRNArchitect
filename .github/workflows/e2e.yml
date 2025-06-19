@@ -1,5 +1,4 @@
 name: e2e
-description: Runs end-to-end tests on the repository.
 on:
   workflow_call:
     inputs:

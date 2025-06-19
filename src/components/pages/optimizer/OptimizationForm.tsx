@@ -44,6 +44,11 @@ const FIVE_PRIME_HUMAN_ALPHA_GLOBIN = "ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC";
 const THREE_PRIME_HUMAN_ALPHA_GLOBIN =
   "GCTGGAGCCTCGGTGGCCATGCTTCTTGCCCCTTGGGCCTCCCCCCAGCCCCTCCTCCCCTTCCTGCACCCGTACCCCCGTGGTCTTTGAATAAAGTCTGAGTGGGCGGCA";
 
+const ORGANISMS = [
+  { label: "Human", value: "kazusa:9606" },
+  { label: "Mouse", value: "kazusa:10090" },
+];
+
 export const OptimizeForm = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showParameters, setShowParameters] = useState<boolean>(false);
@@ -80,7 +85,7 @@ export const OptimizeForm = () => {
       threePrimeUTR: "",
       polyATail: "",
       numberOfSequences: 3,
-      organism: "h_sapiens",
+      organism: ORGANISMS[0].value,
       enableUridineDepletion: false,
       avoidRibosomeSlip: false,
       gcContentMin: 0.4,
@@ -522,10 +527,7 @@ export const OptimizeForm = () => {
                     showHelp &&
                     "Select the target organism to be used for codon optimisation. The mRNA will be optimised using the preferred codon usage of highly expressed genes in this selected organism (1). By default, we use human codon optimisation."
                   }
-                  data={[
-                    { label: "Human", value: "h_sapiens" },
-                    { label: "Mouse", value: "m_musculus" },
-                  ]}
+                  data={ORGANISMS}
                   key={form.key("organism")}
                   {...form.getInputProps("organism")}
                 />
