@@ -2,45 +2,32 @@
 
 *mRNArchitect* is a software toolkit designed for optimizing mRNA vaccines and therapies to enhance stability, translation efficiency, and reduce reactogenicity. The software uses an optimization strategy based on the *DNAChisel* framework to generate and assemble mRNA sequences.
 
-## Getting Started
-
-### Accessing mRNArchitect
-
-You can access *mRNArchitect*:
-
-1. **Online:** Use the web-based interface at [http://www.basefacility.org.au/software](http://www.basefacility.org.au/software).
-2. **Local Installation:** Download the source code from the [GitHub repository](https://github.com/BaseUQ/mRNArchitect).
-
-
-## Design of mRNA Sequence
-
 The mRNA sequence significantly affects its stability, translation, and reactogenicity. Therefore, optimizing an mRNA sequence is crucial for achieving desired outcomes in various applications. 
 
-### Steps to Use mRNArchitect
+## Getting Started
 
-1. **Open the Application:**
+### Online
 
-   Visit the *mRNArchitect* website at [http://www.basefacility.org.au/software](http://www.basefacility.org.au/software).
+The easiest way to start optimizing is by using the online tool, available for free at [https://www.basefacility.org.au/software](https://www.basefacility.org.au/software).
 
-2. **Input Sequence:**
+### Local
 
-   In the **Sequence Input** panel, input the sequences for different components of an mRNA. For example, paste the wild-type Firefly luciferase protein sequence (either in nucleotide or amino acid format) into the **Coding Sequence** field.
+You can also install and use the tool locally.
 
-3. **Select UTR Sequences:**
+First, [install the `uv` package manager](https://docs.astral.sh/uv/getting-started/installation/).
 
-   Choose the **Human alpha-globin** option for both the 5'UTR and 3'UTR fields. A poly(A) tail is not required for this protocol, as it will be added during PCR amplification.
+Then, you can invoke the tool from the command line:
 
-4. **Modify Parameters:**
+```bash
+> uv run mRNArchitect <sequence>
+```
 
-   Use the **Parameters** panel to adjust key variables that impact mRNA sequence optimization. Initially, it is recommended to use the default settings, but they can be modified as needed. For more information on each parameter, refer to the **HELP** section in *mRNArchitect*.
+For example:
 
-5. **Run Optimization:**
-
-   Click **RUN** to start the sequence optimization. Once complete, results will be available under the **OUTPUT** tab, where the optimized sequence can be viewed and downloaded.
-
-6. **Submit for Synthesis:**
-
-   Copy the optimized mRNA sequence and submit it for synthesis by a third-party provider (e.g. IDT, GeneArt, Genscript, etc.).
+```bash
+> uv run mRNArchitect ACTACGAGG
+ACCACCAGA
+```
 
 ### Example Sequences and Results
 
