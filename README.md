@@ -31,7 +31,7 @@ ACCACCAGA
 
 ### Example Sequences and Results
 
-Additional example sequences and result files can be downloaded from the *mRNArchitect* website at [http://www.basefacility.org.au/software](http://www.basefacility.org.au/software).
+Additional example sequences and result files can be downloaded from the *mRNArchitect* website at [https://www.basefacility.org.au/software](https://www.basefacility.org.au/software).
 
 ## Support and Documentation
 
