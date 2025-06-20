@@ -11,20 +11,6 @@ You can access *mRNArchitect*:
 1. **Online:** Use the web-based interface at [http://www.basefacility.org.au/software](http://www.basefacility.org.au/software).
 2. **Local Installation:** Download the source code from the [GitHub repository](https://github.com/BaseUQ/mRNArchitect).
 
-### Docker Image
-
-A Docker image is also available for easy deployment. To use the Docker image:
-
-1. **Pull the Docker Image:**
-
-   ```docker pull basedesign/mrnadesign:latest```
-   
-2. **Run the Docker Container:**
-
-   ```docker run -d -p 3838:3838 basedesign/mrnarchitect:latest```
-  
-This command will run the application locally on port **3838**. You can then access the app by navigating to http://localhost:3838 in your web browser.
-
 
 ## Design of mRNA Sequence
 
@@ -58,7 +44,7 @@ The mRNA sequence significantly affects its stability, translation, and reactoge
 
 ### Example Sequences and Results
 
-Additional example sequences and result files can be downloaded from the [GitHub repository](https://github.com/BaseUQ/mRNArchitect) or *mRNArchitect* website at [http://www.basefacility.org.au/software](http://www.basefacility.org.au/software).
+Additional example sequences and result files can be downloaded from the *mRNArchitect* website at [http://www.basefacility.org.au/software](http://www.basefacility.org.au/software).
 
 ## Support and Documentation
 
