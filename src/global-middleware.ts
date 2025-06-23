@@ -1,6 +1,6 @@
 import {
   createMiddleware,
-  registerGlobalMiddleware,
+  //registerGlobalMiddleware,
 } from "@tanstack/react-start";
 import { getHeaders } from "@tanstack/react-start/server";
 import { differenceInMilliseconds } from "date-fns";
@@ -27,6 +27,8 @@ export const loggingMiddleware = createMiddleware({ type: "function" }).server(
   },
 );
 
-registerGlobalMiddleware({
-  middleware: [loggingMiddleware],
-});
+// NOTE: As of 2025-06-23 this global middleware appears to be broken,
+// so logging must be added to each server function individually.
+//registerGlobalMiddleware({
+//  middleware: [loggingMiddleware],
+//});

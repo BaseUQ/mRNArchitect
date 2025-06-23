@@ -1,6 +1,3 @@
-// @ts-ignore
-import mantineCssUrl from "@mantine/core/styles.css?url";
-
 import {
   AppShell,
   ColorSchemeScript,
@@ -8,11 +5,13 @@ import {
   MantineProvider,
   mantineHtmlProps,
 } from "@mantine/core";
+// @ts-ignore
+import mantineCssUrl from "@mantine/core/styles.css?url";
 import {
+  createRootRoute,
   HeadContent,
   Outlet,
   Scripts,
-  createRootRoute,
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 

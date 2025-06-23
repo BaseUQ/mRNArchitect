@@ -19,8 +19,8 @@ import {
   Stack,
   Switch,
   Text,
-  TextInput,
   Textarea,
+  TextInput,
   Title,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
@@ -70,7 +70,7 @@ export const OptimizeForm = () => {
   >(null);
   const [error, setError] = useState<string | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
-  const elapsedInterval = useInterval(
+  const _elapsedInterval = useInterval(
     () => setElapsedSeconds((s) => s + 1),
     1000,
     { autoInvoke: true },
