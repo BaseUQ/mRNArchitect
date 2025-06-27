@@ -199,6 +199,31 @@ class Sequence(msgspec.Struct, frozen=True):
         """
         return "".join(CODON_TO_AMINO_ACID_MAP[codon] for codon in self.codons)
 
+    def reverse(self) -> "Sequence":
+        """Returns a new Sequence that is the reverse of this sequence.
+
+        >>> str(Sequence("ACGT").reverse())
+        'TGCA'
+        """
+        return Sequence("".join(reversed(self.nucleic_acid_sequence)))
+
+    def complement(self) -> "Sequence":
+        """Returns a new Sequence that is the complement of this sequence.
+
+        >>> str(Sequence("ATGC").complement())
+        'TACG'
+        """
+        _COMPLEMENT_MAP = {"A": "T", "C": "G", "G": "C", "T": "A"}
+        return Sequence("".join(_COMPLEMENT_MAP[n] for n in self.nucleic_acid_sequence))
+
+    def reverse_complement(self) -> "Sequence":
+        """Returns a new Sequence that is the reverse complement of this sequence.
+
+        >>> str(Sequence("ATGC").reverse_complement())
+        'GCAT'
+        """
+        return self.reverse().complement()
+
     @property
     @functools.cache
     def a_ratio(self):
