@@ -28,6 +28,12 @@ import { useInterval } from "@mantine/hooks";
 import { QuestionIcon } from "@phosphor-icons/react";
 import { formatDuration, intervalToDuration } from "date-fns";
 import { useEffect, useState } from "react";
+import {
+  EGFP,
+  FIVE_PRIME_HUMAN_ALPHA_GLOBIN,
+  ORGANISMS,
+  THREE_PRIME_HUMAN_ALPHA_GLOBIN,
+} from "~/components/pages/optimizer/constants";
 import { OptimizationResults } from "~/components/pages/optimizer/OptimizationResults";
 import RESTRICTION_SITES from "~/data/restriction-sites.json";
 import {
@@ -36,18 +42,6 @@ import {
   optimizeSequence,
 } from "~/server/optimize";
 import { OptimizationRequest } from "~/types/optimize";
-
-const EGFP =
-  "MVSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITLGMDELYK";
-
-const FIVE_PRIME_HUMAN_ALPHA_GLOBIN = "ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC";
-const THREE_PRIME_HUMAN_ALPHA_GLOBIN =
-  "GCTGGAGCCTCGGTGGCCATGCTTCTTGCCCCTTGGGCCTCCCCCCAGCCCCTCCTCCCCTTCCTGCACCCGTACCCCCGTGGTCTTTGAATAAAGTCTGAGTGGGCGGCA";
-
-const ORGANISMS = [
-  { label: "Human", value: "kazusa:9606" },
-  { label: "Mouse", value: "kazusa:10090" },
-];
 
 export const OptimizeForm = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);

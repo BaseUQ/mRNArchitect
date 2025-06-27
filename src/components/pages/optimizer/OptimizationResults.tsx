@@ -21,6 +21,7 @@ import type {
   OptimizationRequest,
   OptimizationResponse,
 } from "~/types/optimize";
+import { ORGANISMS } from "./constants";
 
 interface OptimizationResults {
   input: OptimizationRequest;
@@ -113,8 +114,8 @@ export const OptimizationResults = ({
     "",
     "---Parameters",
     `Number of sequences\t\t${input.numberOfSequences}`,
-    `Organism\t\t\t${input.organism}`,
-    `Avoid uridine depletion\t\t${input.enableUridineDepletion}`,
+    `Organism\t\t\t${ORGANISMS.find(({ value }) => value === input.organism)?.label ?? "-"}`,
+    `Enable uridine depletion\t\t${input.enableUridineDepletion}`,
     `Avoid ribosome slip\t\t${input.avoidRibosomeSlip}`,
     `GC content minimum\t\t${input.gcContentMin}`,
     `GC content maximum\t\t${input.gcContentMax}`,
