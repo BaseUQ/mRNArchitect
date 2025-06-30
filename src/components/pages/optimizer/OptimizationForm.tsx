@@ -45,7 +45,7 @@ import { OptimizationRequest } from "~/types/optimize";
 
 export const OptimizeForm = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [showParameters, setShowParameters] = useState<boolean>(false);
+  const [showParameters, setShowParameters] = useState<boolean>(true);
   const [showHelp, setShowHelp] = useState<boolean>(false);
   const [fivePrimeUTRSequenceType, setFivePrimeUTRSequenceType] = useState<
     "human-alpha-globin" | "custom"
