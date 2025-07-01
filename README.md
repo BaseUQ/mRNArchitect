@@ -19,7 +19,32 @@ First, [install the `uv` package manager](https://docs.astral.sh/uv/getting-star
 Then, you can invoke the tool from the command line:
 
 ```bash
-> uv run mRNArchitect <sequence>
+> uv run mRNArchitect --help
+usage: mRNArchitect [-h] [--sequence-type {amino-acid,nucleic-acid}] [--organism {human,mouse}] [--enable-uridine-depletion | --no-enable-uridine-depletion] [--avoid-ribosome-slip | --no-avoid-ribosome-slip]
+                    [--gc-content-min GC_CONTENT_MIN] [--gc-content-max GC_CONTENT_MAX] [--gc-content-window GC_CONTENT_WINDOW]
+                    sequence
+
+A toolkit to optimize mRNA sequences.
+
+positional arguments:
+  sequence              The sequence to optimize.
+
+options:
+  -h, --help            show this help message and exit
+  --sequence-type {amino-acid,nucleic-acid}
+                        The type of sequence given.
+  --organism {human,mouse}
+                        The organism/codon usage table to optimize for.
+  --enable-uridine-depletion, --no-enable-uridine-depletion
+                        If set, will enable uridine depletion.
+  --avoid-ribosome-slip, --no-avoid-ribosome-slip
+                        If set, will avoid sequences that may cause ribosome slippage.
+  --gc-content-min GC_CONTENT_MIN
+                        The minimum GC-ratio (global and windowed).
+  --gc-content-max GC_CONTENT_MAX
+                        The maximum GC-ratio (global and windowed).
+  --gc-content-window GC_CONTENT_WINDOW
+                        The GC-ratio window size.
 ```
 
 For example:
@@ -27,6 +52,9 @@ For example:
 ```bash
 > uv run mRNArchitect ACTACGAGG
 ACCACCAGA
+
+> uv run mRNArchitect MILK --sequence-type amino-acid
+ATGATCCTGAAG
 ```
 
 ### Example Sequences and Results
