@@ -21,7 +21,9 @@ Then, you can invoke the tool from the command line:
 ```bash
 > uv run mRNArchitect --help
 usage: mRNArchitect [-h] [--sequence-type {amino-acid,nucleic-acid}] [--organism {human,mouse}] [--enable-uridine-depletion | --no-enable-uridine-depletion] [--avoid-ribosome-slip | --no-avoid-ribosome-slip]
-                    [--gc-content-min GC_CONTENT_MIN] [--gc-content-max GC_CONTENT_MAX] [--gc-content-window GC_CONTENT_WINDOW]
+                    [--gc-content-min GC_CONTENT_MIN] [--gc-content-max GC_CONTENT_MAX] [--gc-content-window GC_CONTENT_WINDOW] [--avoid-restriction-sites AVOID_RESTRICTION_SITES]
+                    [--avoid-sequences AVOID_SEQUENCES] [--avoid-repeat-length AVOID_REPEAT_LENGTH] [--avoid-poly-a AVOID_POLY_A] [--avoid-poly-c AVOID_POLY_C] [--avoid-poly-g AVOID_POLY_G]
+                    [--avoid-poly-t AVOID_POLY_T] [--hairpin-stem-size HAIRPIN_STEM_SIZE] [--hairpin-window HAIRPIN_WINDOW]
                     sequence
 
 A toolkit to optimize mRNA sequences.
@@ -45,6 +47,15 @@ options:
                         The maximum GC-ratio (global and windowed).
   --gc-content-window GC_CONTENT_WINDOW
                         The GC-ratio window size.
+  --avoid-restriction-sites AVOID_RESTRICTION_SITES
+  --avoid-sequences AVOID_SEQUENCES
+  --avoid-repeat-length AVOID_REPEAT_LENGTH
+  --avoid-poly-a AVOID_POLY_A
+  --avoid-poly-c AVOID_POLY_C
+  --avoid-poly-g AVOID_POLY_G
+  --avoid-poly-t AVOID_POLY_T
+  --hairpin-stem-size HAIRPIN_STEM_SIZE
+  --hairpin-window HAIRPIN_WINDOW
 ```
 
 For example:

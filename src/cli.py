@@ -48,6 +48,15 @@ def cli():
     parser.add_argument(
         "--gc-content-window", type=int, default=100, help="The GC-ratio window size."
     )
+    parser.add_argument("--avoid-restriction-sites", type=str, action="append")
+    parser.add_argument("--avoid-sequences", type=str, action="append")
+    parser.add_argument("--avoid-repeat-length", type=int, default=10)
+    parser.add_argument("--avoid-poly-a", type=int, default=9)
+    parser.add_argument("--avoid-poly-c", type=int, default=6)
+    parser.add_argument("--avoid-poly-g", type=int, default=6)
+    parser.add_argument("--avoid-poly-t", type=int, default=9)
+    parser.add_argument("--hairpin-stem-size", type=int, default=10)
+    parser.add_argument("--hairpin-window", type=int, default=60)
     args = parser.parse_args()
 
     if args.sequence_type == "nucleic-acid":
@@ -62,6 +71,14 @@ def cli():
             gc_content_min=args.gc_content_min,
             gc_content_max=args.gc_content_max,
             gc_content_window=args.gc_content_window,
+            avoid_restriction_sites=args.avoid_restriction_sites or [],
+            avoid_sequences=args.avoid_sequences or [],
+            avoid_poly_a=args.avoid_poly_a,
+            avoid_poly_c=args.avoid_poly_c,
+            avoid_poly_g=args.avoid_poly_g,
+            avoid_poly_t=args.avoid_poly_t,
+            hairpin_stem_size=args.hairpin_stem_size,
+            hairpin_window=args.hairpin_window,
         )
     )
     print(str(optimization.output))
