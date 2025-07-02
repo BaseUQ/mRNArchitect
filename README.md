@@ -1,3 +1,5 @@
+[![deploy](https://github.com/BaseUQ/mRNArchitect/actions/workflows/deploy.yml/badge.svg)](https://github.com/BaseUQ/mRNArchitect/actions/workflows/deploy.yml)
+
 # mRNArchitect
 
 *mRNArchitect* is a software toolkit designed for optimizing mRNA vaccines and therapies to enhance stability, translation efficiency, and reduce reactogenicity. The software uses an optimization strategy based on the *DNAChisel* framework to generate and assemble mRNA sequences.
