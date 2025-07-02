@@ -2,75 +2,88 @@
 
 *mRNArchitect* is a software toolkit designed for optimizing mRNA vaccines and therapies to enhance stability, translation efficiency, and reduce reactogenicity. The software uses an optimization strategy based on the *DNAChisel* framework to generate and assemble mRNA sequences.
 
-The mRNA sequence significantly affects its stability, translation, and reactogenicity. Therefore, optimizing an mRNA sequence is crucial for achieving desired outcomes in various applications. 
-
 ## Getting Started
 
-### Online
+### Accessing mRNArchitect
 
-The easiest way to start optimizing is by using the online tool, available for free at [https://www.basefacility.org.au/software](https://www.basefacility.org.au/software).
+You can access *mRNArchitect*:
 
-### Local
+1. **Online:** Use the web-based interface at [http://www.basefacility.org.au/software](http://www.basefacility.org.au/software).
+2. **Local Installation:** Download the source code from the [GitHub repository](https://github.com/BaseUQ/mRNArchitect).
 
-You can also install and use the tool locally.
 
-First, [install the `uv` package manager](https://docs.astral.sh/uv/getting-started/installation/).
+### Local Installation
 
-Then, you can invoke the tool from the command line:
+mRNArchitect may be used via a web or CLI interface.
 
-```bash
-> uv run mRNArchitect --help
-usage: mRNArchitect [-h] [--sequence-type {amino-acid,nucleic-acid}] [--organism {human,mouse}] [--enable-uridine-depletion | --no-enable-uridine-depletion] [--avoid-ribosome-slip | --no-avoid-ribosome-slip]
-                    [--gc-content-min GC_CONTENT_MIN] [--gc-content-max GC_CONTENT_MAX] [--gc-content-window GC_CONTENT_WINDOW] [--avoid-restriction-sites AVOID_RESTRICTION_SITES]
-                    [--avoid-sequences AVOID_SEQUENCES] [--avoid-repeat-length AVOID_REPEAT_LENGTH] [--avoid-poly-a AVOID_POLY_A] [--avoid-poly-c AVOID_POLY_C] [--avoid-poly-g AVOID_POLY_G]
-                    [--avoid-poly-t AVOID_POLY_T] [--hairpin-stem-size HAIRPIN_STEM_SIZE] [--hairpin-window HAIRPIN_WINDOW]
-                    sequence
+To use the web interface, you may build and run the provided docker image.
 
-A toolkit to optimize mRNA sequences.
-
-positional arguments:
-  sequence              The sequence to optimize.
-
-options:
-  -h, --help            show this help message and exit
-  --sequence-type {amino-acid,nucleic-acid}
-                        The type of sequence given.
-  --organism {human,mouse}
-                        The organism/codon usage table to optimize for.
-  --enable-uridine-depletion, --no-enable-uridine-depletion
-                        If set, will enable uridine depletion.
-  --avoid-ribosome-slip, --no-avoid-ribosome-slip
-                        If set, will avoid sequences that may cause ribosome slippage.
-  --gc-content-min GC_CONTENT_MIN
-                        The minimum GC-ratio (global and windowed).
-  --gc-content-max GC_CONTENT_MAX
-                        The maximum GC-ratio (global and windowed).
-  --gc-content-window GC_CONTENT_WINDOW
-                        The GC-ratio window size.
-  --avoid-restriction-sites AVOID_RESTRICTION_SITES
-  --avoid-sequences AVOID_SEQUENCES
-  --avoid-repeat-length AVOID_REPEAT_LENGTH
-  --avoid-poly-a AVOID_POLY_A
-  --avoid-poly-c AVOID_POLY_C
-  --avoid-poly-g AVOID_POLY_G
-  --avoid-poly-t AVOID_POLY_T
-  --hairpin-stem-size HAIRPIN_STEM_SIZE
-  --hairpin-window HAIRPIN_WINDOW
+```sh
+> docker compose build
+> docker compose up
+```
+```
 ```
 
-For example:
+Then browse to [http://localhost:8080] to start optimizing.
 
-```bash
-> uv run mRNArchitect ACTACGAGG
-ACCACCAGA
+The CLI interface may be run directly. First, install the [uv](https://docs.astral.sh/uv/getting-started/installation/) package manager to setup a python environment. You can then run an optimization like this:
 
-> uv run mRNArchitect MILK --sequence-type amino-acid
-ATGATCCTGAAG
+```sh
+> uv run mRNArchitect optimize ACGACGT
 ```
+
+Or for an amino acid sequence:
+
+```sh
+> uv run mRNArchitect optimize MILK --sequence-type amino-acid
+```
+
+Use the `--help` option to see the full list of options:
+
+```sh
+> uv run mRNArchitect optimize --help
+```
+```
+```
+```
+```
+```
+```
+
+## Design of mRNA Sequence
+
+The mRNA sequence significantly affects its stability, translation, and reactogenicity. Therefore, optimizing an mRNA sequence is crucial for achieving desired outcomes in various applications. 
+
+### Steps to Use mRNArchitect
+
+1. **Open the Application:**
+
+   Visit the *mRNArchitect* website at [http://www.basefacility.org.au/software](http://www.basefacility.org.au/software).
+
+2. **Input Sequence:**
+
+   In the **Sequence Input** panel, input the sequences for different components of an mRNA. For example, paste the wild-type Firefly luciferase protein sequence (either in nucleotide or amino acid format) into the **Coding Sequence** field.
+
+3. **Select UTR Sequences:**
+
+   Choose the **Human alpha-globin** option for both the 5'UTR and 3'UTR fields. A poly(A) tail is not required for this protocol, as it will be added during PCR amplification.
+
+4. **Modify Parameters:**
+
+   Use the **Parameters** panel to adjust key variables that impact mRNA sequence optimization. Initially, it is recommended to use the default settings, but they can be modified as needed. For more information on each parameter, refer to the **HELP** section in *mRNArchitect*.
+
+5. **Run Optimization:**
+
+   Click **Optimize sequence** to start the sequence optimization. Once complete, the optimized sequence(s) can be viewed and downloaded. From the results page, you may click **< Back** to edit your sequence or parameters to run another optimization.
+
+6. **Submit for Synthesis:**
+
+   Copy the optimized mRNA sequence and submit it for synthesis by a third-party provider (e.g. IDT, GeneArt, Genscript, etc.).
 
 ### Example Sequences and Results
 
-Additional example sequences and result files can be downloaded from the *mRNArchitect* website at [https://www.basefacility.org.au/software](https://www.basefacility.org.au/software).
+Additional example sequences and result files can be downloaded from the [GitHub repository](https://github.com/BaseUQ/mRNArchitect) or *mRNArchitect* website at [http://www.basefacility.org.au/software](http://www.basefacility.org.au/software).
 
 ## Support and Documentation
 
