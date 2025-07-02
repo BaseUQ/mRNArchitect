@@ -25,6 +25,7 @@ services:
         #    - node_modules/
         #    - notebooks/
   e2e:
+    profiles: [e2e]
     restart: always
     build:
       context: .
@@ -46,14 +47,14 @@ services:
             - .venv/
             - node_modules/
             - notebooks/
-  jupyter:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: dev
-    command: jupyter lab --ip 0.0.0.0 --port 8888 --notebook-dir=./notebooks/ --IdentityProvider.token="" --ServerApp.password=""
-    ports:
-      - 8888:8888
-    volumes:
-      - ./notebooks/:/app/notebooks/
-      - /home/jon/.aws:/home/node/.aws
+  #jupyter:
+  #  build:
+  #    context: .
+  #    dockerfile: Dockerfile
+  #    target: dev
+  #  command: jupyter lab --ip 0.0.0.0 --port 8888 --notebook-dir=./notebooks/ --IdentityProvider.token="" --ServerApp.password=""
+  #  ports:
+  #    - 8888:8888
+  #  volumes:
+  #    - ./notebooks/:/app/notebooks/
+  #    - /home/jon/.aws:/home/node/.aws

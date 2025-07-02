@@ -27,9 +27,14 @@ export const convertSequenceToNucleicAcid = createServerFn({ method: "POST" })
       [
         "-m",
         "tools.cli",
-        "convert-sequence-to-nucleic-acid",
+        "convert",
         sequence,
+        "--sequence-type",
+        "amino-acid",
+        "--organism",
         organism,
+        "--format",
+        "json",
       ],
       { shell: false, timeout: 5_000 },
     );
@@ -42,7 +47,18 @@ export const analyzeSequence = createServerFn({ method: "POST" })
   .handler(async ({ data: { sequence, organism } }) => {
     const { stdout } = await execFileAsync(
       "python",
-      ["-m", "tools.cli", "analyze-sequence", sequence, organism],
+      [
+        "-m",
+        "tools.cli",
+        "analyze",
+        sequence,
+        "--sequence-type",
+        "nucleic-acid",
+        "--organism",
+        organism,
+        "--format",
+        "json",
+      ],
       { shell: false, timeout: 900_000 },
     );
     return AnalyzeResponse.parse(JSON.parse(stdout));
@@ -57,9 +73,14 @@ export const optimizeSequence = createServerFn({ method: "POST" })
       [
         "-m",
         "tools.cli",
-        "optimize-sequence",
+        "optimize",
         data.sequence,
+        "--sequence-type",
+        "nucleic-acid",
+        "--config",
         JSON.stringify(data),
+        "--format",
+        "json",
       ],
       {
         shell: false,

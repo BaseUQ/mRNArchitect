@@ -11,20 +11,45 @@ You can access *mRNArchitect*:
 1. **Online:** Use the web-based interface at [http://www.basefacility.org.au/software](http://www.basefacility.org.au/software).
 2. **Local Installation:** Download the source code from the [GitHub repository](https://github.com/BaseUQ/mRNArchitect).
 
-### Docker Image
 
-A Docker image is also available for easy deployment. To use the Docker image:
+### Local Installation
 
-1. **Pull the Docker Image:**
+mRNArchitect may be used via a web or CLI interface.
 
-   ```docker pull basedesign/mrnadesign:latest```
-   
-2. **Run the Docker Container:**
+To use the web interface, you may build and run the provided docker image.
 
-   ```docker run -d -p 3838:3838 basedesign/mrnarchitect:latest```
-  
-This command will run the application locally on port **3838**. You can then access the app by navigating to http://localhost:3838 in your web browser.
+```sh
+> docker compose build
+> docker compose up
+```
+```
+```
 
+Then browse to [http://localhost:8080] to start optimizing.
+
+The CLI interface may be run directly. First, install the [uv](https://docs.astral.sh/uv/getting-started/installation/) package manager to setup a python environment. You can then run an optimization like this:
+
+```sh
+> uv run mRNArchitect optimize ACGACGT
+```
+
+Or for an amino acid sequence:
+
+```sh
+> uv run mRNArchitect optimize MILK --sequence-type amino-acid
+```
+
+Use the `--help` option to see the full list of options:
+
+```sh
+> uv run mRNArchitect optimize --help
+```
+```
+```
+```
+```
+```
+```
 
 ## Design of mRNA Sequence
 
@@ -50,7 +75,7 @@ The mRNA sequence significantly affects its stability, translation, and reactoge
 
 5. **Run Optimization:**
 
-   Click **RUN** to start the sequence optimization. Once complete, results will be available under the **OUTPUT** tab, where the optimized sequence can be viewed and downloaded.
+   Click **Optimize sequence** to start the sequence optimization. Once complete, the optimized sequence(s) can be viewed and downloaded. From the results page, you may click **< Back** to edit your sequence or parameters to run another optimization.
 
 6. **Submit for Synthesis:**
 
