@@ -1,9 +1,8 @@
-.venv/
-.git/
-.github/
-.pytest_cache/
-.ruff_cache/
-.venv/
-__pycache__/
-*.egg-info/
-
+__pycache__
+.git
+.github
+.gitignore
+.output
+.pytest_cache
+.venv
+node_modules

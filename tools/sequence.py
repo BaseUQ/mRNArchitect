@@ -6,14 +6,15 @@ import typing
 
 import msgspec
 
-from constants import (
+from .constants import (
     CODON_TO_AMINO_ACID_MAP,
 )
-from organism import (
+from .organism import (
+    KAZUSA_HOMO_SAPIENS,
     load_organism,
     Organism,
 )
-from types_ import AminoAcid, Codon
+from .types import AminoAcid, Codon
 
 
 class OptimizationException(Exception):
@@ -47,7 +48,7 @@ class OptimizationConfiguration(msgspec.Struct, kw_only=True, rename="camel"):
         source: typing.Literal["kazusa"]
         id: str
 
-    organism: Organism | str = "human"
+    organism: Organism | str = KAZUSA_HOMO_SAPIENS
     enable_uridine_depletion: bool = False
     avoid_ribosome_slip: bool = False
     gc_content_min: float = 0.4
@@ -116,7 +117,7 @@ class Sequence(msgspec.Struct, frozen=True):
     def from_amino_acid_sequence(
         cls,
         amino_acid_sequence: str,
-        organism: Organism | str = "human",
+        organism: Organism | str = KAZUSA_HOMO_SAPIENS,
     ) -> "Sequence":
         """Create a Sequence from an amino acid sequence.
         The nucleic acid sequence will be codon optimized for the given `organism`.
@@ -134,7 +135,7 @@ class Sequence(msgspec.Struct, frozen=True):
 
     @classmethod
     def from_aa(
-        cls, amino_acid_sequence, organism: Organism | str = "human"
+        cls, amino_acid_sequence, organism: Organism | str = KAZUSA_HOMO_SAPIENS
     ) -> "Sequence":
         """Alias from Sequence.from_amino_acid_sequence(...)"""
         return cls.from_amino_acid_sequence(amino_acid_sequence, organism)
@@ -197,6 +198,31 @@ class Sequence(msgspec.Struct, frozen=True):
         'IR'
         """
         return "".join(CODON_TO_AMINO_ACID_MAP[codon] for codon in self.codons)
+
+    def reverse(self) -> "Sequence":
+        """Returns a new Sequence that is the reverse of this sequence.
+
+        >>> str(Sequence("ACGT").reverse())
+        'TGCA'
+        """
+        return Sequence("".join(reversed(self.nucleic_acid_sequence)))
+
+    def complement(self) -> "Sequence":
+        """Returns a new Sequence that is the complement of this sequence.
+
+        >>> str(Sequence("ATGC").complement())
+        'TACG'
+        """
+        _COMPLEMENT_MAP = {"A": "T", "C": "G", "G": "C", "T": "A"}
+        return Sequence("".join(_COMPLEMENT_MAP[n] for n in self.nucleic_acid_sequence))
+
+    def reverse_complement(self) -> "Sequence":
+        """Returns a new Sequence that is the reverse complement of this sequence.
+
+        >>> str(Sequence("ATGC").reverse_complement())
+        'GCAT'
+        """
+        return self.reverse().complement()
 
     @property
     @functools.cache
@@ -289,7 +315,7 @@ class Sequence(msgspec.Struct, frozen=True):
 
     @functools.cache
     def codon_adaptation_index(
-        self, organism: Organism | str = "human"
+        self, organism: Organism | str = KAZUSA_HOMO_SAPIENS
     ) -> float | None:
         """Calculate the Codon Adaptation Index of the sequence using the provided codon table.
 

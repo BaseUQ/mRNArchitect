@@ -6,8 +6,12 @@ import urllib.request
 
 import msgspec
 
-from constants import AMINO_ACIDS, CODON_TO_AMINO_ACID_MAP, CODONS
-from types_ import Codon, AminoAcid
+from .constants import AMINO_ACIDS, CODON_TO_AMINO_ACID_MAP, CODONS
+from .types import Codon, AminoAcid
+
+
+KAZUSA_HOMO_SAPIENS = "kazusa:9606"
+KAZUSA_MUS_MUSCULUS = "kazusa:10090"
 
 
 class CodonUsage(msgspec.Struct, frozen=True):
@@ -120,7 +124,7 @@ def load_organism_from_web(id: str) -> Organism:
     )
 
 
-def load_organism(organism: Organism | str = "human") -> Organism:
+def load_organism(organism: Organism | str = KAZUSA_HOMO_SAPIENS) -> Organism:
     if isinstance(organism, Organism):
         return organism
     path = pathlib.Path(f"data/organisms/{organism}.json")

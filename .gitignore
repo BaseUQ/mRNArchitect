@@ -1,5 +1,10 @@
-.pytest_cache
-.ruff_cache
-.venv
-__pycache__
-*.egg-info
+__pycache__/
+.nitro/
+.output/
+.pytest_cache/
+.ruff_cache/
+.tanstack/
+.venv/
+.vinxi/
+.vscode/
+node_modules/
