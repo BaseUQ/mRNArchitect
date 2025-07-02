@@ -22,8 +22,6 @@ To use the web interface, you may build and run the provided docker image.
 > docker compose build
 > docker compose up
 ```
-```
-```
 
 Then browse to [http://localhost:8080] to start optimizing.
 
@@ -43,12 +41,6 @@ Use the `--help` option to see the full list of options:
 
 ```sh
 > uv run mRNArchitect optimize --help
-```
-```
-```
-```
-```
-```
 ```
 
 ## Design of mRNA Sequence
