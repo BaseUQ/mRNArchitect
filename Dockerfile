@@ -26,9 +26,15 @@ RUN wget -qO viennarna.deb https://www.tbi.univie.ac.at/RNA/download/debian/debi
 
 # Install BLAST+
 # see: https://blast.ncbi.nlm.nih.gov/doc/blast-help/downloadblastdata.html
-RUN wget -qO ncbi-blast.tar.gz https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.16.0+-x64-linux.tar.gz && \
-  tar -xvf ncbi-blast.tar.gz --strip-components=2 -C /usr/bin/ --wildcards "*/bin/*" && \
-  rm ncbi-blast.tar.gz
+RUN mkdir -p /blast/db && \
+  wget -qO /blast/ncbi-blast.tar.gz https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.16.0+-x64-linux.tar.gz && \
+  tar -xvf /blast/ncbi-blast.tar.gz --strip-components 1 -C /blast && \
+  rm /blast/ncbi-blast.tar.gz
+ENV PATH="/blast/bin/:$PATH"
+RUN wget -qO /blast/taxdb.tar.gz https://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar.gz && \
+  tar -xvf /blast/taxdb.tar.gz -C /blast/db && \
+  rm /blast/taxdb.tar.gz
+ENV BLASTDB="/blast/db/"
 
 # Setup the app and virtualenv directory
 ENV VIRTUAL_ENV=/venv
