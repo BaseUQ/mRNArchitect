@@ -10,8 +10,8 @@ from .constants import AMINO_ACIDS, CODON_TO_AMINO_ACID_MAP, CODONS
 from .types import Codon, AminoAcid
 
 
-KAZUSA_HOMO_SAPIENS = "kazusa:9606"
-KAZUSA_MUS_MUSCULUS = "kazusa:10090"
+KAZUSA_HOMO_SAPIENS = "kazusa-9606"
+KAZUSA_MUS_MUSCULUS = "kazusa-10090"
 
 
 class CodonUsage(msgspec.Struct, frozen=True):

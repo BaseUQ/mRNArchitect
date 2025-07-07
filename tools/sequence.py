@@ -370,7 +370,7 @@ class Sequence(msgspec.Struct, frozen=True):
 
     def optimize(
         self,
-        config: OptimizationConfiguration,
+        config: OptimizationConfiguration | None = None,
     ) -> OptimizationResult:
         """Optimize the sequence based on the configuration parameters.
 
@@ -392,6 +392,8 @@ class Sequence(msgspec.Struct, frozen=True):
 
         MAX_RANDOM_ITERS = 20_000
         """The maximum number of iterations to run when optimizing."""
+
+        config = config or OptimizationConfiguration()
 
         constraints = [
             EnforceGCContent(mini=config.gc_content_min, maxi=config.gc_content_max),  # type: ignore

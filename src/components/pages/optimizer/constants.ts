@@ -7,6 +7,6 @@ export const THREE_PRIME_HUMAN_ALPHA_GLOBIN =
   "GCTGGAGCCTCGGTGGCCATGCTTCTTGCCCCTTGGGCCTCCCCCCAGCCCCTCCTCCCCTTCCTGCACCCGTACCCCCGTGGTCTTTGAATAAAGTCTGAGTGGGCGGCA";
 
 export const ORGANISMS = [
-  { label: "Human", value: "kazusa:9606" },
-  { label: "Mouse", value: "kazusa:10090" },
+  { label: "Human", value: "kazusa-9606" },
+  { label: "Mouse", value: "kazusa-10090" },
 ];
