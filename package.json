@@ -10,31 +10,31 @@
     "start": "PORT=8080 node .output/server/index.mjs"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.0.4",
-    "@playwright/test": "^1.53.1",
+    "@biomejs/biome": "^2.0.6",
+    "@playwright/test": "^1.53.2",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
-    "@vitejs/plugin-react": "^4.5.2",
+    "@vitejs/plugin-react": "^4.6.0",
     "postcss": "^8.5.6",
-    "postcss-preset-mantine": "^1.17.0",
+    "postcss-preset-mantine": "^1.18.0",
     "postcss-simple-vars": "^7.0.1",
-    "vite": "^6.3.5",
+    "vite": "^7.0.2",
     "vite-tsconfig-paths": "^5.1.4"
   },
   "peerDependencies": {
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "@mantine/core": "^8.1.1",
-    "@mantine/form": "^8.1.1",
-    "@mantine/hooks": "^8.1.1",
+    "@mantine/core": "^8.1.2",
+    "@mantine/form": "^8.1.2",
+    "@mantine/hooks": "^8.1.2",
     "@phosphor-icons/react": "^2.1.10",
-    "@tanstack/react-router": "^1.121.33",
-    "@tanstack/react-start": "^1.121.33",
+    "@tanstack/react-router": "^1.125.4",
+    "@tanstack/react-start": "^1.125.5",
     "date-fns": "^4.1.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "zod": "^3.25.67"
+    "zod": "^3.25.74"
   },
   "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"
 }
