@@ -1,3 +1,4 @@
+import enum
 import functools
 import math
 import re
@@ -5,16 +6,17 @@ import time
 import typing
 
 import msgspec
+from sqlalchemy.engine.base import OptionEngineMixin
 
-from .constants import (
+from ..constants import (
     CODON_TO_AMINO_ACID_MAP,
 )
-from .organism import (
+from ..organism import (
     KAZUSA_HOMO_SAPIENS,
     load_organism,
     Organism,
 )
-from .types import AminoAcid, Codon
+from ..types import AminoAcid, Codon
 
 
 class OptimizationException(Exception):
@@ -44,11 +46,23 @@ class Analysis(msgspec.Struct, kw_only=True, rename="camel"):
 
 
 class OptimizationConfiguration(msgspec.Struct, kw_only=True, rename="camel"):
-    class OrganismDef(msgspec.Struct, kw_only=True, rename="camel"):
-        source: typing.Literal["kazusa"]
-        id: str
+    location_start: int | None = None
+    location_end: int | None = None
 
-    organism: Organism | str = KAZUSA_HOMO_SAPIENS
+    def __post_init__(self):
+        if self.location_start and self.location_start % 3 != 0:
+            raise ValueError("`location_start` must be multiple of 3.")
+        if self.location_end and self.location_end % 3 != 0:
+            raise ValueError("`location_end` must be a multiple of 3.")
+        if (
+            self.location_start is not None
+            and self.location_end is not None
+            and self.location_start >= self.location_end
+        ):
+            raise ValueError("`location_start` must be less than `location_end`.")
+
+
+class ConstraintConfiguration(OptimizationConfiguration, kw_only=True, rename="camel"):
     enable_uridine_depletion: bool = False
     avoid_ribosome_slip: bool = False
     gc_content_min: float = 0.4
@@ -65,13 +79,24 @@ class OptimizationConfiguration(msgspec.Struct, kw_only=True, rename="camel"):
     hairpin_window: int = 60
 
     def __post_init__(self):
+        super().__post_init__()
         if isinstance(self.avoid_sequences, str):
             self.avoid_sequences = self.avoid_sequences.split(",")
         if self.gc_content_min > self.gc_content_max:
-            raise ValueError("GC content minmum must be less than maximum.")
+            raise ValueError("GC content minimum must be less than maximum.")
 
-    def to_dict(self):
-        return {f: getattr(self, f) for f in self.__struct_fields__}
+
+class ObjectiveType(enum.StrEnum):
+    CODON_OPTIMIZATION = "codon-optimization"
+    UNIQUIFY_ALL_KMERS = "uniquify-all-kmers"
+
+
+class ObjectiveConfiguration(OptimizationConfiguration, kw_only=True, rename="camel"):
+    organism: Organism | str = KAZUSA_HOMO_SAPIENS
+    type: str = msgspec.field()
+
+    def __post_init__(self):
+        super().__post_init__()
 
 
 class OptimizationResult(msgspec.Struct, kw_only=True, rename="camel"):
@@ -370,7 +395,7 @@ class Sequence(msgspec.Struct, frozen=True):
 
     def optimize(
         self,
-        config: OptimizationConfiguration | None = None,
+        configurations: list[OptimizationConfiguration] | None = None,
     ) -> OptimizationResult:
         """Optimize the sequence based on the configuration parameters.
 
@@ -393,55 +418,64 @@ class Sequence(msgspec.Struct, frozen=True):
         MAX_RANDOM_ITERS = 20_000
         """The maximum number of iterations to run when optimizing."""
 
-        config = config or OptimizationConfiguration()
+        configurations = configurations or [OptimizationConfiguration()]
 
-        constraints = [
-            EnforceGCContent(mini=config.gc_content_min, maxi=config.gc_content_max),  # type: ignore
-            EnforceGCContent(
-                mini=config.gc_content_min,  # type: ignore
-                maxi=config.gc_content_max,
-                window=config.gc_content_window,
-            ),
-            AvoidHairpins(
-                stem_size=config.hairpin_stem_size, hairpin_window=config.hairpin_window
-            ),
-            AvoidPattern(f"{config.avoid_poly_a}xA"),
-            AvoidPattern(f"{config.avoid_poly_c}xC"),
-            AvoidPattern(f"{config.avoid_poly_g}xG"),
-            EnforceTranslation(),
-        ]
+        constraints = []
 
-        if config.enable_uridine_depletion:
-            uridine_depletion_codon_usage_table = {
-                amino_acid: {
-                    codon: (0.0 if codon[-1] == "T" else 1.0)
-                    for codon, aa in CODON_TO_AMINO_ACID_MAP.items()
-                    if aa == amino_acid
-                }
-                for amino_acid in set(CODON_TO_AMINO_ACID_MAP.values())
-            }
-            constraints.append(
-                AvoidRareCodons(
-                    0.5, codon_usage_table=uridine_depletion_codon_usage_table
-                )
+        for config in configurations:
+            constraints.extend(
+                [
+                    EnforceGCContent(
+                        mini=config.gc_content_min,  # type: ignore
+                        maxi=config.gc_content_max,
+                    ),
+                    EnforceGCContent(
+                        mini=config.gc_content_min,  # type: ignore
+                        maxi=config.gc_content_max,
+                        window=config.gc_content_window,
+                    ),
+                    AvoidHairpins(
+                        stem_size=config.hairpin_stem_size,
+                        hairpin_window=config.hairpin_window,
+                    ),
+                    AvoidPattern(f"{config.avoid_poly_a}xA"),
+                    AvoidPattern(f"{config.avoid_poly_c}xC"),
+                    AvoidPattern(f"{config.avoid_poly_g}xG"),
+                    EnforceTranslation(),
+                ]
             )
 
-        if config.avoid_ribosome_slip:
-            constraints.append(AvoidPattern("3xT"))
-        else:
-            constraints.append(AvoidPattern(f"{config.avoid_poly_t}xT"))
+            if config.enable_uridine_depletion:
+                uridine_depletion_codon_usage_table = {
+                    amino_acid: {
+                        codon: (0.0 if codon[-1] == "T" else 1.0)
+                        for codon, aa in CODON_TO_AMINO_ACID_MAP.items()
+                        if aa == amino_acid
+                    }
+                    for amino_acid in set(CODON_TO_AMINO_ACID_MAP.values())
+                }
+                constraints.append(
+                    AvoidRareCodons(
+                        0.5, codon_usage_table=uridine_depletion_codon_usage_table
+                    )
+                )
 
-        cut_site_constraints = [
-            AvoidPattern(f"{site}_site")
-            for site in config.avoid_restriction_sites or []
-            if site
-        ]
-        constraints.extend(cut_site_constraints)
+            if config.avoid_ribosome_slip:
+                constraints.append(AvoidPattern("3xT"))
+            else:
+                constraints.append(AvoidPattern(f"{config.avoid_poly_t}xT"))
 
-        custom_pattern_constraints = [
-            AvoidPattern(it) for it in config.avoid_sequences or [] if it
-        ]
-        constraints.extend(custom_pattern_constraints)
+            cut_site_constraints = [
+                AvoidPattern(f"{site}_site")
+                for site in config.avoid_restriction_sites or []
+                if site
+            ]
+            constraints.extend(cut_site_constraints)
+
+            custom_pattern_constraints = [
+                AvoidPattern(it) for it in config.avoid_sequences or [] if it
+            ]
+            constraints.extend(custom_pattern_constraints)
 
         start = time.time()
 
