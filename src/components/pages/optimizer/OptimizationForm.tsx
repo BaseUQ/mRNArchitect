@@ -35,6 +35,10 @@ import {
   THREE_PRIME_HUMAN_ALPHA_GLOBIN,
 } from "~/components/pages/optimizer/constants";
 import { OptimizationResults } from "~/components/pages/optimizer/OptimizationResults";
+import {
+  TextareaWithRequirements,
+  type TextareaWithRequirementsProps,
+} from "~/components/inputs/TextareaWithRequirements";
 import RESTRICTION_SITES from "~/data/restriction-sites.json";
 import {
   analyzeSequence,
@@ -42,6 +46,52 @@ import {
   optimizeSequence,
 } from "~/server/optimize";
 import { OptimizationRequest } from "~/types/optimize";
+
+const REQUIREMENT_NUCLEIC_ACID_IS_AMINO_ACID: TextareaWithRequirementsProps["requirements"][0] =
+  (sequence: string) => ({
+    label: "Nucleic acid sequence must be a valid amino acid sequence.",
+    status: sequence.length > 0 && sequence.length % 3 === 0 ? "ok" : "error",
+  });
+const REQUIREMENT_NUCLEIC_ACID_HAS_CORRECT_CHARACTERS: TextareaWithRequirementsProps["requirements"][0] =
+  (sequence: string) => ({
+    label: "Nucleic acid sequence must only contain A, C, G, T or U.",
+    status:
+      sequence.length > 0 && sequence.search(/[^ACGTU]/gim) === -1
+        ? "ok"
+        : "error",
+  });
+const REQUIREMENT_NUCLEIC_ACID_HAS_START_CODON: TextareaWithRequirementsProps["requirements"][0] =
+  (sequence: string) => ({
+    label: "Start codon (AUG) should be present (optional).",
+    status: sequence.search(/^(A[TU]G)/gim) === 0 ? "ok" : "none",
+  });
+const REQUIREMENT_NUCLEIC_ACID_HAS_STOP_CODON: TextareaWithRequirementsProps["requirements"][0] =
+  (sequence: string) => ({
+    label: "Stop codon (UAG, UAA or UGA) should be present (optional).",
+    status:
+      sequence.search(/([TU]AG)$|([TU]AA)$|([TU]GA)$/gim) !== -1
+        ? "ok"
+        : "none",
+  });
+const REQUIREMENT_AMINO_ACID_HAS_CORRECT_CHARACTERS: TextareaWithRequirementsProps["requirements"][0] =
+  (sequence: string) => ({
+    label: "Sequence must only contain valid amino acids.",
+    status:
+      sequence.length > 0 &&
+      sequence.search(/[^ARNDCEQGHILKMFPSTWYV\*]/gim) === -1
+        ? "ok"
+        : "error",
+  });
+const REQUIREMENT_AMINO_ACID_HAS_START_CODON: TextareaWithRequirementsProps["requirements"][0] =
+  (sequence: string) => ({
+    label: "Start codon (M) should be present (optional).",
+    status: sequence.search(/^(M)/gim) === 0 ? "ok" : "none",
+  });
+const REQUIREMENT_AMINO_ACID_HAS_STOP_CODON: TextareaWithRequirementsProps["requirements"][0] =
+  (sequence: string) => ({
+    label: "Stop codon (*) should be present (optional).",
+    status: sequence.search(/(\*)$/gim) !== -1 ? "ok" : "none",
+  });
 
 export const OptimizeForm = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -377,7 +427,22 @@ export const OptimizeForm = () => {
                     <Radio value="amino-acid" label="Amino acid" />
                   </Group>
                 </Radio.Group>
-                <Textarea
+                <TextareaWithRequirements
+                  requirements={
+                    form.getValues().sequenceType === "nucleic-acid"
+                      ? [
+                          REQUIREMENT_NUCLEIC_ACID_IS_AMINO_ACID,
+                          REQUIREMENT_NUCLEIC_ACID_HAS_CORRECT_CHARACTERS,
+                          REQUIREMENT_NUCLEIC_ACID_HAS_START_CODON,
+                          REQUIREMENT_NUCLEIC_ACID_HAS_STOP_CODON,
+                        ]
+                      : [
+                          REQUIREMENT_AMINO_ACID_HAS_CORRECT_CHARACTERS,
+                          REQUIREMENT_AMINO_ACID_HAS_START_CODON,
+                          REQUIREMENT_AMINO_ACID_HAS_STOP_CODON,
+                        ]
+                  }
+                  spellCheck={false}
                   label="Coding sequence textarea"
                   labelProps={{ display: "none" }}
                   placeholder="Paste your sequence here..."
@@ -413,7 +478,11 @@ export const OptimizeForm = () => {
                     <Radio value="custom" label="Custom" />
                   </Group>
                 </Radio.Group>
-                <Textarea
+                <TextareaWithRequirements
+                  requirements={[
+                    REQUIREMENT_NUCLEIC_ACID_HAS_CORRECT_CHARACTERS,
+                  ]}
+                  spellCheck={false}
                   disabled={fivePrimeUTRSequenceType === "human-alpha-globin"}
                   placeholder="Paste your sequence here..."
                   autosize
@@ -448,7 +517,11 @@ export const OptimizeForm = () => {
                     <Radio value="custom" label="Custom" />
                   </Group>
                 </Radio.Group>
-                <Textarea
+                <TextareaWithRequirements
+                  requirements={[
+                    REQUIREMENT_NUCLEIC_ACID_HAS_CORRECT_CHARACTERS,
+                  ]}
+                  spellCheck={false}
                   disabled={threePrimeUTRSequenceType === "human-alpha-globin"}
                   placeholder="Paste your sequence here..."
                   autosize
@@ -487,7 +560,11 @@ export const OptimizeForm = () => {
                   />
                 )}
                 {polyATailType === "custom" && (
-                  <Textarea
+                  <TextareaWithRequirements
+                    requirements={[
+                      REQUIREMENT_NUCLEIC_ACID_HAS_CORRECT_CHARACTERS,
+                    ]}
+                    spellCheck={false}
                     placeholder="Paste your sequence here..."
                     autosize
                     minRows={2}
