@@ -1,6 +1,5 @@
-from .sequence import OptimizationConfiguration, Sequence
+from .sequence import Sequence
 
 __all__ = [
-    "OptimizationConfiguration",
     "Sequence",
 ]
