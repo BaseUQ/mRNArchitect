@@ -30,7 +30,7 @@ Then browse to [http://localhost:8080] to start optimizing.
 The CLI interface may be run directly. First, install the [uv](https://docs.astral.sh/uv/getting-started/installation/) package manager to setup a python environment. You can then run an optimization like this:
 
 ```sh
-> uv run mRNArchitect optimize ACGACGT
+> uv run mRNArchitect optimize ACGACG
 ```
 
 Or for an amino acid sequence:
