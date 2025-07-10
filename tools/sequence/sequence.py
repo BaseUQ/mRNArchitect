@@ -1,4 +1,3 @@
-import enum
 import functools
 import math
 import re
@@ -6,7 +5,6 @@ import time
 import typing
 
 import msgspec
-from sqlalchemy.engine.base import OptionEngineMixin
 
 from ..constants import (
     CODON_TO_AMINO_ACID_MAP,
@@ -17,6 +15,7 @@ from ..organism import (
     Organism,
 )
 from ..types import AminoAcid, Codon
+from .optimize import Constraint, Objective, optimize
 
 
 class OptimizationException(Exception):
@@ -43,60 +42,6 @@ class Analysis(msgspec.Struct, kw_only=True, rename="camel"):
     codon_adaptation_index: float | None
     minimum_free_energy: MinimumFreeEnergy
     debug: Debug
-
-
-class OptimizationConfiguration(msgspec.Struct, kw_only=True, rename="camel"):
-    location_start: int | None = None
-    location_end: int | None = None
-
-    def __post_init__(self):
-        if self.location_start and self.location_start % 3 != 0:
-            raise ValueError("`location_start` must be multiple of 3.")
-        if self.location_end and self.location_end % 3 != 0:
-            raise ValueError("`location_end` must be a multiple of 3.")
-        if (
-            self.location_start is not None
-            and self.location_end is not None
-            and self.location_start >= self.location_end
-        ):
-            raise ValueError("`location_start` must be less than `location_end`.")
-
-
-class ConstraintConfiguration(OptimizationConfiguration, kw_only=True, rename="camel"):
-    enable_uridine_depletion: bool = False
-    avoid_ribosome_slip: bool = False
-    gc_content_min: float = 0.4
-    gc_content_max: float = 0.7
-    gc_content_window: int = 100
-    avoid_restriction_sites: list[str] = msgspec.field(default_factory=list)
-    avoid_sequences: str | list[str] = msgspec.field(default_factory=list)
-    avoid_repeat_length: int = 10
-    avoid_poly_a: int = 9
-    avoid_poly_c: int = 6
-    avoid_poly_g: int = 6
-    avoid_poly_t: int = 9
-    hairpin_stem_size: int = 10
-    hairpin_window: int = 60
-
-    def __post_init__(self):
-        super().__post_init__()
-        if isinstance(self.avoid_sequences, str):
-            self.avoid_sequences = self.avoid_sequences.split(",")
-        if self.gc_content_min > self.gc_content_max:
-            raise ValueError("GC content minimum must be less than maximum.")
-
-
-class ObjectiveType(enum.StrEnum):
-    CODON_OPTIMIZATION = "codon-optimization"
-    UNIQUIFY_ALL_KMERS = "uniquify-all-kmers"
-
-
-class ObjectiveConfiguration(OptimizationConfiguration, kw_only=True, rename="camel"):
-    organism: Organism | str = KAZUSA_HOMO_SAPIENS
-    type: str = msgspec.field()
-
-    def __post_init__(self):
-        super().__post_init__()
 
 
 class OptimizationResult(msgspec.Struct, kw_only=True, rename="camel"):
@@ -395,122 +340,23 @@ class Sequence(msgspec.Struct, frozen=True):
 
     def optimize(
         self,
-        configurations: list[OptimizationConfiguration] | None = None,
+        constraints: list[Constraint],
+        objectives: list[Objective],
     ) -> OptimizationResult:
         """Optimize the sequence based on the configuration parameters.
 
         >>> Sequence("ACGACCATTAAA").optimize(OptimizationConfiguration()).output
         Sequence(nucleic_acid_sequence='ACCACCATCAAG')
         """
-        from dnachisel import DnaOptimizationProblem
-        from dnachisel.builtin_specifications import (
-            AvoidPattern,
-            AvoidHairpins,
-            AvoidRareCodons,
-            EnforceGCContent,
-            EnforceTranslation,
-            UniquifyAllKmers,
-        )
-        from dnachisel.builtin_specifications.codon_optimization import (
-            CodonOptimize,
-        )
-
-        MAX_RANDOM_ITERS = 20_000
-        """The maximum number of iterations to run when optimizing."""
-
-        configurations = configurations or [OptimizationConfiguration()]
-
-        constraints = []
-
-        for config in configurations:
-            constraints.extend(
-                [
-                    EnforceGCContent(
-                        mini=config.gc_content_min,  # type: ignore
-                        maxi=config.gc_content_max,
-                    ),
-                    EnforceGCContent(
-                        mini=config.gc_content_min,  # type: ignore
-                        maxi=config.gc_content_max,
-                        window=config.gc_content_window,
-                    ),
-                    AvoidHairpins(
-                        stem_size=config.hairpin_stem_size,
-                        hairpin_window=config.hairpin_window,
-                    ),
-                    AvoidPattern(f"{config.avoid_poly_a}xA"),
-                    AvoidPattern(f"{config.avoid_poly_c}xC"),
-                    AvoidPattern(f"{config.avoid_poly_g}xG"),
-                    EnforceTranslation(),
-                ]
-            )
-
-            if config.enable_uridine_depletion:
-                uridine_depletion_codon_usage_table = {
-                    amino_acid: {
-                        codon: (0.0 if codon[-1] == "T" else 1.0)
-                        for codon, aa in CODON_TO_AMINO_ACID_MAP.items()
-                        if aa == amino_acid
-                    }
-                    for amino_acid in set(CODON_TO_AMINO_ACID_MAP.values())
-                }
-                constraints.append(
-                    AvoidRareCodons(
-                        0.5, codon_usage_table=uridine_depletion_codon_usage_table
-                    )
-                )
-
-            if config.avoid_ribosome_slip:
-                constraints.append(AvoidPattern("3xT"))
-            else:
-                constraints.append(AvoidPattern(f"{config.avoid_poly_t}xT"))
-
-            cut_site_constraints = [
-                AvoidPattern(f"{site}_site")
-                for site in config.avoid_restriction_sites or []
-                if site
-            ]
-            constraints.extend(cut_site_constraints)
-
-            custom_pattern_constraints = [
-                AvoidPattern(it) for it in config.avoid_sequences or [] if it
-            ]
-            constraints.extend(custom_pattern_constraints)
-
         start = time.time()
-
-        organism = load_organism(config.organism)
-        optimization_problem = DnaOptimizationProblem(
-            sequence=self.nucleic_acid_sequence,
-            constraints=constraints,
-            objectives=[
-                CodonOptimize(
-                    codon_usage_table=organism.to_dnachisel_dict(),
-                    method="use_best_codon",
-                ),
-                UniquifyAllKmers(k=config.avoid_repeat_length),
-            ],
-            logger=None,  # type: ignore
+        result = optimize(
+            self.nucleic_acid_sequence, constraints=constraints, objectives=objectives
         )
-        optimization_problem.max_random_iters = MAX_RANDOM_ITERS
-
-        try:
-            optimization_problem.resolve_constraints()
-        except Exception as e:
-            raise OptimizationException(
-                f"Input sequence is invalid, cannot optimize: {e}"
-            )
-
-        try:
-            optimization_problem.optimize()
-        except Exception as e:
-            raise OptimizationException(f"Optimization process failed: {e}")
-
         return OptimizationResult(
-            output=Sequence(optimization_problem.sequence),
+            output=Sequence(result.sequence),
             debug=OptimizationResult.Debug(
                 time_seconds=(time.time() - start),
-                constraints=optimization_problem.constraints_text_summary(),
-                objectives=optimization_problem.objectives_text_summary(),
+                constraints=result.constraints_text_summary(),
+                objectives=result.objectives_text_summary(),
             ),
         )
