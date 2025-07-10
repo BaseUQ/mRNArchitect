@@ -182,18 +182,19 @@ def optimize(
     nucleic_acid_sequence: str,
     constraints: list[Constraint],
     objectives: list[Objective],
+    max_random_iters: int = 20_000,
 ):
-    MAX_RANDOM_ITERS = 20_000
-
     optimization_problem = DnaOptimizationProblem(
         sequence=nucleic_acid_sequence,
         constraints=list(
-            itertools.chain(it.dnachisel_constraints for it in constraints)
+            itertools.chain(*[it.dnachisel_constraints for it in constraints])
         ),
-        objectives=list(itertools.chain(it.dnaschisel_objectives for it in objectives)),
+        objectives=list(
+            itertools.chain(*[it.dnaschisel_objectives for it in objectives])
+        ),
         logger=None,  # type: ignore
     )
-    optimization_problem.max_random_iters = MAX_RANDOM_ITERS
+    optimization_problem.max_random_iters = max_random_iters
 
     try:
         optimization_problem.resolve_constraints()

@@ -345,8 +345,8 @@ class Sequence(msgspec.Struct, frozen=True):
     ) -> OptimizationResult:
         """Optimize the sequence based on the configuration parameters.
 
-        >>> Sequence("ACGACCATTAAA").optimize(OptimizationConfiguration()).output
-        Sequence(nucleic_acid_sequence='ACCACCATCAAG')
+        >>> Sequence("ACGACCATTAAA").optimize(constraints=[], objectives=[Objective()]).output
+        Sequence(nucleic_acid_sequence='ACCACCATGAAC')
         """
         start = time.time()
         result = optimize(
