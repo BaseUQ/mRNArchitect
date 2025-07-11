@@ -15,6 +15,14 @@ DEFAULT_ORGANISMS = [
 ]
 
 
+class _Constraint(Constraint, frozen=True, kw_only=True, rename="camel"):
+    pass
+
+
+class _Objective(Objective, frozen=True, kw_only=True, rename="camel"):
+    pass
+
+
 def _parse_sequence(args):
     if hasattr(args, "sequence_type") and args.sequence_type == "amino-acid":
         return Sequence.from_amino_acid_sequence(args.sequence, organism=args.organism)
@@ -31,8 +39,8 @@ def _print(output, args):
 def _optimize(args):
     sequence = _parse_sequence(args)
     if args.constraints and args.objectives:
-        constraints = msgspec.json.decode(args.constraints, type=list[Constraint])
-        objectives = msgspec.json.decode(args.objectives, type=list[Objective])
+        constraints = msgspec.json.decode(args.constraints, type=list[_Constraint])
+        objectives = msgspec.json.decode(args.objectives, type=list[_Objective])
     else:
         constraints = [
             Constraint(

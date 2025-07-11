@@ -26,6 +26,37 @@ export const OptimizationRequest = z.object({
 
 export type OptimizationRequest = z.infer<typeof OptimizationRequest>;
 
+export const OptimizationLocation = z.object({
+  start: z.number().int().nullable(),
+  end: z.number().int().nullable(),
+});
+
+export const OptimizationConstraint = OptimizationLocation.extend({
+  enableUridineDepletion: z.boolean(),
+  avoidRibosomeSlip: z.boolean(),
+  gcContentMin: z.number().min(0).max(1),
+  gcContentMax: z.number().min(0).max(1),
+  gcContentWindow: z.number().int().min(1),
+  avoidRestrictionSites: z.array(z.string()),
+  avoidSequences: z.string(),
+  avoidRepeatLength: z.number().int().min(6),
+  avoidPolyT: z.number().int().min(0),
+  avoidPolyA: z.number().int().min(0),
+  avoidPolyC: z.number().int().min(0),
+  avoidPolyG: z.number().int().min(0),
+  hairpinStemSize: z.number().int().min(0),
+  hairpinWindow: z.number().int().min(0),
+});
+
+export type OptimizationConstraint = z.infer<typeof OptimizationConstraint>;
+
+export const OptimizationObjective = OptimizationLocation.extend({
+  organism: z.string(),
+  avoidRepeatLength: z.number().int().min(6),
+});
+
+export type OptimizationObjective = z.infer<typeof OptimizationObjective>;
+
 export const OptimizationResponse = z.object({
   output: z.object({
     nucleic_acid_sequence: z.string().nonempty(),
