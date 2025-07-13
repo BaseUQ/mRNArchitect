@@ -1,4 +1,5 @@
 import itertools
+import typing
 
 import msgspec
 from dnachisel import Location as DnaChiselLocation
@@ -26,30 +27,26 @@ class OptimizationException(Exception):
 
 
 class Location(msgspec.Struct, frozen=True, kw_only=True):
-    location_start: int | None = None
-    location_end: int | None = None
+    start: int | None = None
+    end: int | None = None
 
     def __post_init__(self):
-        if self.location_start and self.location_start % 3 != 0:
-            raise ValueError("`location_start` must be multiple of 3.")
-        if self.location_end and self.location_end % 3 != 0:
-            raise ValueError("`location_end` must be a multiple of 3.")
-        if (
-            self.location_start is not None
-            and self.location_end is not None
-            and self.location_start >= self.location_end
-        ):
-            raise ValueError("`location_start` must be less than `location_end`.")
+        if self.start is not None and self.start % 3 != 0:
+            raise ValueError("`start` must be multiple of 3.")
+        if self.end is not None and self.end % 3 != 0:
+            raise ValueError("`end` must be a multiple of 3.")
+        if self.start is not None and self.end is not None and self.start >= self.end:
+            raise ValueError("`start` must be less than `end`.")
 
     @property
     def dnachisel_location(self):
-        if not self.location_start:
+        if not self.start or not self.end:
             return None
 
-        return DnaChiselLocation(self.location_start, self.location_end)
+        return DnaChiselLocation(self.start, self.end)
 
 
-class Constraint(Location, frozen=True, kw_only=True, rename="camel"):
+class Constraint(Location, frozen=True, kw_only=True):
     enable_uridine_depletion: bool = False
     avoid_ribosome_slip: bool = False
     gc_content_min: float | None = None
@@ -156,7 +153,7 @@ class Constraint(Location, frozen=True, kw_only=True, rename="camel"):
         return constraints
 
 
-class Objective(Location, frozen=True, kw_only=True, rename="camel"):
+class Objective(Location, frozen=True, kw_only=True):
     organism: Organism | str = KAZUSA_HOMO_SAPIENS
     avoid_repeat_length: int = 10
 
@@ -164,7 +161,7 @@ class Objective(Location, frozen=True, kw_only=True, rename="camel"):
         super().__post_init__()
 
     @property
-    def dnaschisel_objectives(self):
+    def dnachisel_objectives(self):
         organism = load_organism(self.organism)
         return [
             CodonOptimize(
@@ -180,8 +177,8 @@ class Objective(Location, frozen=True, kw_only=True, rename="camel"):
 
 def optimize(
     nucleic_acid_sequence: str,
-    constraints: list[Constraint],
-    objectives: list[Objective],
+    constraints: typing.Sequence[Constraint],
+    objectives: typing.Sequence[Objective],
     max_random_iters: int = 20_000,
 ):
     optimization_problem = DnaOptimizationProblem(
@@ -190,7 +187,7 @@ def optimize(
             itertools.chain(*[it.dnachisel_constraints for it in constraints])
         ),
         objectives=list(
-            itertools.chain(*[it.dnaschisel_objectives for it in objectives])
+            itertools.chain(*[it.dnachisel_objectives for it in objectives])
         ),
         logger=None,  # type: ignore
     )

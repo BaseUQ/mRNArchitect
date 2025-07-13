@@ -340,8 +340,8 @@ class Sequence(msgspec.Struct, frozen=True):
 
     def optimize(
         self,
-        constraints: list[Constraint],
-        objectives: list[Objective],
+        constraints: typing.Sequence[Constraint],
+        objectives: typing.Sequence[Objective],
     ) -> OptimizationResult:
         """Optimize the sequence based on the configuration parameters.
 
