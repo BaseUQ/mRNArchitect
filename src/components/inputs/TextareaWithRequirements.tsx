@@ -1,37 +1,11 @@
-import {
-  Group,
-  Input,
-  Popover,
-  SegmentedControl,
-  Stack,
-  Text,
-  Textarea,
-  TextareaProps,
-} from "@mantine/core";
+import { Group, Popover, Text, Textarea, TextareaProps } from "@mantine/core";
 import {
   CheckIcon,
   ExclamationMarkIcon,
   MinusIcon,
   XIcon,
 } from "@phosphor-icons/react";
-import { ReactElement, useCallback, useRef, useState } from "react";
-
-interface SequenceInputProps extends TextareaProps {
-  sequenceType: "nucleic-acid" | "amino-acid";
-}
-
-const parseSequence = (
-  input: string,
-  type: SequenceInputProps["sequenceType"],
-): string => {
-  if (type === "nucleic-acid") {
-    return input
-      .toUpperCase()
-      .replaceAll("U", "T")
-      .replaceAll(/[^ACGT]/gi, "");
-  }
-  return input.toUpperCase().replaceAll(/[^ARNDCEQGHIKMFPSTWYV\*]/gi, "");
-};
+import { ReactElement, useRef, useState } from "react";
 
 interface RequirementProps {
   label: string;
@@ -64,54 +38,6 @@ const Requirement = ({ label, status }: RequirementProps) => {
 export interface TextareaWithRequirementsProps extends TextareaProps {
   requirements: Array<(value: string) => RequirementProps>;
 }
-
-const REQUIREMENTS: Record<
-  SequenceInputProps["sequenceType"],
-  Array<(sequence: string) => RequirementProps>
-> = {
-  "nucleic-acid": [
-    (sequence) => ({
-      label: "Nucleic acid sequence must be a valid amino acid sequence.",
-      status: sequence.length > 0 && sequence.length % 3 === 0 ? "ok" : "error",
-    }),
-    (sequence) => ({
-      label: "Nucleic acid sequence must only contain A, C, G, T or U.",
-      status:
-        sequence.length > 0 && sequence.search(/[^ACGTU]/gim) === -1
-          ? "ok"
-          : "error",
-    }),
-    (sequence) => ({
-      label: "Start codon (AUG) should be present (optional).",
-      status: sequence.search(/^(A[TU]G)/gim) === 0 ? "ok" : "none",
-    }),
-    (sequence) => ({
-      label: "Stop codon (UAG, UAA or UGA) should be present (optional).",
-      status:
-        sequence.search(/([TU]AG)$|([TU]AA)$|([TU]GA)$/gim) !== -1
-          ? "ok"
-          : "none",
-    }),
-  ],
-  "amino-acid": [
-    (sequence) => ({
-      label: "Sequence must only contain valid amino acids.",
-      status:
-        sequence.length > 0 &&
-        sequence.search(/[^ARNDCEQGHILKMFPSTWYV\*]/gim) === -1
-          ? "ok"
-          : "error",
-    }),
-    (sequence) => ({
-      label: "Start codon (M) should be present (optional).",
-      status: sequence.search(/^(M)/gim) === 0 ? "ok" : "none",
-    }),
-    (sequence) => ({
-      label: "Stop codon (*) should be present (optional).",
-      status: sequence.search(/(\*)$/gim) !== -1 ? "ok" : "none",
-    }),
-  ],
-};
 
 export const TextareaWithRequirements = ({
   requirements = [],

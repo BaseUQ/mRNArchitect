@@ -1,12 +1,6 @@
 import { useEffect, useState } from "react";
-import {
-  Fieldset,
-  Group,
-  NumberInput,
-  Radio,
-  SegmentedControl,
-  Stack,
-} from "@mantine/core";
+import { Fieldset, Group, NumberInput, Radio, Stack } from "@mantine/core";
+import { useForm } from "@mantine/form";
 import {
   TextareaWithRequirements,
   type TextareaWithRequirementsProps,
@@ -14,7 +8,7 @@ import {
 import {
   FIVE_PRIME_HUMAN_ALPHA_GLOBIN,
   THREE_PRIME_HUMAN_ALPHA_GLOBIN,
-} from "../constants";
+} from "~/constants";
 
 const REQUIREMENT_NUCLEIC_ACID_IS_AMINO_ACID: TextareaWithRequirementsProps["requirements"][0] =
   (sequence: string) => ({
@@ -62,57 +56,57 @@ const REQUIREMENT_AMINO_ACID_HAS_STOP_CODON: TextareaWithRequirementsProps["requ
     status: sequence.search(/(\*)$/gim) !== -1 ? "ok" : "none",
   });
 
-interface OptimizationSequence {
-  onChange: (sequence: {
-    codingSequence: string;
-    fivePrimeUTR: string;
-    threePrimeUTR: string;
-    polyATail: string;
-  }) => {};
+export interface Sequence {
+  codingSequenceType: "nucleic-acid" | "amino-acid";
+  codingSequence: string;
+  fivePrimeUTR: string;
+  threePrimeUTR: string;
+  polyATail: string;
 }
 
-export const OptimizationSequence = () => {
-  const [codingSequenceType, setCodingSequenceType] = useState<
-    "nucleic-acid" | "amino-acid"
-  >("nucleic-acid");
-  const [codingSequence, setCodingSequence] = useState<string>("");
+export interface OptimizationSequenceProps {
+  sequence: Sequence;
+  onChange: (sequence: Sequence) => void;
+}
+
+export const OptimizationSequence = ({
+  sequence,
+  onChange,
+}: OptimizationSequenceProps) => {
   const [fivePrimeUTRSequenceType, setFivePrimeUTRSequenceType] = useState<
     "human-alpha-globin" | "custom"
   >("custom");
-  const [fivePrimeUTR, setFivePrimeUTR] = useState<string>("");
   const [threePrimeUTRSequenceType, setThreePrimeUTRSequenceType] = useState<
     "human-alpha-globin" | "custom"
   >("custom");
-  const [threePrimeUTR, setThreePrimeUTR] = useState<string>("");
   const [polyATailType, setPolyATailType] = useState<
     "none" | "generate" | "custom"
   >("none");
   const [polyATailGenerate, setPolyATailGenerate] = useState<string | number>(
     120,
   );
-  const [polyATail, setPolyATail] = useState<string>("");
 
   useEffect(() => {
     if (fivePrimeUTRSequenceType === "human-alpha-globin") {
-      setFivePrimeUTR(FIVE_PRIME_HUMAN_ALPHA_GLOBIN);
+      onChange({ ...sequence, fivePrimeUTR: FIVE_PRIME_HUMAN_ALPHA_GLOBIN });
     }
   }, [fivePrimeUTRSequenceType]);
 
   useEffect(() => {
     if (threePrimeUTRSequenceType === "human-alpha-globin") {
-      setThreePrimeUTR(THREE_PRIME_HUMAN_ALPHA_GLOBIN);
+      onChange({ ...sequence, threePrimeUTR: THREE_PRIME_HUMAN_ALPHA_GLOBIN });
     }
   }, [threePrimeUTRSequenceType]);
 
   useEffect(() => {
     if (polyATailType === "none") {
-      setPolyATail("");
+      onChange({ ...sequence, polyATail: " " });
     } else if (polyATailType === "generate") {
       const length =
         typeof polyATailGenerate === "string"
           ? parseInt(polyATailGenerate)
           : polyATailGenerate;
-      setPolyATail("A".repeat(length));
+      onChange({ ...sequence, polyATail: "A".repeat(length) });
     }
   }, [polyATailType, polyATailGenerate]);
 
@@ -126,9 +120,12 @@ export const OptimizationSequence = () => {
               "Add your coding sequence of interest here. You can paste either the amino acid, RNA or DNA sequence. You may also want to consider adding useful sequence elements such as nuclear localization signals, signal peptides, or other tags. Ensure your coding sequence starts with a MET codon and ends with a STOP codon. You may want to use two different stop codons for efficient termination (e.g., UAG/UGA)."
             }
             withAsterisk
-            value={codingSequenceType}
+            value={sequence.codingSequenceType}
             onChange={(v) =>
-              setCodingSequenceType(v as typeof codingSequenceType)
+              onChange({
+                ...sequence,
+                codingSequenceType: v as Sequence["codingSequenceType"],
+              })
             }
           >
             <Group style={{ padding: "5px" }}>
@@ -138,7 +135,7 @@ export const OptimizationSequence = () => {
           </Radio.Group>
           <TextareaWithRequirements
             requirements={
-              codingSequenceType === "nucleic-acid"
+              sequence.codingSequenceType === "nucleic-acid"
                 ? [
                     REQUIREMENT_NUCLEIC_ACID_IS_AMINO_ACID,
                     REQUIREMENT_NUCLEIC_ACID_HAS_CORRECT_CHARACTERS,
@@ -159,8 +156,10 @@ export const OptimizationSequence = () => {
             minRows={5}
             resize="vertical"
             withAsterisk
-            value={codingSequence}
-            onChange={(e) => setCodingSequence(e.currentTarget.value)}
+            value={sequence.codingSequence}
+            onChange={(e) =>
+              onChange({ ...sequence, codingSequence: e.currentTarget.value })
+            }
           />
         </div>
         <div>
@@ -169,7 +168,6 @@ export const OptimizationSequence = () => {
             description={
               "Paste your 5' untranslated sequence here. The 5' untranslated region (UTR) is bound and scanned by the ribosome and is needed for translation. We provide a well-validated option, the human alpha-globin (HBA1; Gene ID 3039) 5' UTR sequence that has been validated in different cell types and applications. By default, no 5' UTR will be added."
             }
-            withAsterisk
             value={fivePrimeUTRSequenceType}
             onChange={(v) =>
               setFivePrimeUTRSequenceType(v as typeof fivePrimeUTRSequenceType)
@@ -188,9 +186,10 @@ export const OptimizationSequence = () => {
             autosize
             minRows={2}
             resize="vertical"
-            withAsterisk
-            value={fivePrimeUTR}
-            onChange={(e) => setFivePrimeUTR(e.currentTarget.value)}
+            value={sequence.fivePrimeUTR}
+            onChange={(e) =>
+              onChange({ ...sequence, fivePrimeUTR: e.currentTarget.value })
+            }
           />
         </div>
         <div>
@@ -199,7 +198,6 @@ export const OptimizationSequence = () => {
             description={
               "Paste your 3' untranslated sequence here. The 3' untranslated region (UTR) is regulated by microRNAs and RNA-binding proteins and plays a key role in cell-specific mRNA stability and expression. We provide a well-validated option, the human alpha-globin (HBA1; Gene ID 3039) 3' UTR sequence that has been validated in different cell types and applications. By default, no 3' UTR will be added."
             }
-            withAsterisk
             value={threePrimeUTRSequenceType}
             onChange={(v) =>
               setThreePrimeUTRSequenceType(
@@ -220,9 +218,10 @@ export const OptimizationSequence = () => {
             autosize
             minRows={2}
             resize="vertical"
-            withAsterisk
-            value={threePrimeUTR}
-            onChange={(e) => setThreePrimeUTR(e.currentTarget.value)}
+            value={sequence.threePrimeUTR}
+            onChange={(e) =>
+              onChange({ ...sequence, threePrimeUTR: e.currentTarget.value })
+            }
           />
         </div>
 
@@ -232,7 +231,6 @@ export const OptimizationSequence = () => {
             description={
               "Specify the length of the poly(A) tail or alternatively paste more complex designs. The length of the poly(A) tail plays a critical role in mRNA translation and stability. By default, no poly(A) tail will be added."
             }
-            withAsterisk
             value={polyATailType}
             onChange={(v) => setPolyATailType(v as typeof polyATailType)}
           >
@@ -248,12 +246,7 @@ export const OptimizationSequence = () => {
               stepHoldDelay={500}
               stepHoldInterval={100}
               value={polyATailGenerate}
-              onChange={(v) => {
-                setPolyATailGenerate(v);
-                setPolyATail(
-                  "A".repeat(typeof v === "string" ? parseInt(v) : v),
-                );
-              }}
+              onChange={setPolyATailGenerate}
             />
           )}
           {polyATailType === "custom" && (
@@ -264,9 +257,10 @@ export const OptimizationSequence = () => {
               autosize
               minRows={2}
               resize="vertical"
-              withAsterisk
-              value={polyATail}
-              onChange={(e) => setPolyATail(e.currentTarget.value)}
+              value={sequence.polyATail}
+              onChange={(e) =>
+                onChange({ ...sequence, polyATail: e.currentTarget.value })
+              }
             />
           )}
         </div>

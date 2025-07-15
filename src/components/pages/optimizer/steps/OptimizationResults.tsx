@@ -21,7 +21,7 @@ import type {
   OptimizationRequest,
   OptimizationResponse,
 } from "~/types/optimize";
-import { ORGANISMS } from "./constants";
+import { ORGANISMS } from "~/components/pages/optimizer/constants";
 
 interface OptimizationResults {
   input: OptimizationRequest;

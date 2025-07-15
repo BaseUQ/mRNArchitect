@@ -19,7 +19,6 @@ import {
   Stack,
   Switch,
   Text,
-  Textarea,
   TextInput,
   Title,
 } from "@mantine/core";
@@ -34,7 +33,7 @@ import {
   ORGANISMS,
   THREE_PRIME_HUMAN_ALPHA_GLOBIN,
 } from "~/components/pages/optimizer/constants";
-import { OptimizationResults } from "~/components/pages/optimizer/OptimizationResults";
+import { OptimizationResults } from "~/components/pages/optimizer/steps/OptimizationResults";
 import {
   TextareaWithRequirements,
   type TextareaWithRequirementsProps,
