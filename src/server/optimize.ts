@@ -1,11 +1,12 @@
 import { execFile } from "node:child_process";
 import utils from "node:util";
 import { createServerFn } from "@tanstack/react-start";
-import z from "zod";
+import z from "zod/v4";
 import { loggingMiddleware } from "~/global-middleware";
 import {
   AnalyzeResponse,
-  OptimizationRequest,
+  Constraint,
+  Objective,
   OptimizationResponse,
 } from "~/types/optimize";
 
@@ -17,6 +18,14 @@ const SequenceAndOrganism = z.object({
 });
 
 type SequenceAndOrganism = z.infer<typeof SequenceAndOrganism>;
+
+const OptimizationRequest = z.object({
+  sequence: z.string().nonempty(),
+  constraints: z.array(Constraint),
+  objectives: z.array(Objective),
+});
+
+type OptimizationRequest = z.infer<typeof OptimizationRequest>;
 
 export const convertSequenceToNucleicAcid = createServerFn({ method: "POST" })
   .middleware([loggingMiddleware])
@@ -67,18 +76,21 @@ export const analyzeSequence = createServerFn({ method: "POST" })
 export const optimizeSequence = createServerFn({ method: "POST" })
   .middleware([loggingMiddleware])
   .validator((data: OptimizationRequest) => OptimizationRequest.parse(data))
-  .handler(async ({ data }) => {
+  .handler(async ({ data: { sequence, constraints, objectives } }) => {
     const { stdout } = await execFileAsync(
       "python",
       [
         "-m",
         "tools.cli",
         "optimize",
-        data.sequence,
+        sequence,
         "--sequence-type",
         "nucleic-acid",
         "--config",
-        JSON.stringify(data),
+        JSON.stringify({
+          constraints,
+          objectives,
+        }),
         "--format",
         "json",
       ],

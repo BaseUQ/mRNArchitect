@@ -1,21 +1,35 @@
-import z from "zod";
+import z from "zod/v4";
 
-export const OptimizationRequest = z.object({
-  sequenceType: z.union([z.literal("nucleic-acid"), z.literal("amino-acid")]),
-  sequence: z.string().nonempty("Coding sequence is required."),
-  fivePrimeUTR: z.string(),
-  threePrimeUTR: z.string(),
-  polyATail: z.string(),
-  numberOfSequences: z.number().int().min(1).max(10),
-  organism: z.string(),
+const Location = z
+  .object({
+    start: z.number().int().nullable(),
+    end: z.number().int().nullable(),
+  })
+  .check((ctx) => {
+    if (
+      ctx.value.start !== null &&
+      ctx.value.end !== null &&
+      ctx.value.start > ctx.value.end
+    ) {
+      ctx.issues.push({
+        code: "custom",
+        message: '"start" must be less than or equal to "end".',
+        input: ctx.value,
+        path: ["start"],
+      });
+    }
+  });
+
+export const Constraint = Location.extend({
   enableUridineDepletion: z.boolean(),
   avoidRibosomeSlip: z.boolean(),
   gcContentMin: z.number().min(0).max(1),
   gcContentMax: z.number().min(0).max(1),
   gcContentWindow: z.number().int().min(1),
   avoidRestrictionSites: z.array(z.string()),
-  avoidSequences: z.string(),
-  avoidRepeatLength: z.number().int().min(6),
+  avoidSequences: z.array(
+    z.string().regex(/[ACGTU]/gim, "Sequences must be nucleic acids."),
+  ),
   avoidPolyT: z.number().int().min(0),
   avoidPolyA: z.number().int().min(0),
   avoidPolyC: z.number().int().min(0),
@@ -24,7 +38,14 @@ export const OptimizationRequest = z.object({
   hairpinWindow: z.number().int().min(0),
 });
 
-export type OptimizationRequest = z.infer<typeof OptimizationRequest>;
+export type Constraint = z.infer<typeof Constraint>;
+
+export const Objective = Location.extend({
+  organism: z.string(),
+  avoidRepeatLength: z.number().int().min(6),
+});
+
+export type Objective = z.infer<typeof Objective>;
 
 export const OptimizationResponse = z.object({
   output: z.object({
