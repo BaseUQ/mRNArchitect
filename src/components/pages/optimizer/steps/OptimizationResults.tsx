@@ -18,13 +18,17 @@ import {
 import { useState } from "react";
 import type {
   AnalyzeResponse,
-  OptimizationRequest,
+  Constraint,
+  Objective,
   OptimizationResponse,
 } from "~/types/optimize";
-import { ORGANISMS } from "~/components/pages/optimizer/constants";
+import { ORGANISMS } from "~/constants";
+import { Sequence } from "~/types/sequence";
 
-interface OptimizationResults {
-  input: OptimizationRequest;
+export interface OptimizationResultsProps {
+  sequence: Sequence;
+  constraints: Constraint[];
+  objectives: Objective[];
   results: {
     input: {
       cdsAnalysis: AnalyzeResponse;
@@ -38,22 +42,22 @@ interface OptimizationResults {
       fullSequenceAnalysis: AnalyzeResponse;
     }[];
   };
-  onClickBack: () => void;
 }
 
 export const OptimizationResults = ({
-  input,
-  onClickBack,
+  sequence,
+  constraints,
+  objectives,
   results,
-}: OptimizationResults) => {
+}: OptimizationResultsProps) => {
   const [showHelp, setShowHelp] = useState<boolean>(false);
 
   const generateRow = (
     title: string,
     getter: (
       data:
-        | OptimizationResults["results"]["input"]
-        | OptimizationResults["results"]["outputs"][0],
+        | OptimizationResultsProps["results"]["input"]
+        | OptimizationResultsProps["results"]["outputs"][0],
     ) => number | string,
   ) => {
     return [
@@ -107,29 +111,30 @@ export const OptimizationResults = ({
     `Date\t${new Date().toISOString()}`,
     "",
     "---Input Sequence",
-    `CDS\t\t${input.sequence}`,
-    `5' UTR\t\t${input.fivePrimeUTR}`,
-    `3' UTR\t\t${input.threePrimeUTR}`,
-    `Poly(A) tail\t${input.polyATail}`,
-    "",
-    "---Parameters",
-    `Number of sequences\t\t${input.numberOfSequences}`,
-    `Organism\t\t\t${ORGANISMS.find(({ value }) => value === input.organism)?.label ?? "-"}`,
-    `Enable uridine depletion\t\t${input.enableUridineDepletion}`,
-    `Avoid ribosome slip\t\t${input.avoidRibosomeSlip}`,
-    `GC content minimum\t\t${input.gcContentMin}`,
-    `GC content maximum\t\t${input.gcContentMax}`,
-    `GC content window\t\t${input.gcContentWindow}`,
-    `Avoid cut sites\t\t\t${input.avoidRestrictionSites}`,
-    `Avoid sequences\t\t\t${input.avoidSequences}`,
-    `Avoid repeat length\t\t${input.avoidRepeatLength}`,
-    `Avoid poly(U)\t\t\t${input.avoidPolyT}`,
-    `Avoid poly(A)\t\t\t${input.avoidPolyA}`,
-    `Avoid poly(C)\t\t\t${input.avoidPolyC}`,
-    `Avoid poly(G}\t\t\t${input.avoidPolyG}`,
-    `Hairpin stem size\t\t${input.hairpinStemSize}`,
-    `Hairpin window\t\t\t${input.hairpinWindow}`,
+    `CDS\t\t${sequence.codingSequence}`,
+    `5' UTR\t\t${sequence.fivePrimeUTR}`,
+    `3' UTR\t\t${sequence.threePrimeUTR}`,
+    `Poly(A) tail\t${sequence.polyATail}`,
   ];
+
+  const constraintReports = constraints
+    .map((c, index) => [
+      `---Constraint #${index + 1}`,
+      `Enable uridine depletion\t${c.enableUridineDepletion}`,
+      `Avoid ribosome slip\t\t${c.avoidRibosomeSlip}`,
+      `GC content minimum\t\t${c.gcContentMin}`,
+      `GC content maximum\t\t${c.gcContentMax}`,
+      `GC content window\t\t${c.gcContentWindow}`,
+      `Avoid cut sites\t\t\t${c.avoidRestrictionSites}`,
+      `Avoid sequences\t\t\t${c.avoidSequences}`,
+      `Avoid poly(U)\t\t\t${c.avoidPolyT}`,
+      `Avoid poly(A)\t\t\t${c.avoidPolyA}`,
+      `Avoid poly(C)\t\t\t${c.avoidPolyC}`,
+      `Avoid poly(G}\t\t\t${c.avoidPolyG}`,
+      `Hairpin stem size\t\t${c.hairpinStemSize}`,
+      `Hairpin window\t\t\t${c.hairpinWindow}`,
+    ])
+    .reduce((prev, current) => prev.concat([""], current), []);
 
   const outputReports = results.outputs.map(
     ({ optimization, cdsAnalysis, fullSequenceAnalysis }, index) => [
@@ -137,7 +142,7 @@ export const OptimizationResults = ({
       "",
       `CDS:\t\t\t${optimization.output.nucleic_acid_sequence}`,
       "",
-      `Full-length mRNA:\t${input.fivePrimeUTR + optimization.output.nucleic_acid_sequence + input.threePrimeUTR + input.polyATail}`,
+      `Full-length mRNA:\t${sequence.fivePrimeUTR + optimization.output.nucleic_acid_sequence + sequence.threePrimeUTR + sequence.polyATail}`,
       "",
       "---Results",
       "Metric\t\t\tInput\tOptimized",
@@ -159,6 +164,9 @@ export const OptimizationResults = ({
 
   const reportText = [
     ...inputReport,
+    "",
+    ...constraintReports,
+    "",
     ...outputReports.reduce(
       (accumulator, current) => accumulator.concat([""], current),
       [],
@@ -168,15 +176,7 @@ export const OptimizationResults = ({
 
   return (
     <Stack>
-      <Group justify="space-between">
-        <Button
-          variant="subtle"
-          size="sm"
-          onClick={onClickBack}
-          leftSection={<CaretLeftIcon />}
-        >
-          Back
-        </Button>
+      <Group justify="end">
         <Group>
           <Button
             component="a"
@@ -296,7 +296,7 @@ export const OptimizationResults = ({
             <Text ff="monospace" p="md" style={{ wordBreak: "break-all" }}>
               <Tooltip label="5' UTR">
                 <Text component="span" c="green">
-                  {input.fivePrimeUTR}
+                  {sequence.fivePrimeUTR}
                 </Text>
               </Tooltip>
               <Tooltip label="Coding sequence">
@@ -306,12 +306,12 @@ export const OptimizationResults = ({
               </Tooltip>
               <Tooltip label="3' UTR">
                 <Text component="span" c="green">
-                  {input.threePrimeUTR}
+                  {sequence.threePrimeUTR}
                 </Text>
               </Tooltip>
               <Tooltip label="Poly(A) tail">
                 <Text component="span" c="blue">
-                  {input.polyATail}
+                  {sequence.polyATail}
                 </Text>
               </Tooltip>
             </Text>

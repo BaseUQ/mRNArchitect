@@ -1,31 +1,5 @@
 import z from "zod/v4";
 
-export const OptimizationRequest = z.object({
-  sequenceType: z.union([z.literal("nucleic-acid"), z.literal("amino-acid")]),
-  sequence: z.string().nonempty("Coding sequence is required."),
-  fivePrimeUTR: z.string(),
-  threePrimeUTR: z.string(),
-  polyATail: z.string(),
-  numberOfSequences: z.number().int().min(1).max(10),
-  organism: z.string(),
-  enableUridineDepletion: z.boolean(),
-  avoidRibosomeSlip: z.boolean(),
-  gcContentMin: z.number().min(0).max(1),
-  gcContentMax: z.number().min(0).max(1),
-  gcContentWindow: z.number().int().min(1),
-  avoidRestrictionSites: z.array(z.string()),
-  avoidSequences: z.string(),
-  avoidRepeatLength: z.number().int().min(6),
-  avoidPolyT: z.number().int().min(0),
-  avoidPolyA: z.number().int().min(0),
-  avoidPolyC: z.number().int().min(0),
-  avoidPolyG: z.number().int().min(0),
-  hairpinStemSize: z.number().int().min(0),
-  hairpinWindow: z.number().int().min(0),
-});
-
-export type OptimizationRequest = z.infer<typeof OptimizationRequest>;
-
 const Location = z
   .object({
     start: z.number().int().nullable(),

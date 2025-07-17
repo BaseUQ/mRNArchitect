@@ -234,8 +234,10 @@ export const SequenceModal = ({
             </div>
           </Stack>
         </Fieldset>
-        <Group>
-          <Button onClick={props.onClose}>Cancel</Button>
+        <Group grow>
+          <Button onClick={props.onClose} variant="outline">
+            Cancel
+          </Button>
           <Button onClick={handleOnSave}>Save</Button>
         </Group>
       </Stack>

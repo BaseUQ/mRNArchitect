@@ -324,8 +324,8 @@ export const ConstraintRow = ({
         onCancel={() => setIsEditing(false)}
       />
       <Card shadow="sm" radius="md">
-        <Group gap="sm">
-          <Code>{JSON.stringify(constraint, undefined, 2)}</Code>
+        <Group gap="sm" align="start">
+          <Code flex="1">{JSON.stringify(constraint, undefined, 2)}</Code>
           {editable && (
             <Button.Group>
               <Button onClick={() => setIsEditing(true)}>Edit</Button>

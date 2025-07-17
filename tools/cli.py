@@ -43,8 +43,8 @@ def _optimize(args):
     if args.config:
 
         class Configuration(msgspec.Struct, kw_only=True):
-            constraints: list[Constraint]
-            objectives: list[Objective]
+            constraints: list[_Constraint]
+            objectives: list[_Objective]
 
         configuration = msgspec.json.decode(args.config, type=Configuration)
         constraints = configuration.constraints
