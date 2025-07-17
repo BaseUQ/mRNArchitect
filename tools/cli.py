@@ -9,10 +9,10 @@ from .organism import (
 from .sequence import Sequence
 from .sequence.optimize import Constraint, Objective
 
-DEFAULT_ORGANISMS = [
-    KAZUSA_HOMO_SAPIENS,
-    KAZUSA_MUS_MUSCULUS,
-]
+DEFAULT_ORGANISMS = {
+    "human": KAZUSA_HOMO_SAPIENS,
+    "mouse": KAZUSA_MUS_MUSCULUS,
+}
 
 
 class _Constraint(Constraint, frozen=True, kw_only=True, rename="camel"):
@@ -25,7 +25,9 @@ class _Objective(Objective, frozen=True, kw_only=True, rename="camel"):
 
 def _parse_sequence(args):
     if hasattr(args, "sequence_type") and args.sequence_type == "amino-acid":
-        return Sequence.from_amino_acid_sequence(args.sequence, organism=args.organism)
+        return Sequence.from_amino_acid_sequence(
+            args.sequence, organism=DEFAULT_ORGANISMS[args.organism]
+        )
     return Sequence.from_nucleic_acid_sequence(args.sequence)
 
 
@@ -38,9 +40,15 @@ def _print(output, args):
 
 def _optimize(args):
     sequence = _parse_sequence(args)
-    if args.constraints and args.objectives:
-        constraints = msgspec.json.decode(args.constraints, type=list[_Constraint])
-        objectives = msgspec.json.decode(args.objectives, type=list[_Objective])
+    if args.config:
+
+        class Configuration(msgspec.Struct, kw_only=True):
+            constraints: list[Constraint]
+            objectives: list[Objective]
+
+        configuration = msgspec.json.decode(args.config, type=Configuration)
+        constraints = configuration.constraints
+        objectives = configuration.objectives
     else:
         constraints = [
             Constraint(
@@ -72,7 +80,7 @@ def _optimize(args):
 
 def _analyze(args):
     sequence = _parse_sequence(args)
-    result = sequence.analyze(organism=args.organism)
+    result = sequence.analyze(organism=DEFAULT_ORGANISMS[args.organism])
     _print(result, args)
 
 
@@ -110,9 +118,9 @@ def cli():
     optimize.add_argument(
         "--organism",
         type=str,
-        choices=DEFAULT_ORGANISMS,
-        default=KAZUSA_HOMO_SAPIENS,
-        help="The organism to use (kazusa:9606 = human, kazusa:10090 = mouse)",
+        choices=DEFAULT_ORGANISMS.keys(),
+        default="human",
+        help="The organism to use.",
     )
     optimize.add_argument(
         "--enable-uridine-depletion",
@@ -166,8 +174,8 @@ def cli():
     analyze.add_argument(
         "--organism",
         type=str,
-        choices=DEFAULT_ORGANISMS,
-        default=KAZUSA_HOMO_SAPIENS,
+        choices=DEFAULT_ORGANISMS.keys(),
+        default="human",
         help="The organism to use.",
     )
     analyze.add_argument("--format", type=str, choices=["yaml", "json"], default="yaml")
@@ -188,8 +196,8 @@ def cli():
     convert.add_argument(
         "--organism",
         type=str,
-        choices=DEFAULT_ORGANISMS,
-        default=KAZUSA_HOMO_SAPIENS,
+        choices=DEFAULT_ORGANISMS.keys(),
+        default="human",
         help="The organism to use.",
     )
     convert.add_argument("--format", type=str, choices=["yaml", "json"], default="yaml")

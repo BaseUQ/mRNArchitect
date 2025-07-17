@@ -320,7 +320,7 @@ class Sequence(msgspec.Struct, frozen=True):
         mfe = RNA.fold_compound(str(self)).mfe()
         return MinimumFreeEnergy(structure=mfe[0], energy=mfe[1])
 
-    def analyze(self, organism: Organism | None = None) -> Analysis:
+    def analyze(self, organism: Organism | str | None = None) -> Analysis:
         """Collect and return a set of statistics about the sequence."""
         start = time.time()
         minimum_free_energy = self.minimum_free_energy
