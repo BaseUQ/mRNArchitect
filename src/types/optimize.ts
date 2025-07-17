@@ -26,10 +26,25 @@ export const OptimizationRequest = z.object({
 
 export type OptimizationRequest = z.infer<typeof OptimizationRequest>;
 
-export const Location = z.object({
-  start: z.number().int().nullable(),
-  end: z.number().int().nullable(),
-});
+const Location = z
+  .object({
+    start: z.number().int().nullable(),
+    end: z.number().int().nullable(),
+  })
+  .check((ctx) => {
+    if (
+      ctx.value.start !== null &&
+      ctx.value.end !== null &&
+      ctx.value.start > ctx.value.end
+    ) {
+      ctx.issues.push({
+        code: "custom",
+        message: '"start" must be less than or equal to "end".',
+        input: ctx.value,
+        path: ["start"],
+      });
+    }
+  });
 
 export const Constraint = Location.extend({
   enableUridineDepletion: z.boolean(),

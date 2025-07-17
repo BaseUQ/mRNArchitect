@@ -38,7 +38,9 @@ export const Sequence = z
     }
 
     if (ctx.value.codingSequenceType === "amino-acid") {
-      if (ctx.value.codingSequence.search(/[^ARNDCEQGHILKMFPSTWYV\*]/gim)) {
+      if (
+        ctx.value.codingSequence.search(/[^ARNDCEQGHILKMFPSTWYV\*]/gim) !== -1
+      ) {
         ctx.issues.push({
           code: "custom",
           message:

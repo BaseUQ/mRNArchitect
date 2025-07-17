@@ -102,16 +102,10 @@ def cli():
         help="The type of sequence.",
     )
     optimize.add_argument(
-        "--constraints",
+        "--config",
         type=str,
         default="",
-        help="The optimization constraints given as a JSON structure. If given, other command line options are ignored.",
-    )
-    optimize.add_argument(
-        "--objectives",
-        type=str,
-        default="",
-        help="The optimization objects given as a JSON structure. If given, other command line options are ignored.",
+        help="The optimization configuration given as a JSON structure. Other command line options are ignored.",
     )
     optimize.add_argument(
         "--organism",

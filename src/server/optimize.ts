@@ -1,12 +1,12 @@
 import { execFile } from "node:child_process";
 import utils from "node:util";
 import { createServerFn } from "@tanstack/react-start";
-import z from "zod";
+import z from "zod/v4";
 import { loggingMiddleware } from "~/global-middleware";
 import {
   AnalyzeResponse,
-  OptimizationConstraint,
-  OptimizationObjective,
+  Constraint,
+  Objective,
   OptimizationResponse,
 } from "~/types/optimize";
 
@@ -21,8 +21,8 @@ type SequenceAndOrganism = z.infer<typeof SequenceAndOrganism>;
 
 const OptimizationRequest = z.object({
   sequence: z.string().nonempty(),
-  constraints: z.array(OptimizationConstraint),
-  objectives: z.array(OptimizationObjective),
+  constraints: z.array(Constraint),
+  objectives: z.array(Objective),
 });
 
 type OptimizationRequest = z.infer<typeof OptimizationRequest>;
@@ -86,10 +86,11 @@ export const optimizeSequence = createServerFn({ method: "POST" })
         sequence,
         "--sequence-type",
         "nucleic-acid",
-        "--constraints",
-        JSON.stringify(constraints),
-        "--objectives",
-        JSON.stringify(objectives),
+        "--config",
+        JSON.stringify({
+          constraints,
+          objectives,
+        }),
         "--format",
         "json",
       ],

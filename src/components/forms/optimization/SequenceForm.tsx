@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import {
   Button,
+  Card,
   Fieldset,
   Group,
+  Modal,
+  ModalProps,
   NumberInput,
   Radio,
   Stack,
+  Text,
   Textarea,
+  Tooltip,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import {
@@ -15,9 +20,9 @@ import {
 } from "~/constants";
 import { Sequence } from "~/types/sequence";
 
-export interface SequenceFormProps {
+export interface SequenceModalProps extends ModalProps {
   initialSequence?: Sequence;
-  onSubmit: (sequence: Sequence) => void;
+  onSave: (sequence: Sequence) => void;
 }
 
 const INITIAL_SEQUENCE: Sequence = {
@@ -28,10 +33,11 @@ const INITIAL_SEQUENCE: Sequence = {
   polyATail: "",
 };
 
-export const SequenceForm = ({
+export const SequenceModal = ({
   initialSequence = INITIAL_SEQUENCE,
-  onSubmit,
-}: SequenceFormProps) => {
+  onSave,
+  ...props
+}: SequenceModalProps) => {
   const [fivePrimeUTRSequenceType, setFivePrimeUTRSequenceType] = useState<
     "human-alpha-globin" | "custom"
   >("custom");
@@ -85,144 +91,234 @@ export const SequenceForm = ({
     }
   }, [polyATailType, polyATailGenerate]);
 
-  const handleOnSubmit = () => {
-    console.log(form.getValues());
+  const handleOnSave = () => {
     const result = form.validate();
     if (!result.hasErrors) {
-      onSubmit(form.getValues());
+      onSave(form.getValues());
     }
   };
 
   return (
-    <Stack>
-      <Fieldset>
-        <Stack>
-          <div>
-            <Radio.Group
-              label="Coding sequence"
-              description={
-                "Add your coding sequence of interest here. You can paste either the amino acid, RNA or DNA sequence. You may also want to consider adding useful sequence elements such as nuclear localization signals, signal peptides, or other tags. Ensure your coding sequence starts with a MET codon and ends with a STOP codon. You may want to use two different stop codons for efficient termination (e.g., UAG/UGA)."
-              }
-              withAsterisk
-              key={form.key("codingSequenceType")}
-              {...form.getInputProps("codingSequenceType")}
-            >
-              <Group style={{ padding: "5px" }}>
-                <Radio value="nucleic-acid" label="Nucleic acid" />
-                <Radio value="amino-acid" label="Amino acid" />
-              </Group>
-            </Radio.Group>
-            <Textarea
-              spellCheck={false}
-              label="Coding sequence textarea"
-              labelProps={{ display: "none" }}
-              placeholder="Paste your sequence here..."
-              autosize
-              minRows={5}
-              resize="vertical"
-              withAsterisk
-              key={form.key("codingSequence")}
-              {...form.getInputProps("codingSequence")}
-            />
-          </div>
-          <div>
-            <Radio.Group
-              label="5' UTR"
-              description={
-                "Paste your 5' untranslated sequence here. The 5' untranslated region (UTR) is bound and scanned by the ribosome and is needed for translation. We provide a well-validated option, the human alpha-globin (HBA1; Gene ID 3039) 5' UTR sequence that has been validated in different cell types and applications. By default, no 5' UTR will be added."
-              }
-              value={fivePrimeUTRSequenceType}
-              onChange={(v) =>
-                setFivePrimeUTRSequenceType(
-                  v as typeof fivePrimeUTRSequenceType,
-                )
-              }
-            >
-              <Group style={{ padding: "5px" }}>
-                <Radio value="human-alpha-globin" label="Human alpha-globin" />
-                <Radio value="custom" label="Custom" />
-              </Group>
-            </Radio.Group>
-            <Textarea
-              spellCheck={false}
-              disabled={fivePrimeUTRSequenceType === "human-alpha-globin"}
-              placeholder="Paste your sequence here..."
-              autosize
-              minRows={2}
-              resize="vertical"
-              key={form.key("fivePrimeUTR")}
-              {...form.getInputProps("fivePrimeUTR")}
-            />
-          </div>
-          <div>
-            <Radio.Group
-              label="3' UTR"
-              description={
-                "Paste your 3' untranslated sequence here. The 3' untranslated region (UTR) is regulated by microRNAs and RNA-binding proteins and plays a key role in cell-specific mRNA stability and expression. We provide a well-validated option, the human alpha-globin (HBA1; Gene ID 3039) 3' UTR sequence that has been validated in different cell types and applications. By default, no 3' UTR will be added."
-              }
-              value={threePrimeUTRSequenceType}
-              onChange={(v) =>
-                setThreePrimeUTRSequenceType(
-                  v as typeof threePrimeUTRSequenceType,
-                )
-              }
-            >
-              <Group style={{ padding: "5px" }}>
-                <Radio value="human-alpha-globin" label="Human alpha-globin" />
-                <Radio value="custom" label="Custom" />
-              </Group>
-            </Radio.Group>
-            <Textarea
-              spellCheck={false}
-              disabled={threePrimeUTRSequenceType === "human-alpha-globin"}
-              placeholder="Paste your sequence here..."
-              autosize
-              minRows={2}
-              resize="vertical"
-              key={form.key("threePrimeUTR")}
-              {...form.getInputProps("threePrimeUTR")}
-            />
-          </div>
-
-          <div>
-            <Radio.Group
-              label="Poly(A) tail"
-              description={
-                "Specify the length of the poly(A) tail or alternatively paste more complex designs. The length of the poly(A) tail plays a critical role in mRNA translation and stability. By default, no poly(A) tail will be added."
-              }
-              value={polyATailType}
-              onChange={(v) => setPolyATailType(v as typeof polyATailType)}
-            >
-              <Group style={{ padding: "5px" }}>
-                <Radio value="none" label="None" />
-                <Radio value="generate" label="Generate" />
-                <Radio value="custom" label="Custom" />
-              </Group>
-            </Radio.Group>
-            {polyATailType === "generate" && (
-              <NumberInput
-                min={1}
-                stepHoldDelay={500}
-                stepHoldInterval={100}
-                value={polyATailGenerate}
-                onChange={setPolyATailGenerate}
-              />
-            )}
-            {polyATailType === "custom" && (
+    <Modal {...props}>
+      <Stack>
+        <Fieldset>
+          <Stack>
+            <div>
+              <Radio.Group
+                label="Coding sequence"
+                description={
+                  "Add your coding sequence of interest here. You can paste either the amino acid, RNA or DNA sequence. You may also want to consider adding useful sequence elements such as nuclear localization signals, signal peptides, or other tags. Ensure your coding sequence starts with a MET codon and ends with a STOP codon. You may want to use two different stop codons for efficient termination (e.g., UAG/UGA)."
+                }
+                withAsterisk
+                key={form.key("codingSequenceType")}
+                {...form.getInputProps("codingSequenceType")}
+              >
+                <Group style={{ padding: "5px" }}>
+                  <Radio value="nucleic-acid" label="Nucleic acid" />
+                  <Radio value="amino-acid" label="Amino acid" />
+                </Group>
+              </Radio.Group>
               <Textarea
                 spellCheck={false}
+                label="Coding sequence textarea"
+                labelProps={{ display: "none" }}
+                placeholder="Paste your sequence here..."
+                autosize
+                minRows={5}
+                resize="vertical"
+                withAsterisk
+                key={form.key("codingSequence")}
+                {...form.getInputProps("codingSequence")}
+              />
+            </div>
+            <div>
+              <Radio.Group
+                label="5' UTR"
+                description={
+                  "Paste your 5' untranslated sequence here. The 5' untranslated region (UTR) is bound and scanned by the ribosome and is needed for translation. We provide a well-validated option, the human alpha-globin (HBA1; Gene ID 3039) 5' UTR sequence that has been validated in different cell types and applications. By default, no 5' UTR will be added."
+                }
+                value={fivePrimeUTRSequenceType}
+                onChange={(v) =>
+                  setFivePrimeUTRSequenceType(
+                    v as typeof fivePrimeUTRSequenceType,
+                  )
+                }
+              >
+                <Group style={{ padding: "5px" }}>
+                  <Radio
+                    value="human-alpha-globin"
+                    label="Human alpha-globin"
+                  />
+                  <Radio value="custom" label="Custom" />
+                </Group>
+              </Radio.Group>
+              <Textarea
+                spellCheck={false}
+                disabled={fivePrimeUTRSequenceType === "human-alpha-globin"}
                 placeholder="Paste your sequence here..."
                 autosize
                 minRows={2}
                 resize="vertical"
-                key={form.key("polyATail")}
-                {...form.getInputProps("polyATail")}
+                key={form.key("fivePrimeUTR")}
+                {...form.getInputProps("fivePrimeUTR")}
               />
+            </div>
+            <div>
+              <Radio.Group
+                label="3' UTR"
+                description={
+                  "Paste your 3' untranslated sequence here. The 3' untranslated region (UTR) is regulated by microRNAs and RNA-binding proteins and plays a key role in cell-specific mRNA stability and expression. We provide a well-validated option, the human alpha-globin (HBA1; Gene ID 3039) 3' UTR sequence that has been validated in different cell types and applications. By default, no 3' UTR will be added."
+                }
+                value={threePrimeUTRSequenceType}
+                onChange={(v) =>
+                  setThreePrimeUTRSequenceType(
+                    v as typeof threePrimeUTRSequenceType,
+                  )
+                }
+              >
+                <Group style={{ padding: "5px" }}>
+                  <Radio
+                    value="human-alpha-globin"
+                    label="Human alpha-globin"
+                  />
+                  <Radio value="custom" label="Custom" />
+                </Group>
+              </Radio.Group>
+              <Textarea
+                spellCheck={false}
+                disabled={threePrimeUTRSequenceType === "human-alpha-globin"}
+                placeholder="Paste your sequence here..."
+                autosize
+                minRows={2}
+                resize="vertical"
+                key={form.key("threePrimeUTR")}
+                {...form.getInputProps("threePrimeUTR")}
+              />
+            </div>
+
+            <div>
+              <Radio.Group
+                label="Poly(A) tail"
+                description={
+                  "Specify the length of the poly(A) tail or alternatively paste more complex designs. The length of the poly(A) tail plays a critical role in mRNA translation and stability. By default, no poly(A) tail will be added."
+                }
+                value={polyATailType}
+                onChange={(v) => setPolyATailType(v as typeof polyATailType)}
+              >
+                <Group style={{ padding: "5px" }}>
+                  <Radio value="none" label="None" />
+                  <Radio value="generate" label="Generate" />
+                  <Radio value="custom" label="Custom" />
+                </Group>
+              </Radio.Group>
+              {polyATailType === "generate" && (
+                <NumberInput
+                  min={1}
+                  stepHoldDelay={500}
+                  stepHoldInterval={100}
+                  value={polyATailGenerate}
+                  onChange={setPolyATailGenerate}
+                />
+              )}
+              {polyATailType === "custom" && (
+                <Textarea
+                  spellCheck={false}
+                  placeholder="Paste your sequence here..."
+                  autosize
+                  minRows={2}
+                  resize="vertical"
+                  key={form.key("polyATail")}
+                  {...form.getInputProps("polyATail")}
+                />
+              )}
+            </div>
+          </Stack>
+        </Fieldset>
+        <Group>
+          <Button onClick={props.onClose}>Cancel</Button>
+          <Button onClick={handleOnSave}>Save</Button>
+        </Group>
+      </Stack>
+    </Modal>
+  );
+};
+
+export interface SequenceRowProps {
+  editable?: boolean;
+  sequence?: Sequence;
+  onDelete?: (sequence: Sequence) => void;
+  onSave?: (sequence: Sequence) => void;
+}
+
+export const SequenceRow = ({
+  editable = true,
+  sequence,
+  onDelete,
+  onSave,
+}: SequenceRowProps) => {
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+
+  const handleOnSave = (sequence: Sequence) => {
+    setIsEditing(false);
+    if (onSave) {
+      onSave(sequence);
+    }
+  };
+
+  return (
+    <>
+      <SequenceModal
+        opened={isEditing}
+        initialSequence={sequence}
+        onSave={handleOnSave}
+        onClose={() => setIsEditing(false)}
+      />
+      <Card shadow="md">
+        {sequence && sequence.codingSequence && (
+          <Stack>
+            {editable && (
+              <Group justify="end">
+                <Button.Group>
+                  <Button onClick={() => setIsEditing(true)}>Edit</Button>
+                  <Button
+                    onClick={() => (onDelete ? onDelete(sequence) : null)}
+                    variant="outline"
+                    color="red"
+                  >
+                    Delete
+                  </Button>
+                </Button.Group>
+              </Group>
             )}
-          </div>
-        </Stack>
-      </Fieldset>
-      <Button onClick={handleOnSubmit}>Next</Button>
-    </Stack>
+            <Text ff="monospace" p="md" style={{ wordBreak: "break-all" }}>
+              {sequence.fivePrimeUTR && (
+                <Tooltip label="5' UTR">
+                  <Text component="span" c="green">
+                    {sequence.fivePrimeUTR}
+                  </Text>
+                </Tooltip>
+              )}
+              <Tooltip label="Coding sequence">
+                <Text component="span">{sequence.codingSequence}</Text>
+              </Tooltip>
+              {sequence.threePrimeUTR && (
+                <Tooltip label="3' UTR">
+                  <Text component="span" c="green">
+                    {sequence.threePrimeUTR}
+                  </Text>
+                </Tooltip>
+              )}
+              {sequence.polyATail && (
+                <Tooltip label="Poly(A) tail">
+                  <Text component="span" c="blue">
+                    {sequence.polyATail}
+                  </Text>
+                </Tooltip>
+              )}
+            </Text>
+          </Stack>
+        )}
+      </Card>
+    </>
   );
 };
