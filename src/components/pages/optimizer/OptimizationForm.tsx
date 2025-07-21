@@ -539,8 +539,10 @@ export const OptimizeForm = () => {
                     showHelp &&
                     "If selected, this minimizes the use of uridine nucleosides in the mRNA sequence. This is achieved by avoiding codons that encode uridine at the third wobble position and can impact the reactogenicity of the mRNA sequence."
                   }
-                  key={form.key("avoidUridineDepletion")}
-                  {...form.getInputProps("avoidUridineDepletion")}
+                  key={form.key("enableUridineDepletion")}
+                  {...form.getInputProps("enableUridineDepletion", {
+                    type: "checkbox",
+                  })}
                 />
                 <Switch
                   label="Avoid ribosome slip"
@@ -549,7 +551,9 @@ export const OptimizeForm = () => {
                     "Avoid more than 3 consecutive Us in the open-reading frame, where ribosomes can +1 frameshift at consecutive N1-methylpseudouridines (2)."
                   }
                   key={form.key("avoidRibosomeSlip")}
-                  {...form.getInputProps("avoidRibosomeSlip")}
+                  {...form.getInputProps("avoidRibosomeSlip", {
+                    type: "checkbox",
+                  })}
                 />
                 <InputWrapper
                   label="Minimum/maximum GC content"
