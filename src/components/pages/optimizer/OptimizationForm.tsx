@@ -95,6 +95,14 @@ export const OptimizeForm = () => {
       hairpinStemSize: 10,
       hairpinWindow: 60,
     },
+    transformValues: (values) => ({
+      ...values,
+      // Remove all whitespace in text input fields
+      sequence: values.sequence.replaceAll(/\s/g, ""),
+      fivePrimeUTR: values.fivePrimeUTR.replaceAll(/\s/g, ""),
+      threePrimeUTR: values.threePrimeUTR.replaceAll(/\s/g, ""),
+      polyATail: values.polyATail.replaceAll(/\s/g, ""),
+    }),
     validate: (values) => {
       const result = OptimizationRequest.safeParse(values);
       if (!result.error) {
