@@ -45,7 +45,7 @@ export const convertSequenceToNucleicAcid = createServerFn({ method: "POST" })
         "--format",
         "json",
       ],
-      { shell: false, timeout: 5_000 },
+      { shell: false, timeout: 30_000 },
     );
     return z.string().nonempty().parse(JSON.parse(stdout));
   });
