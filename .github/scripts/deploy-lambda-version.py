@@ -34,6 +34,7 @@ if __name__ == "__main__":
         StatementId="FunctionURLAllowPublicAccess",
         Action="lambda:InvokeFunctionUrl",
         Principal="*",
+        FuntionUrlAuthType="NONE",
     )
 
     LOG.info(f"Waiting for published version: {new_version}")
@@ -51,7 +52,9 @@ if __name__ == "__main__":
             FunctionName=FUNCTION_NAME, Name=function_alias, FunctionVersion=new_version
         )
         lambda_client.create_function_url_config(
-            FunctionName=FUNCTION_NAME, Qualifier=function_alias, AuthType="NONE"
+            FunctionName=FUNCTION_NAME,
+            Qualifier=function_alias,
+            AuthType="NONE",
         )
 
     print(
