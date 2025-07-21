@@ -50,6 +50,12 @@ jobs:
             --function-name app \
             --qualifier $FUNCTION_ALIAS \
             --auth-type NONE
+          aws lambda add-permision \
+            --function-name app \
+            --qualifier $NEW_VERSION \
+            --statement-id FunctionURLAllowPublicAccess \
+            --action lambda:InvokeFunctionUrl \
+            --principal "*"
           FUNCTION_URL=$( \
             aws lambda get-function-url-config \
             --function-name app \
