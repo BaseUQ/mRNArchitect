@@ -29,7 +29,7 @@ if __name__ == "__main__":
         FunctionName=FUNCTION_NAME, ImageUri=image_uri, Publish=True
     )["Version"]
     lambda_client.add_permission(
-        FuntionName=FUNCTION_NAME,
+        FunctionName=FUNCTION_NAME,
         Qualifier=new_version,
         StatementId="FunctionURLAllowPublicAccess",
         Action="lambda:InvokeFunctionUrl",
