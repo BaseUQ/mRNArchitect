@@ -17,7 +17,7 @@ permissions:
   contents: read # This is required for actions/checkout
 
 jobs:
-  build-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
     outputs:
       function-url: ${{ steps.build-and-deploy-outputs.outputs.image-url }}
@@ -38,5 +38,5 @@ jobs:
           cache-to: type=registry,ref=${{ steps.ecr.outputs.registry }}/app:buildcache,mode=max
       - id: build-and-deploy-outputs
         run: |
-         echo "image-uri={{ steps.ecr.outputs.registry }}/app:${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+         echo "image-uri=${{ steps.ecr.outputs.registry }}/app:${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
 
