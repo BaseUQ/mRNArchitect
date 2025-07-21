@@ -50,7 +50,7 @@ jobs:
             --function-name app \
             --qualifier $FUNCTION_ALIAS \
             --auth-type NONE
-          aws lambda add-permision \
+          aws lambda add-permission \
             --function-name app \
             --qualifier $NEW_VERSION \
             --statement-id FunctionURLAllowPublicAccess \
