@@ -41,7 +41,7 @@ if __name__ == "__main__":
     waiter.wait(FunctionName=FUNCTION_NAME, Qualifier=new_version)
 
     try:
-        LOG.info(f"Attemptint to update existing alias: {function_alias}")
+        LOG.info(f"Attempting to update existing alias: {function_alias}")
         lambda_client.update_alias(
             FunctionName=FUNCTION_NAME, Name=function_alias, FunctionVersion=new_version
         )
@@ -51,7 +51,7 @@ if __name__ == "__main__":
             FunctionName=FUNCTION_NAME, Name=function_alias, FunctionVersion=new_version
         )
         lambda_client.create_function_url_config(
-            FuntionName=FUNCTION_NAME, Qualifier=function_alias, AuthType="NONE"
+            FunctionName=FUNCTION_NAME, Qualifier=function_alias, AuthType="NONE"
         )
 
     print(
