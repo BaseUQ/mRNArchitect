@@ -29,7 +29,7 @@ jobs:
         id: deploy-lambda
         env:
           IMAGE_URI: ${{ needs.build-and-push.outputs.image-uri }}
-          FUNCTION_ALIAS: ${{ github.sha }}
+          FUNCTION_ALIAS: pr-${{ github.event.pull_request.number }}
         shell: bash
         run: |
           FUNCTION_URL=$( \
