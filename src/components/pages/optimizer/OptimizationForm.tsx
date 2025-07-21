@@ -97,11 +97,11 @@ export const OptimizeForm = () => {
     },
     transformValues: (values) => ({
       ...values,
-      // Remove all whitespace in text input fields
-      sequence: values.sequence.replaceAll(/\s/g, ""),
-      fivePrimeUTR: values.fivePrimeUTR.replaceAll(/\s/g, ""),
-      threePrimeUTR: values.threePrimeUTR.replaceAll(/\s/g, ""),
-      polyATail: values.polyATail.replaceAll(/\s/g, ""),
+      // Remove any "> ..." metadata lines and all whitespace in text input fields
+      sequence: values.sequence.replaceAll(/(^>.*$)|(\s)/gm, ""),
+      fivePrimeUTR: values.fivePrimeUTR.replaceAll(/(^>.*$)|(\s)/g, ""),
+      threePrimeUTR: values.threePrimeUTR.replaceAll(/(^>.*$)|(\s)/gm, ""),
+      polyATail: values.polyATail.replaceAll(/(^>.*$)|(\s)/gm, ""),
     }),
     validate: (values) => {
       const result = OptimizationRequest.safeParse(values);
