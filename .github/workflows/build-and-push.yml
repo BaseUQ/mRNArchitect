@@ -9,7 +9,7 @@ on:
     outputs:
       image-uri:
         description: The URI of the newly pushed image.
-        value: ${{ jobs.build-and-deploy.outputs.image-uri }}
+        value: ${{ jobs.build-and-push.outputs.image-uri }}
 
 
 permissions:
@@ -20,7 +20,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     outputs:
-      image-uri: ${{ steps.build-and-deploy-outputs.outputs.image-uri }}
+      image-uri: ${{ steps.build-and-push-outputs.outputs.image-uri }}
     steps:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -36,7 +36,7 @@ jobs:
           provenance: false
           cache-from: type=registry,ref=${{ steps.ecr.outputs.registry }}/app:buildcache
           cache-to: type=registry,ref=${{ steps.ecr.outputs.registry }}/app:buildcache,mode=max
-      - id: build-and-deploy-outputs
+      - id: build-and-push-outputs
         run: |
          echo "image-uri=${{ steps.ecr.outputs.registry }}/app:${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
 
