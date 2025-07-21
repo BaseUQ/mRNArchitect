@@ -1,24 +1,27 @@
 import {
+  Alert,
   Button,
-  Card,
   Fieldset,
   Group,
   InputWrapper,
   Modal,
   type ModalProps,
   NumberInput,
-  Radio,
   SegmentedControl,
+  Space,
   Stack,
   Switch,
   Text,
   Textarea,
+  Title,
   Tooltip,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
+import { QuestionIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import {
+  EGFP,
   FIVE_PRIME_HUMAN_ALPHA_GLOBIN,
   THREE_PRIME_HUMAN_ALPHA_GLOBIN,
 } from "~/constants";
@@ -124,6 +127,63 @@ export const SequenceModal = ({
           </Group>
         }
         <Stack>
+          {showHelp && (
+            <Alert title="Help" variant="light" icon={<QuestionIcon />}>
+              <Text size="sm">
+                For guidance on how to design an mRNA, please see the
+                step-by-step example{" "}
+                <a href="https://basefacility.org.au/wp-content/uploads/2024/12/mRNArchitect_Example.pdf">
+                  here
+                </a>
+                .
+              </Text>
+              <Space h="xs" />
+              <Text size="sm">
+                To get started, you can use the button below to prefill the
+                Coding sequence input with the{" "}
+                <a href="https://pubmed.ncbi.nlm.nih.gov/10857375/">
+                  enhanced green fluorescent protein
+                </a>
+                . Then click the 'Optimize sequence' button to start
+                optimization.
+              </Text>
+              <Space h="xs" />
+              <Button
+                onClick={() => {
+                  form.reset();
+                  form.setFieldValue("codingSequenceType", "amino-acid");
+                  form.setFieldValue("codingSequence", EGFP);
+                }}
+              >
+                Pre-fill eGFP
+              </Button>
+              <Title order={6} pt="sm">
+                References
+              </Title>
+              <ol>
+                <li>
+                  Zulkower, V., & Rosser, S. (2020). DNA Chisel, a versatile
+                  sequence optimizer. Bioinformatics, 36(16), 4508-4509.
+                </li>
+                <li>
+                  Mulroney, T.E., Pöyry, T., Yam-Puc, J.C. et al. (2024).
+                  N1-methylpseudouridylation of mRNA causes +1 ribosomal
+                  frameshifting. Nature 625, 189–194.
+                </li>
+                <li>
+                  Sharp, P. M., & Li, W. H. (1987). The Codon Adaptation Index—a
+                  measure of directional synonymous codon usage bias, and its
+                  potential applications. Nucleic Acids Research 15(3),
+                  1281-1295.
+                </li>
+                <li>
+                  Lorenz, R., Bernhart, S. H., Höner Zu Siederdissen, C., Tafer,
+                  H., Flamm, C., Stadler, P. F., & Hofacker, I. L. (2011).
+                  ViennaRNA Package 2.0. Algorithms for Molecular Biology, 6:26.
+                </li>
+              </ol>
+            </Alert>
+          )}
           <Fieldset legend="Coding sequence">
             <InputWrapper
               description={
