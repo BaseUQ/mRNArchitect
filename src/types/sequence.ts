@@ -26,28 +26,28 @@ export const Sequence = z
           continue: true,
         });
       }
-      if (ctx.value.codingSequence.search(/[^ACGTU]/gim) !== -1) {
-        ctx.issues.push({
-          code: "custom",
-          message: "Nucleic acid must only contain the characters 'ACGTU'.",
-          input: ctx.value.codingSequence,
-          path: ["codingSequence"],
-          continue: true,
-        });
-      }
+      //if (ctx.value.codingSequence.search(/[^ACGTU]/gim) !== -1) {
+      //  ctx.issues.push({
+      //    code: "custom",
+      //    message: "Nucleic acid must only contain the characters 'ACGTU'.",
+      //    input: ctx.value.codingSequence,
+      //    path: ["codingSequence"],
+      //    continue: true,
+      //  });
+      //}
     }
 
     if (ctx.value.codingSequenceType === "amino-acid") {
       if (
         ctx.value.codingSequence.search(/[^ARNDCEQGHILKMFPSTWYV*]/gim) !== -1
       ) {
-        ctx.issues.push({
-          code: "custom",
-          message:
-            "Amino acid must only contain the characters 'ARNDCEQGHILKMFPSTWYV*'.",
-          input: ctx.value.codingSequence,
-          path: ["codingSequence"],
-        });
+        //ctx.issues.push({
+        //  code: "custom",
+        //  message:
+        //    "Amino acid must only contain the characters 'ARNDCEQGHILKMFPSTWYV*'.",
+        //  input: ctx.value.codingSequence,
+        //  path: ["codingSequence"],
+        //});
       }
     }
   });

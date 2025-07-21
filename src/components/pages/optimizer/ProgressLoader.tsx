@@ -1,7 +1,7 @@
-import { useState } from "react";
 import { Center, Loader, Stack, Text } from "@mantine/core";
 import { useInterval } from "@mantine/hooks";
 import { formatDuration, intervalToDuration } from "date-fns";
+import { useState } from "react";
 
 interface ProgressLoaderProps {
   estimatedTimeInSeconds: number;

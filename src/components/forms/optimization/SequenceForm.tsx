@@ -4,6 +4,7 @@ import {
   Fieldset,
   Group,
   InputWrapper,
+  LoadingOverlay,
   Modal,
   type ModalProps,
   NumberInput,
@@ -25,6 +26,7 @@ import {
   FIVE_PRIME_HUMAN_ALPHA_GLOBIN,
   THREE_PRIME_HUMAN_ALPHA_GLOBIN,
 } from "~/constants";
+import { convertSequenceToNucleicAcid } from "~/server/optimize";
 import { Sequence } from "~/types/sequence";
 
 export interface SequenceModalProps extends ModalProps {
@@ -45,6 +47,7 @@ export const SequenceModal = ({
   onSave,
   ...props
 }: SequenceModalProps) => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showHelp, { toggle: toggleShowHelp }] = useDisclosure(false);
   const [fivePrimeUTRSequenceType, setFivePrimeUTRSequenceType] = useState<
     "human-alpha-globin" | "custom"
@@ -71,7 +74,6 @@ export const SequenceModal = ({
     }),
     validate: (values) => {
       const result = Sequence.safeParse(values);
-      console.log(result);
       if (result.error) {
         return Object.fromEntries(
           result.error.issues
@@ -107,25 +109,48 @@ export const SequenceModal = ({
     }
   }, [polyATailType, polyATailGenerate]);
 
-  const handleOnSave = () => {
+  const handleOnSave = async () => {
     const result = form.validate();
-    if (!result.hasErrors) {
-      onSave(form.getTransformedValues());
+    if (result.hasErrors) {
+      return;
     }
+    let sequence = form.getTransformedValues();
+    try {
+      setIsLoading(true);
+      if (sequence.codingSequenceType === "amino-acid") {
+        sequence = {
+          ...sequence,
+          codingSequenceType: "nucleic-acid",
+          codingSequence: await convertSequenceToNucleicAcid({
+            data: {
+              sequence: sequence.codingSequence,
+              organism: "human",
+            },
+          }),
+        };
+      }
+    } catch {
+    } finally {
+      setIsLoading(false);
+    }
+    onSave(sequence);
   };
 
   return (
     <Modal size="xl" title="Configure input sequence" {...props}>
-      <Stack>
-        {
-          <Group w="100%" justify="end">
-            <Switch
-              label="Show help"
-              checked={showHelp}
-              onChange={toggleShowHelp}
-            />
-          </Group>
-        }
+      <Stack pos="relative">
+        <LoadingOverlay
+          visible={isLoading}
+          zIndex={1000}
+          overlayProps={{ blur: 2 }}
+        />
+        <Group w="100%" justify="end">
+          <Switch
+            label="Show help"
+            checked={showHelp}
+            onChange={toggleShowHelp}
+          />
+        </Group>
         <Stack>
           {showHelp && (
             <Alert title="Help" variant="light" icon={<QuestionIcon />}>
@@ -342,23 +367,21 @@ export const SequenceModal = ({
 export interface SequenceRowProps {
   editable?: boolean;
   sequence?: Sequence;
-  onDelete?: (sequence: Sequence) => void;
+  onDelete?: () => void;
   onSave?: (sequence: Sequence) => void;
 }
 
 export const SequenceRow = ({
   editable = true,
   sequence,
-  onDelete,
-  onSave,
+  onDelete = () => {},
+  onSave = (sequence: Sequence) => {},
 }: SequenceRowProps) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const handleOnSave = (sequence: Sequence) => {
     setIsEditing(false);
-    if (onSave) {
-      onSave(sequence);
-    }
+    onSave(sequence);
   };
 
   return (
@@ -370,17 +393,13 @@ export const SequenceRow = ({
         onClose={() => setIsEditing(false)}
       />
       <div>
-        {sequence && sequence.codingSequence && (
+        {sequence?.codingSequence && (
           <Stack>
             {editable && (
               <Group justify="end">
                 <Button.Group>
                   <Button onClick={() => setIsEditing(true)}>Edit</Button>
-                  <Button
-                    onClick={() => (onDelete ? onDelete(sequence) : null)}
-                    variant="outline"
-                    color="red"
-                  >
+                  <Button onClick={onDelete} variant="outline" color="red">
                     Delete
                   </Button>
                 </Button.Group>

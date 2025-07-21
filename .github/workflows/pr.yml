@@ -11,10 +11,14 @@ jobs:
     uses: ./.github/workflows/build-and-push.yml
     with:
       tag: pr-${{ github.sha }}
-  deploy:
+  deploy-pr-version:
     runs-on: ubuntu-latest
     needs: [build-and-push]
     steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::340752831962:role/deploy
       - name: deploy lambda
         id: deploy-lambda
         env:

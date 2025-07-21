@@ -11,6 +11,7 @@ import {
   Stepper,
   Text,
 } from "@mantine/core";
+import { PlusIcon } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
 import {
   ConstraintModal,
@@ -20,16 +21,15 @@ import {
   SequenceModal,
   SequenceRow,
 } from "~/components/forms/optimization/SequenceForm";
+import { ORGANISMS } from "~/constants";
 import { analyzeSequence, optimizeSequence } from "~/server/optimize";
 import type { Constraint, Objective } from "~/types/optimize";
 import type { Sequence } from "~/types/sequence";
+import { ProgressLoader } from "./ProgressLoader";
 import {
   OptimizationResults,
   type OptimizationResultsProps,
 } from "./steps/OptimizationResults";
-import { ProgressLoader } from "./ProgressLoader";
-import { ORGANISMS } from "~/constants";
-import { PlusIcon } from "@phosphor-icons/react";
 
 export const OptimizationFlow = () => {
   const [active, setActive] = useState<number>(0);
@@ -306,9 +306,9 @@ export const OptimizationFlow = () => {
           </Stack>
         </Stepper.Step>
         <Stepper.Step label="Results" loading={isLoading}>
-          {optimizationResults && (
+          {sequence && optimizationResults && (
             <OptimizationResults
-              sequence={sequence!}
+              sequence={sequence}
               constraints={constraints}
               objectives={objectives}
               results={optimizationResults}
@@ -317,9 +317,7 @@ export const OptimizationFlow = () => {
           {!optimizationResults && isLoading && (
             <ProgressLoader
               estimatedTimeInSeconds={
-                (sequence?.codingSequence.length ?? 100) *
-                  (sequence?.codingSequenceType === "amino-acid" ? 1 : 3) +
-                60
+                (sequence?.codingSequence.length ?? 100) / 30 + 60
               }
             />
           )}
