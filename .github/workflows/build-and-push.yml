@@ -9,7 +9,6 @@ on:
     outputs:
       image-uri:
         description: The URI of the newly pushed image.
-        type: string
 
 
 permissions:
