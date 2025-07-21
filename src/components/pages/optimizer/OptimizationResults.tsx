@@ -115,7 +115,7 @@ export const OptimizationResults = ({
     "---Parameters",
     `Number of sequences\t\t${input.numberOfSequences}`,
     `Organism\t\t\t${ORGANISMS.find(({ value }) => value === input.organism)?.label ?? "-"}`,
-    `Enable uridine depletion\t\t${input.enableUridineDepletion}`,
+    `Enable uridine depletion\t${input.enableUridineDepletion}`,
     `Avoid ribosome slip\t\t${input.avoidRibosomeSlip}`,
     `GC content minimum\t\t${input.gcContentMin}`,
     `GC content maximum\t\t${input.gcContentMax}`,

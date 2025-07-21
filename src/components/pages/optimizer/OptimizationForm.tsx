@@ -539,8 +539,8 @@ export const OptimizeForm = () => {
                     showHelp &&
                     "If selected, this minimizes the use of uridine nucleosides in the mRNA sequence. This is achieved by avoiding codons that encode uridine at the third wobble position and can impact the reactogenicity of the mRNA sequence."
                   }
-                  key={form.key("avoidUridineDepletion")}
-                  {...form.getInputProps("avoidUridineDepletion", {
+                  key={form.key("enableUridineDepletion")}
+                  {...form.getInputProps("enableUridineDepletion", {
                     type: "checkbox",
                   })}
                 />
