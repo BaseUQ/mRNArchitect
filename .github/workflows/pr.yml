@@ -8,7 +8,6 @@ jobs:
   e2e:
     uses: ./.github/workflows/e2e.yml
   build-and-push:
-    id: build-and-push
     uses: ./.github/workflows/build-and-push.yml
     with:
       tag: pr-${{ github.sha }}
