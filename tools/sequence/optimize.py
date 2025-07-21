@@ -12,29 +12,23 @@ from dnachisel.builtin_specifications import (
     UniquifyAllKmers,
 )
 from dnachisel.builtin_specifications.codon_optimization import CodonOptimize
-from dnachisel.DnaOptimizationProblem import DnaOptimizationProblem
+from dnachisel.DnaOptimizationProblem import DnaOptimizationProblem, NoSolutionError
 
 from ..organism import (
     CODON_TO_AMINO_ACID_MAP,
-    KAZUSA_HOMO_SAPIENS,
     load_organism,
     Organism,
 )
 
 
-class OptimizationException(Exception):
-    pass
+OptimizationError = NoSolutionError
 
 
-class Location(msgspec.Struct, frozen=True, kw_only=True):
+class Location(msgspec.Struct, frozen=True, kw_only=True, rename="camel"):
     start: int | None = None
     end: int | None = None
 
     def __post_init__(self):
-        if self.start is not None and self.start % 3 != 0:
-            raise ValueError("`start` must be multiple of 3.")
-        if self.end is not None and self.end % 3 != 0:
-            raise ValueError("`end` must be a multiple of 3.")
         if self.start is not None and self.end is not None and self.start >= self.end:
             raise ValueError("`start` must be less than `end`.")
 
@@ -46,7 +40,7 @@ class Location(msgspec.Struct, frozen=True, kw_only=True):
         return DnaChiselLocation(self.start, self.end)
 
 
-class Constraint(Location, frozen=True, kw_only=True):
+class Constraint(Location, frozen=True, kw_only=True, rename="camel"):
     enable_uridine_depletion: bool = False
     avoid_ribosome_slip: bool = False
     gc_content_min: float | None = None
@@ -111,6 +105,10 @@ class Constraint(Location, frozen=True, kw_only=True):
             constraints.append(
                 AvoidPattern(f"{self.avoid_poly_g}xG", location=self.dnachisel_location)
             )
+        if self.avoid_poly_t is not None:
+            constraints.append(
+                AvoidPattern(f"{self.avoid_poly_t}xT", location=self.dnachisel_location)
+            )
 
         if self.enable_uridine_depletion:
             uridine_depletion_codon_usage_table = {
@@ -131,10 +129,6 @@ class Constraint(Location, frozen=True, kw_only=True):
 
         if self.avoid_ribosome_slip:
             constraints.append(AvoidPattern("3xT", location=self.dnachisel_location))
-        else:
-            constraints.append(
-                AvoidPattern(f"{self.avoid_poly_t}xT", location=self.dnachisel_location)
-            )
 
         cut_site_constraints = [
             AvoidPattern(f"{site}_site", location=self.dnachisel_location)
@@ -153,26 +147,34 @@ class Constraint(Location, frozen=True, kw_only=True):
         return constraints
 
 
-class Objective(Location, frozen=True, kw_only=True):
-    organism: Organism | str = KAZUSA_HOMO_SAPIENS
-    avoid_repeat_length: int = 10
+class Objective(Location, frozen=True, kw_only=True, rename="camel"):
+    organism: Organism | str | None = None
+    avoid_repeat_length: int | None = None
 
     def __post_init__(self):
         super().__post_init__()
 
     @property
     def dnachisel_objectives(self):
-        organism = load_organism(self.organism)
-        return [
-            CodonOptimize(
-                codon_usage_table=organism.to_dnachisel_dict(),
-                method="use_best_codon",
-                location=self.dnachisel_location,
-            ),
-            UniquifyAllKmers(
-                k=self.avoid_repeat_length, location=self.dnachisel_location
-            ),
-        ]
+        objectives = []
+
+        if self.organism is not None:
+            objectives.append(
+                CodonOptimize(
+                    codon_usage_table=load_organism(self.organism).to_dnachisel_dict(),
+                    method="use_best_codon",
+                    location=self.dnachisel_location,
+                )
+            )
+
+        if self.avoid_repeat_length is not None:
+            objectives.append(
+                UniquifyAllKmers(
+                    k=self.avoid_repeat_length, location=self.dnachisel_location
+                )
+            )
+
+        return objectives
 
 
 def optimize(
@@ -193,14 +195,8 @@ def optimize(
     )
     optimization_problem.max_random_iters = max_random_iters
 
-    try:
-        optimization_problem.resolve_constraints()
-    except Exception as e:
-        raise OptimizationException(f"Input sequence is invalid, cannot optimize: {e}")
+    optimization_problem.resolve_constraints()
 
-    try:
-        optimization_problem.optimize()
-    except Exception as e:
-        raise OptimizationException(f"Optimization process failed: {e}")
+    optimization_problem.optimize()
 
     return optimization_problem

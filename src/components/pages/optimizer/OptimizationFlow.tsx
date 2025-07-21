@@ -1,6 +1,17 @@
-import { useState } from "react";
-import { Button, Group, Stack, Stepper } from "@mantine/core";
-import { Sequence } from "~/types/sequence";
+import {
+  Alert,
+  Button,
+  Center,
+  Fieldset,
+  Group,
+  InputWrapper,
+  NumberInput,
+  SegmentedControl,
+  Stack,
+  Stepper,
+  Text,
+} from "@mantine/core";
+import { useMemo, useState } from "react";
 import {
   ConstraintModal,
   ConstraintRow,
@@ -9,12 +20,16 @@ import {
   SequenceModal,
   SequenceRow,
 } from "~/components/forms/optimization/SequenceForm";
+import { analyzeSequence, optimizeSequence } from "~/server/optimize";
+import type { Constraint, Objective } from "~/types/optimize";
+import type { Sequence } from "~/types/sequence";
 import {
   OptimizationResults,
-  OptimizationResultsProps,
+  type OptimizationResultsProps,
 } from "./steps/OptimizationResults";
-import { Constraint, Objective } from "~/types/optimize";
-import { analyzeSequence, optimizeSequence } from "~/server/optimize";
+import { ProgressLoader } from "./ProgressLoader";
+import { ORGANISMS } from "~/constants";
+import { PlusIcon } from "@phosphor-icons/react";
 
 export const OptimizationFlow = () => {
   const [active, setActive] = useState<number>(0);
@@ -27,23 +42,26 @@ export const OptimizationFlow = () => {
     useState<boolean>(false);
   const [constraints, setConstraints] = useState<Constraint[]>([]);
 
+  const [numberOfSequences, setNumberOfSequences] = useState<number>(3);
+  const [organism, setOrganism] = useState<string>(ORGANISMS[0].value);
+  const [avoidRepeatLength, setAvoidRepeatLength] = useState<number>(10);
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [optimizationResults, setOptimizationResults] =
     useState<OptimizationResultsProps["results"]>();
   const [optimizationError, setOptimizationError] = useState<string>();
 
-  // TODO: make number of sequences user defined
-  const numberOfSequences = 3;
-
-  // TODO: Make objectives user defined
-  const objectives: Objective[] = [
-    {
-      start: null,
-      end: null,
-      organism: "human",
-      avoidRepeatLength: 10,
-    },
-  ];
+  const objectives = useMemo<Objective[]>(
+    () => [
+      {
+        start: null,
+        end: null,
+        organism,
+        avoidRepeatLength,
+      },
+    ],
+    [organism, avoidRepeatLength],
+  );
 
   const handleOnSaveSequence = (sequence: Sequence) => {
     setSequenceModalOpened(false);
@@ -86,11 +104,11 @@ export const OptimizationFlow = () => {
     }
     setActive(active + 1);
   };
+
   const handleOptimize = async () => {
     if (!sequence) {
       return;
     }
-    const organism = objectives.at(0)?.organism;
     if (!organism) {
       return;
     }
@@ -132,6 +150,8 @@ export const OptimizationFlow = () => {
     };
 
     setIsLoading(true);
+    setOptimizationResults(undefined);
+    setOptimizationError(undefined);
     try {
       const [
         cdsAnalysis,
@@ -169,6 +189,9 @@ export const OptimizationFlow = () => {
     } catch (e) {
       console.error(e);
       setOptimizationResults(undefined);
+      setOptimizationError(
+        "Error resolving constraints. Sequence cannot be optimised. Please verify your input sequence or adjust input parameters (e.g. increase GC content/window).",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -178,47 +201,108 @@ export const OptimizationFlow = () => {
     <Stack>
       <Stepper active={active}>
         <Stepper.Step label="Input sequence">
-          {sequence && (
-            <SequenceRow
-              sequence={sequence}
-              onSave={handleOnSaveSequence}
-              onDelete={() => setSequence(undefined)}
-            />
-          )}
-          {!sequence && (
-            <>
-              <SequenceModal
-                opened={sequenceModalOpened}
-                onClose={() => setSequenceModalOpened(false)}
+          <Fieldset legend="Sequence">
+            {sequence && (
+              <SequenceRow
+                sequence={sequence}
                 onSave={handleOnSaveSequence}
+                onDelete={() => setSequence(undefined)}
               />
-              <Button onClick={() => setSequenceModalOpened(true)}>
-                Add new sequence
-              </Button>
-            </>
-          )}
+            )}
+            {!sequence && (
+              <>
+                <SequenceModal
+                  opened={sequenceModalOpened}
+                  onClose={() => setSequenceModalOpened(false)}
+                  onSave={handleOnSaveSequence}
+                />
+                <Center p="xl">
+                  <Button
+                    onClick={() => setSequenceModalOpened(true)}
+                    variant="outline"
+                    color="green"
+                    leftSection={<PlusIcon size={14} />}
+                  >
+                    Add sequence
+                  </Button>
+                </Center>
+              </>
+            )}
+          </Fieldset>
         </Stepper.Step>
         <Stepper.Step label="Set optimization parameters">
           <Stack>
-            {constraintModalOpened && (
-              <ConstraintModal
-                opened={constraintModalOpened}
-                onClose={() => setConstraintModalOpened(false)}
-                onSave={(c) => handleOnSaveConstraint(constraints.length, c)}
-                onCancel={() => setConstraintModalOpened(false)}
-              />
-            )}
-            {constraints.map((constraint, index) => (
-              <ConstraintRow
-                constraint={constraint}
-                editable
-                onSave={(c) => handleOnSaveConstraint(index, c)}
-                onDelete={() => handleOnDeleteConstraint(index)}
-              />
-            ))}
-            <Button onClick={() => setConstraintModalOpened(true)}>
-              Add new constraint
-            </Button>
+            <Fieldset legend="Objectives">
+              <Stack>
+                <NumberInput
+                  label="Number of output sequences"
+                  description="The number of sequence optimizations to run."
+                  value={numberOfSequences}
+                  onChange={(v) =>
+                    setNumberOfSequences(
+                      typeof v === "string" ? Number.parseInt(v) : v,
+                    )
+                  }
+                  min={1}
+                  max={10}
+                />
+                <InputWrapper
+                  label="Organism"
+                  description="Select the target organism to be used for codon optimisation. The mRNA will be optimised using the preferred codon usage of highly expressed genes in this selected organism (1). By default, we use human codon optimisation."
+                >
+                  <SegmentedControl
+                    data={ORGANISMS}
+                    value={organism}
+                    onChange={setOrganism}
+                    mt="sm"
+                  />
+                </InputWrapper>
+                <NumberInput
+                  label="Avoid repeat length"
+                  description="Avoid repeating any sequences longer than this length within the mRNA. We recommend 10 nucleotides."
+                  value={avoidRepeatLength}
+                  onChange={(v) =>
+                    setAvoidRepeatLength(
+                      typeof v === "string" ? Number.parseInt(v) : v,
+                    )
+                  }
+                />
+              </Stack>
+            </Fieldset>
+            <Fieldset legend="Constraints">
+              {constraintModalOpened && (
+                <ConstraintModal
+                  opened={constraintModalOpened}
+                  onClose={() => setConstraintModalOpened(false)}
+                  onSave={(c) => handleOnSaveConstraint(constraints.length, c)}
+                  onCancel={() => setConstraintModalOpened(false)}
+                />
+              )}
+              {constraints.map((constraint, index) => (
+                <ConstraintRow
+                  key="constraint"
+                  constraint={constraint}
+                  editable
+                  onSave={(c) => handleOnSaveConstraint(index, c)}
+                  onDelete={() => handleOnDeleteConstraint(index)}
+                />
+              ))}
+              {constraints.length === 0 && (
+                <Center>
+                  <Text>At least one constraint is recommended.</Text>
+                </Center>
+              )}
+              <Center mt="md">
+                <Button
+                  onClick={() => setConstraintModalOpened(true)}
+                  variant="outline"
+                  color="green"
+                  leftSection={<PlusIcon size={14} />}
+                >
+                  Add constraint
+                </Button>
+              </Center>
+            </Fieldset>
           </Stack>
         </Stepper.Step>
         <Stepper.Step label="Results" loading={isLoading}>
@@ -230,22 +314,39 @@ export const OptimizationFlow = () => {
               results={optimizationResults}
             />
           )}
-          {!optimizationResults && isLoading && <div>Loading...</div>}
-          {optimizationError && <div>{optimizationError}</div>}
+          {!optimizationResults && isLoading && (
+            <ProgressLoader
+              estimatedTimeInSeconds={
+                (sequence?.codingSequence.length ?? 100) *
+                  (sequence?.codingSequenceType === "amino-acid" ? 1 : 3) +
+                60
+              }
+            />
+          )}
+          {optimizationError && (
+            <Alert title="Optimization failed" color="red">
+              {optimizationError}
+            </Alert>
+          )}
         </Stepper.Step>
       </Stepper>
-      <Group grow>
-        <Button
-          onClick={() => setActive(active - 1)}
-          disabled={active === 0}
-          variant="outline"
-        >
-          Back
-        </Button>
-        <Button onClick={handleOnClickNext} disabled={nextButtonIsDisabled()}>
-          Next
-        </Button>
-      </Group>
+      {!isLoading && (
+        <Group grow>
+          {active > 0 && (
+            <Button onClick={() => setActive(active - 1)} variant="outline">
+              Back
+            </Button>
+          )}
+          {active < 2 && (
+            <Button
+              onClick={handleOnClickNext}
+              disabled={nextButtonIsDisabled()}
+            >
+              Next
+            </Button>
+          )}
+        </Group>
+      )}
     </Stack>
   );
 };

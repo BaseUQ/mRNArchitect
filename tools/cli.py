@@ -15,14 +15,6 @@ DEFAULT_ORGANISMS = {
 }
 
 
-class _Constraint(Constraint, frozen=True, kw_only=True, rename="camel"):
-    pass
-
-
-class _Objective(Objective, frozen=True, kw_only=True, rename="camel"):
-    pass
-
-
 def _parse_sequence(args):
     if hasattr(args, "sequence_type") and args.sequence_type == "amino-acid":
         return Sequence.from_amino_acid_sequence(
@@ -42,9 +34,9 @@ def _optimize(args):
     sequence = _parse_sequence(args)
     if args.config:
 
-        class Configuration(msgspec.Struct, kw_only=True):
-            constraints: list[_Constraint]
-            objectives: list[_Objective]
+        class Configuration(msgspec.Struct, kw_only=True, rename="camel"):
+            constraints: list[Constraint]
+            objectives: list[Objective]
 
         configuration = msgspec.json.decode(args.config, type=Configuration)
         constraints = configuration.constraints

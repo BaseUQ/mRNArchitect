@@ -1,10 +1,10 @@
 import { Fieldset, NativeSelect, NumberInput, Stack } from "@mantine/core";
 import { ORGANISMS } from "~/constants";
-import { type OptimizationObjective } from "~/types/optimize";
+import type { Objective } from "~/types/optimize";
 
 export interface ObjectiveFormProps {
-  objective: OptimizationObjective;
-  onChange: (o: OptimizationObjective) => void;
+  objective: Objective;
+  onChange: (o: Objective) => void;
 }
 
 export const ObjectiveForm = ({ objective, onChange }: ObjectiveFormProps) => {
@@ -33,7 +33,7 @@ export const ObjectiveForm = ({ objective, onChange }: ObjectiveFormProps) => {
           onChange={(v) =>
             onChange({
               ...objective,
-              avoidRepeatLength: typeof v == "string" ? parseInt(v) : v,
+              avoidRepeatLength: typeof v === "string" ? Number.parseInt(v) : v,
             })
           }
         />

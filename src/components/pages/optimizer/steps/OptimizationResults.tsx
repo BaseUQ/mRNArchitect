@@ -10,11 +10,7 @@ import {
   Title,
   Tooltip,
 } from "@mantine/core";
-import {
-  CaretLeftIcon,
-  DownloadSimpleIcon,
-  QuestionIcon,
-} from "@phosphor-icons/react";
+import { DownloadSimpleIcon, QuestionIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import type {
   AnalyzeResponse,
@@ -22,8 +18,7 @@ import type {
   Objective,
   OptimizationResponse,
 } from "~/types/optimize";
-import { ORGANISMS } from "~/constants";
-import { Sequence } from "~/types/sequence";
+import type { Sequence } from "~/types/sequence";
 
 export interface OptimizationResultsProps {
   sequence: Sequence;
@@ -47,7 +42,6 @@ export interface OptimizationResultsProps {
 export const OptimizationResults = ({
   sequence,
   constraints,
-  objectives,
   results,
 }: OptimizationResultsProps) => {
   const [showHelp, setShowHelp] = useState<boolean>(false);
