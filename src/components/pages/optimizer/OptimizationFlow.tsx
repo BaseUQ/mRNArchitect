@@ -234,18 +234,6 @@ export const OptimizationFlow = () => {
           <Stack>
             <Fieldset legend="Objectives">
               <Stack>
-                <NumberInput
-                  label="Number of output sequences"
-                  description="The number of sequence optimizations to run."
-                  value={numberOfSequences}
-                  onChange={(v) =>
-                    setNumberOfSequences(
-                      typeof v === "string" ? Number.parseInt(v) : v,
-                    )
-                  }
-                  min={1}
-                  max={10}
-                />
                 <InputWrapper
                   label="Organism"
                   description="Select the target organism to be used for codon optimisation. The mRNA will be optimised using the preferred codon usage of highly expressed genes in this selected organism (1). By default, we use human codon optimisation."
@@ -266,6 +254,18 @@ export const OptimizationFlow = () => {
                       typeof v === "string" ? Number.parseInt(v) : v,
                     )
                   }
+                />
+                <NumberInput
+                  label="Number of output sequences"
+                  description="The number of sequence optimizations to run."
+                  value={numberOfSequences}
+                  onChange={(v) =>
+                    setNumberOfSequences(
+                      typeof v === "string" ? Number.parseInt(v) : v,
+                    )
+                  }
+                  min={1}
+                  max={10}
                 />
               </Stack>
             </Fieldset>

@@ -20,7 +20,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     outputs:
-      function-url: ${{ steps.build-and-deploy-outputs.outputs.image-url }}
+      image-uri: ${{ steps.build-and-deploy-outputs.outputs.image-uri }}
     steps:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
