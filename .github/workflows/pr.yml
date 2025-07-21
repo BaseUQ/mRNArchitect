@@ -26,7 +26,7 @@ jobs:
       - name: deploy lambda
         id: deploy-lambda
         env:
-          IMAGE_URI: ${{ steps.build-and-push.outputs.image-uri }}
+          IMAGE_URI: ${{ needs.build-and-push.outputs.image-uri }}
           FUNCTION_ALIAS: ${{ github.sha }}
         run: |
           NEW_VERSION=$( \
