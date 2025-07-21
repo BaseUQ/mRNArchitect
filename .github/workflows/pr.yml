@@ -15,7 +15,7 @@ jobs:
     uses: ./.github/workflows/build-and-push.yml
     with:
       tag: pr-${{ github.sha }}
-  deploy-pr-version:
+  deploy-lambda-pr-version:
     runs-on: ubuntu-latest
     needs: [build-and-push]
     steps:

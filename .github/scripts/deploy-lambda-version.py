@@ -34,7 +34,7 @@ if __name__ == "__main__":
         StatementId="FunctionURLAllowPublicAccess",
         Action="lambda:InvokeFunctionUrl",
         Principal="*",
-        FuntionUrlAuthType="NONE",
+        FunctionUrlAuthType="NONE",
     )
 
     LOG.info(f"Waiting for published version: {new_version}")
