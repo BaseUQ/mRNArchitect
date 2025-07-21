@@ -28,14 +28,6 @@ if __name__ == "__main__":
     new_version = lambda_client.update_function_code(
         FunctionName=FUNCTION_NAME, ImageUri=image_uri, Publish=True
     )["Version"]
-    lambda_client.add_permission(
-        FunctionName=FUNCTION_NAME,
-        Qualifier=new_version,
-        StatementId="FunctionURLAllowPublicAccess",
-        Action="lambda:InvokeFunctionUrl",
-        Principal="*",
-        FunctionUrlAuthType="NONE",
-    )
 
     LOG.info(f"Waiting for published version: {new_version}")
     waiter = lambda_client.get_waiter("published_version_active")
@@ -55,6 +47,14 @@ if __name__ == "__main__":
             FunctionName=FUNCTION_NAME,
             Qualifier=function_alias,
             AuthType="NONE",
+        )
+        lambda_client.add_permission(
+            FunctionName=FUNCTION_NAME,
+            Qualifier=function_alias,
+            StatementId="FunctionURLAllowPublicAccess",
+            Action="lambda:InvokeFunctionUrl",
+            Principal="*",
+            FunctionUrlAuthType="NONE",
         )
 
     print(
