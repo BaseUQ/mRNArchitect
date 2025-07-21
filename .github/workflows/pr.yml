@@ -7,4 +7,44 @@ jobs:
     uses: ./.github/workflows/test.yml
   e2e:
     uses: ./.github/workflows/e2e.yml
+  build-and-push:
+    id: build-and-push
+    uses: ./.github/workflows/build-and-push.yml
+    with:
+      tag: pr-${{ github.sha }}
+  deploy:
+    needs: [build-and-push]
+    steps:
+      - name: deploy lambda
+        id: deploy-lambda
+        env:
+          IMAGE_URI: ${{ step.build-and-push.outputs.image-uri }}
+          FUNCTION_ALIAS: ${{ github.sha }}
+        run: |
+          NEW_VERSION=$( \
+            aws lambda update-function-code \
+            --function-name app \
+            --image-uri "$IMAGE_URI" \
+            --publish \
+            --output text --query "Version" \
+          )
+          aws lambda wait published-version-active \
+            --function-name "app:$NEW_VERSION"
+          aws lambda create-alias \
+            --function-name app \
+            --name "$FUNCTION_ALIAS" \
+            --function-version $NEW_VERSION
+          aws lambda update-alias \
+            --function-name app \
+            --name "$FUNCTION_ALIAS" \
+            --function-version $NEW_VERSION
+          FUNCTION_URL=$( \
+            aws lambda get-function-url-config \
+            --function-name app \
+            --qualifier "$FUNCTION_ALIAS" \
+            --output text --query "FunctionUrl" \
+          )
+          echo "lambda-version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "function-url=$FUNCTION_URL" >> "$GITHUB_OUTPUT"
+
 
