@@ -34,15 +34,16 @@ if __name__ == "__main__":
     waiter.wait(FunctionName=FUNCTION_NAME, Qualifier=new_version)
 
     try:
-        LOG.info(f"Creating or updating new alias: {function_alias}")
+        LOG.info(f"Attemptint to update existing alias: {function_alias}")
         lambda_client.update_alias(
             FunctionName=FUNCTION_NAME, Name=function_alias, FunctionVersion=new_version
         )
     except lambda_client.exceptions.ResourceNotFoundException:
+        LOG.info(f"Alias not found, creating new alias: {function_alias}")
         lambda_client.create_alias(
             FunctionName=FUNCTION_NAME, Name=function_alias, FunctionVersion=new_version
         )
-        lambda_client.create_funtion_url_config(
+        lambda_client.create_function_url_config(
             FuntionName=FUNCTION_NAME, Qualifier=function_alias, AuthType="NONE"
         )
         lambda_client.add_permission(
