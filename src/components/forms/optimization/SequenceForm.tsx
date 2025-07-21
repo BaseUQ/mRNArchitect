@@ -58,6 +58,14 @@ export const SequenceModal = ({
 
   const form = useForm<Sequence>({
     initialValues: initialSequence,
+    transformValues: (values) => ({
+      ...values,
+      // Remove any "> ..." metadata lines and all whitespace in text input fields
+      codingSequence: values.codingSequence.replaceAll(/(^>.*$)|(\s)/gm, ""),
+      fivePrimeUTR: values.fivePrimeUTR.replaceAll(/(^>.*$)|(\s)/g, ""),
+      threePrimeUTR: values.threePrimeUTR.replaceAll(/(^>.*$)|(\s)/gm, ""),
+      polyATail: values.polyATail.replaceAll(/(^>.*$)|(\s)/gm, ""),
+    }),
     validate: (values) => {
       const result = Sequence.safeParse(values);
       console.log(result);
@@ -99,7 +107,7 @@ export const SequenceModal = ({
   const handleOnSave = () => {
     const result = form.validate();
     if (!result.hasErrors) {
-      onSave(form.getValues());
+      onSave(form.getTransformedValues());
     }
   };
 
