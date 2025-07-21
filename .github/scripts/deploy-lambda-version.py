@@ -38,7 +38,7 @@ if __name__ == "__main__":
         lambda_client.update_alias(
             FunctionName=FUNCTION_NAME, Name=function_alias, FunctionVersion=new_version
         )
-    except lambda_client.exception.ResourceNotFoundException:
+    except lambda_client.exceptions.ResourceNotFoundException:
         lambda_client.create_alias(
             FunctionName=FUNCTION_NAME, Name=function_alias, FunctionVersion=new_version
         )
