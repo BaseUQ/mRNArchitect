@@ -29,7 +29,7 @@ import { ProgressLoader } from "./ProgressLoader";
 import {
   OptimizationResults,
   type OptimizationResultsProps,
-} from "./steps/OptimizationResults";
+} from "./OptimizationResults";
 
 export const OptimizationFlow = () => {
   const [active, setActive] = useState<number>(0);
@@ -201,7 +201,7 @@ export const OptimizationFlow = () => {
     <Stack>
       <Stepper active={active}>
         <Stepper.Step label="Input sequence">
-          <Fieldset legend="Sequence">
+          <Fieldset legend="Input sequence">
             {sequence && (
               <SequenceRow
                 sequence={sequence}

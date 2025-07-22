@@ -375,7 +375,7 @@ export const SequenceRow = ({
   editable = true,
   sequence,
   onDelete = () => {},
-  onSave = (sequence: Sequence) => {},
+  onSave = () => {},
 }: SequenceRowProps) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
