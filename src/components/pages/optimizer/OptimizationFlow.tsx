@@ -231,7 +231,7 @@ export const OptimizationFlow = () => {
         </Stepper.Step>
         <Stepper.Step label="Set optimization parameters">
           <Stack>
-            <Fieldset legend="Objectives">
+            <Fieldset legend="Optimization objectives">
               <Stack>
                 <InputWrapper
                   label="Organism"
@@ -268,7 +268,7 @@ export const OptimizationFlow = () => {
                 />
               </Stack>
             </Fieldset>
-            <Fieldset legend="Constraints">
+            <Fieldset legend="Optimization constraints">
               {constraintModalOpened && (
                 <ConstraintModal
                   opened={constraintModalOpened}
