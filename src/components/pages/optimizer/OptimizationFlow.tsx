@@ -288,7 +288,7 @@ export const OptimizationFlow = () => {
               ))}
               {constraints.length === 0 && (
                 <Center>
-                  <Text>At least one constraint is recommended.</Text>
+                  <Text>At least one constraint is required.</Text>
                 </Center>
               )}
               <Center mt="md">
