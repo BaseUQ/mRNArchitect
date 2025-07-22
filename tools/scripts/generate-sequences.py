@@ -3,7 +3,8 @@ import itertools
 import multiprocessing
 
 from ..constants import SEQUENCES
-from ..sequence import Sequence, OptimizationConfiguration
+from ..sequence import Sequence
+from ..sequence.optimize import Constraint, Objective
 
 
 def _optimize(
@@ -30,14 +31,21 @@ def _optimize(
         optimized = Sequence.from_amino_acid_sequence(
             SEQUENCES[sequence_name]
         ).optimize(
-            OptimizationConfiguration(
-                gc_content_min=gc_content_min,
-                gc_content_max=gc_content_max,
-                gc_content_window=gc_content_window,
-                enable_uridine_depletion=enable_uridine_depletion,
-                avoid_ribosome_slip=avoid_ribosome_slip,
-                avoid_repeat_length=avoid_repeat_length,
-            )
+            constraints=[
+                Constraint(
+                    gc_content_min=gc_content_min,
+                    gc_content_max=gc_content_max,
+                    gc_content_window=gc_content_window,
+                    enable_uridine_depletion=enable_uridine_depletion,
+                    avoid_ribosome_slip=avoid_ribosome_slip,
+                )
+            ],
+            objectives=[
+                Objective(
+                    organism="human",
+                    avoid_repeat_length=10,
+                )
+            ],
         )
         result = {
             "output_sequence": optimized.output.nucleic_acid_sequence,
