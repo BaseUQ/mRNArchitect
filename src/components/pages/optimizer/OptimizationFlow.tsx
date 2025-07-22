@@ -25,11 +25,11 @@ import { ORGANISMS } from "~/constants";
 import { analyzeSequence, optimizeSequence } from "~/server/optimize";
 import type { Constraint, Objective } from "~/types/optimize";
 import type { Sequence } from "~/types/sequence";
-import { ProgressLoader } from "./ProgressLoader";
 import {
   OptimizationResults,
   type OptimizationResultsProps,
 } from "./OptimizationResults";
+import { ProgressLoader } from "./ProgressLoader";
 
 export const OptimizationFlow = () => {
   const [active, setActive] = useState<number>(0);
@@ -168,7 +168,6 @@ export const OptimizationFlow = () => {
         analyzeSequence({
           data: {
             sequence: `${sequence.fivePrimeUTR}${sequence.codingSequence}${sequence.threePrimeUTR}${sequence.polyATail}`,
-
             organism,
           },
         }),

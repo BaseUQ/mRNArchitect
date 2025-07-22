@@ -87,11 +87,11 @@ export const ConstraintModal = ({
             onChange={showHelpHandlers.toggle}
           />
         </Group>
-        <Fieldset legend="Coordinates">
+        <Fieldset legend="Nucleotide coordinates">
           <InputWrapper
             description={
               showHelp &&
-              "The coordinates within the coding region to which the constraint will be applied. Note that the coordinates start at 1, and is inclusive of the end coordinate."
+              'The coordinates within the coding region to which the constraints will be applied. Note that the coordinates start at 1, and is inclusive of the end coordinate. Selecting "Full sequence" will apply constraints to the whole seqeunce.'
             }
           >
             <Stack justify="start">
@@ -128,18 +128,22 @@ export const ConstraintModal = ({
               showHelp &&
               "If selected, this minimizes the use of uridine nucleosides in the mRNA sequence. This is achieved by avoiding codons that encode uridine at the third wobble position and can impact the reactogenicity of the mRNA sequence."
             }
+            onLabel="ON"
+            offLabel="OFF"
             key={form.key("enableUridineDepletion")}
             {...form.getInputProps("enableUridineDepletion", {
               type: "checkbox",
             })}
           />
         </Fieldset>
-        <Fieldset legend="Avoid ribosomse slip">
+        <Fieldset legend="Avoid ribosome slip">
           <Switch
             description={
               showHelp &&
               "Avoid more than 3 consecutive Us in the open-reading frame, where ribosomes can +1 frameshift at consecutive N1-methylpseudouridines (2)."
             }
+            onLabel="ON"
+            offLabel="OFF"
             key={form.key("avoidRibosomeSlip")}
             {...form.getInputProps("avoidRibosomeSlip", { type: "checkbox" })}
           />

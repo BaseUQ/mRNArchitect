@@ -20,7 +20,7 @@ import {
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { QuestionIcon } from "@phosphor-icons/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   EGFP,
   FIVE_PRIME_HUMAN_ALPHA_GLOBIN,
@@ -85,29 +85,32 @@ export const SequenceModal = ({
     },
   });
 
-  useEffect(() => {
-    if (fivePrimeUTRSequenceType === "human-alpha-globin") {
+  const handleOnChangeFivePrimeUTRSequenceType = (v: string) => {
+    setFivePrimeUTRSequenceType(v as typeof fivePrimeUTRSequenceType);
+    if (v === "human-alpha-globin") {
       form.setFieldValue("fivePrimeUTR", FIVE_PRIME_HUMAN_ALPHA_GLOBIN);
     }
-  }, [fivePrimeUTRSequenceType]);
+  };
 
-  useEffect(() => {
-    if (threePrimeUTRSequenceType === "human-alpha-globin") {
+  const handleOnChangeThreePrimeUTRSequenceType = (v: string) => {
+    setThreePrimeUTRSequenceType(v as typeof threePrimeUTRSequenceType);
+    if (v === "human-alpha-globin") {
       form.setFieldValue("threePrimeUTR", THREE_PRIME_HUMAN_ALPHA_GLOBIN);
     }
-  }, [threePrimeUTRSequenceType]);
+  };
 
-  useEffect(() => {
-    if (polyATailType === "none") {
+  const handleOnChangePolyATailType = (v: string) => {
+    setPolyATailType(v as typeof polyATailType);
+    if (v === "none") {
       form.setFieldValue("polyATail", "");
-    } else if (polyATailType === "generate") {
+    } else if (v === "generate") {
       const length =
         typeof polyATailGenerate === "string"
           ? Number.parseInt(polyATailGenerate)
           : polyATailGenerate;
       form.setFieldValue("polyATail", "A".repeat(length));
     }
-  }, [polyATailType, polyATailGenerate]);
+  };
 
   const handleOnSave = async () => {
     const result = form.validate();
@@ -257,11 +260,7 @@ export const SequenceModal = ({
                     { label: "Custom", value: "custom" },
                   ]}
                   value={fivePrimeUTRSequenceType}
-                  onChange={(v) =>
-                    setFivePrimeUTRSequenceType(
-                      v as typeof fivePrimeUTRSequenceType,
-                    )
-                  }
+                  onChange={handleOnChangeFivePrimeUTRSequenceType}
                 />
                 <Textarea
                   spellCheck={false}
@@ -293,11 +292,7 @@ export const SequenceModal = ({
                     { label: "Custom", value: "custom" },
                   ]}
                   value={threePrimeUTRSequenceType}
-                  onChange={(v) =>
-                    setThreePrimeUTRSequenceType(
-                      v as typeof threePrimeUTRSequenceType,
-                    )
-                  }
+                  onChange={handleOnChangeThreePrimeUTRSequenceType}
                 />
                 <Textarea
                   spellCheck={false}
@@ -327,7 +322,7 @@ export const SequenceModal = ({
                     { label: "Custom", value: "custom" },
                   ]}
                   value={polyATailType}
-                  onChange={(v) => setPolyATailType(v as typeof polyATailType)}
+                  onChange={handleOnChangePolyATailType}
                 />
                 {polyATailType === "generate" && (
                   <NumberInput
