@@ -177,7 +177,7 @@ export const OptimizationResults = ({
             href={URL.createObjectURL(
               new Blob([reportText], { type: "text/plain" }),
             )}
-            download={`report-${new Date().toISOString()}.txt`}
+            download={`mRNAchitect-report-${new Date().toISOString()}.txt`}
             leftSection={<DownloadSimpleIcon />}
           >
             Download report (.txt format)
