@@ -13,7 +13,8 @@ const Location = z
     ) {
       ctx.issues.push({
         code: "custom",
-        message: '"start" must be less than or equal to "end".',
+        message:
+          "Start coordinate must be less than or equal to end coordinate.",
         input: ctx.value,
         path: ["start"],
       });
@@ -36,6 +37,11 @@ export const Constraint = Location.extend({
   avoidPolyG: z.number().int().min(0),
   hairpinStemSize: z.number().int().min(0),
   hairpinWindow: z.number().int().min(0),
+}).check((ctx) => {
+  const result = Location.safeParse(ctx.value);
+  if (!result.success) {
+    ctx.issues = [...ctx.issues, ...result.error.issues];
+  }
 });
 
 export type Constraint = z.infer<typeof Constraint>;
@@ -43,6 +49,11 @@ export type Constraint = z.infer<typeof Constraint>;
 export const Objective = Location.extend({
   organism: z.string(),
   avoidRepeatLength: z.number().int().min(6),
+}).check((ctx) => {
+  const result = Location.safeParse(ctx.value);
+  if (!result.success) {
+    ctx.issues = [...ctx.issues, ...result.error.issues];
+  }
 });
 
 export type Objective = z.infer<typeof Objective>;
