@@ -58,20 +58,35 @@ export const Objective = Location.extend({
 
 export type Objective = z.infer<typeof Objective>;
 
-export const OptimizationResponse = z.object({
-  output: z.object({
-    nucleic_acid_sequence: z.string().nonempty(),
-  }),
-  debug: z.object({
+export const OptimizationResult = z.object({
+  success: z.literal(true),
+  result: z.object({
+    sequence: z.object({
+      nucleicAcidSequence: z.string().nonempty(),
+    }),
     constraints: z.string().nonempty(),
     objectives: z.string().nonempty(),
-    timeSeconds: z.number(),
   }),
 });
 
-export type OptimizationResponse = z.infer<typeof OptimizationResponse>;
+export type OptimizationResult = z.infer<typeof OptimizationResult>;
 
-export const AnalyzeResponse = z.object({
+export const OptimizationError = z.object({
+  success: z.literal(false),
+  error: z.object({
+    message: z.string(),
+    location: z.any(),
+    constraint: z.any(),
+  }),
+});
+
+export type OptimizationError = z.infer<typeof OptimizationError>;
+
+export const Optimization = z.union([OptimizationResult, OptimizationError]);
+
+export type Optimization = z.infer<typeof Optimization>;
+
+export const Analysis = z.object({
   aRatio: z.number(),
   cRatio: z.number(),
   gRatio: z.number(),
@@ -90,4 +105,4 @@ export const AnalyzeResponse = z.object({
   }),
 });
 
-export type AnalyzeResponse = z.infer<typeof AnalyzeResponse>;
+export type Analysis = z.infer<typeof Analysis>;

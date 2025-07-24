@@ -195,7 +195,7 @@ def optimize(
     )
     optimization_problem.max_random_iters = max_random_iters
 
-    optimization_problem.resolve_constraints()
+    # optimization_problem.resolve_constraints()
 
     optimization_problem.optimize()
 

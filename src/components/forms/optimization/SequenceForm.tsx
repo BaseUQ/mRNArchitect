@@ -381,12 +381,14 @@ export const SequenceRow = ({
 
   return (
     <>
-      <SequenceModal
-        opened={isEditing}
-        initialSequence={sequence}
-        onSave={handleOnSave}
-        onClose={() => setIsEditing(false)}
-      />
+      {isEditing && (
+        <SequenceModal
+          opened={isEditing}
+          initialSequence={sequence}
+          onSave={handleOnSave}
+          onClose={() => setIsEditing(false)}
+        />
+      )}
       <div>
         {sequence?.codingSequence && (
           <Stack>

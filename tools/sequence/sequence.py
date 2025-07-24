@@ -5,6 +5,7 @@ import time
 import typing
 
 import msgspec
+from pandas.core.base import NoNewAttributesMixin
 
 from ..constants import (
     CODON_TO_AMINO_ACID_MAP,
@@ -15,7 +16,7 @@ from ..organism import (
     Organism,
 )
 from ..types import AminoAcid, Codon
-from .optimize import Constraint, Objective, optimize
+from .optimize import Constraint, Location, Objective, OptimizationError, optimize
 
 
 class OptimizationException(Exception):
@@ -45,16 +46,24 @@ class Analysis(msgspec.Struct, kw_only=True, rename="camel"):
 
 
 class OptimizationResult(msgspec.Struct, kw_only=True, rename="camel"):
-    class Debug(msgspec.Struct, kw_only=True, rename="camel"):
-        time_seconds: float
-        constraints: str
-        objectives: str
+    class Error(msgspec.Struct, kw_only=True, rename="camel"):
+        message: str
+        problem: str | None
+        constraint: str | None
+        location: str | None
 
-    output: "Sequence"
-    debug: Debug
+    class Result(msgspec.Struct, kw_only=True, rename="camel"):
+        sequence: "Sequence"
+        constraints: str | None
+        objectives: str | None
+
+    success: bool
+    result: Result | None
+    error: Error | None
+    time_in_seconds: float
 
 
-class Sequence(msgspec.Struct, frozen=True):
+class Sequence(msgspec.Struct, frozen=True, rename="camel"):
     """A sequence.
 
     >>> str(Sequence("ATT"))
@@ -349,14 +358,31 @@ class Sequence(msgspec.Struct, frozen=True):
         Sequence(nucleic_acid_sequence='ACCACCATGAAC')
         """
         start = time.time()
-        result = optimize(
-            self.nucleic_acid_sequence, constraints=constraints, objectives=objectives
-        )
+        try:
+            result = optimize(
+                self.nucleic_acid_sequence,
+                constraints=constraints,
+                objectives=objectives,
+            )
+        except OptimizationError as e:
+            return OptimizationResult(
+                success=False,
+                result=None,
+                error=OptimizationResult.Error(
+                    message=e.message,
+                    problem=str(e.problem),
+                    location=e.location,
+                    constraint=e.constraint,
+                ),
+                time_in_seconds=(time.time() - start),
+            )
         return OptimizationResult(
-            output=Sequence(result.sequence),
-            debug=OptimizationResult.Debug(
-                time_seconds=(time.time() - start),
+            success=True,
+            result=OptimizationResult.Result(
+                sequence=Sequence(result.sequence),
                 constraints=result.constraints_text_summary(),
                 objectives=result.objectives_text_summary(),
             ),
+            error=None,
+            time_in_seconds=(time.time() - start),
         )

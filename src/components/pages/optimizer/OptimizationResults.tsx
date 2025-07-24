@@ -13,10 +13,10 @@ import {
 import { DownloadSimpleIcon, QuestionIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import type {
-  AnalyzeResponse,
+  Analysis,
   Constraint,
   Objective,
-  OptimizationResponse,
+  OptimizationResult,
 } from "~/types/optimize";
 import type { Sequence } from "~/types/sequence";
 
@@ -26,15 +26,15 @@ export interface OptimizationResultsProps {
   objectives: Objective[];
   results: {
     input: {
-      cdsAnalysis: AnalyzeResponse;
-      fivePrimeUTRAnalysis: AnalyzeResponse | null;
-      threePrimeUTRAnalysis: AnalyzeResponse | null;
-      fullSequenceAnalysis: AnalyzeResponse;
+      cdsAnalysis: Analysis;
+      fivePrimeUTRAnalysis: Analysis | null;
+      threePrimeUTRAnalysis: Analysis | null;
+      fullSequenceAnalysis: Analysis;
     };
     outputs: {
-      optimization: OptimizationResponse;
-      cdsAnalysis: AnalyzeResponse;
-      fullSequenceAnalysis: AnalyzeResponse;
+      optimization: OptimizationResult;
+      cdsAnalysis: Analysis;
+      fullSequenceAnalysis: Analysis;
     }[];
   };
 }
@@ -134,9 +134,9 @@ export const OptimizationResults = ({
     ({ optimization, cdsAnalysis, fullSequenceAnalysis }, index) => [
       `---Optimized Sequence #${index + 1}`,
       "",
-      `CDS:\t\t\t${optimization.output.nucleic_acid_sequence}`,
+      `CDS:\t\t\t${optimization.result.sequence.nucleicAcidSequence}`,
       "",
-      `Full-length mRNA:\t${sequence.fivePrimeUTR + optimization.output.nucleic_acid_sequence + sequence.threePrimeUTR + sequence.polyATail}`,
+      `Full-length mRNA:\t${sequence.fivePrimeUTR + optimization.result.sequence.nucleicAcidSequence + sequence.threePrimeUTR + sequence.polyATail}`,
       "",
       "---Results",
       "Metric\t\t\tInput\tOptimized",
@@ -277,14 +277,14 @@ export const OptimizationResults = ({
         <Tabs.List>
           {results.outputs.map((output, index) => (
             <Tabs.Tab
-              key={`${index}-${output.optimization.output}`}
+              key={`${index}-${output.optimization.result.sequence.nucleicAcidSequence}`}
               value={index.toString()}
             >{`Output ${index + 1}`}</Tabs.Tab>
           ))}
         </Tabs.List>
         {results.outputs.map((output, index) => (
           <Tabs.Panel
-            key={`${index}-${output.optimization.output}`}
+            key={`${index}-${output.optimization.result.sequence.nucleicAcidSequence}`}
             value={index.toString()}
           >
             <Text ff="monospace" p="md" style={{ wordBreak: "break-all" }}>
@@ -295,7 +295,7 @@ export const OptimizationResults = ({
               </Tooltip>
               <Tooltip label="Coding sequence">
                 <Text component="span">
-                  {output.optimization.output.nucleic_acid_sequence}
+                  {output.optimization.result.sequence.nucleicAcidSequence}
                 </Text>
               </Tooltip>
               <Tooltip label="3' UTR">

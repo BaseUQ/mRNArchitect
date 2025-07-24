@@ -4,10 +4,10 @@ import { createServerFn } from "@tanstack/react-start";
 import z from "zod/v4";
 import { loggingMiddleware } from "~/global-middleware";
 import {
-  AnalyzeResponse,
+  Analysis,
   Constraint,
   Objective,
-  OptimizationResponse,
+  Optimization,
 } from "~/types/optimize";
 
 const execFileAsync = utils.promisify(execFile);
@@ -70,7 +70,7 @@ export const analyzeSequence = createServerFn({ method: "POST" })
       ],
       { shell: false, timeout: 900_000 },
     );
-    return AnalyzeResponse.parse(JSON.parse(stdout));
+    return Analysis.parse(JSON.parse(stdout));
   });
 
 export const optimizeSequence = createServerFn({ method: "POST" })
@@ -99,5 +99,6 @@ export const optimizeSequence = createServerFn({ method: "POST" })
         timeout: 900_000,
       },
     );
-    return OptimizationResponse.parse(JSON.parse(stdout));
+    console.error(stdout);
+    return Optimization.parse(JSON.parse(stdout));
   });

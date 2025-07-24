@@ -13,6 +13,7 @@ import {
 } from "@mantine/core";
 import { PlusIcon } from "@phosphor-icons/react";
 import { useMemo, useState } from "react";
+import z from "zod/v4";
 import {
   ConstraintModal,
   ConstraintRow,
@@ -23,7 +24,7 @@ import {
 } from "~/components/forms/optimization/SequenceForm";
 import { ORGANISMS } from "~/constants";
 import { analyzeSequence, optimizeSequence } from "~/server/optimize";
-import type { Constraint, Objective } from "~/types/optimize";
+import { Constraint, Objective, OptimizationError } from "~/types/optimize";
 import type { Sequence } from "~/types/sequence";
 import {
   OptimizationResults,
@@ -49,7 +50,9 @@ export const OptimizationFlow = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [optimizationResults, setOptimizationResults] =
     useState<OptimizationResultsProps["results"]>();
-  const [optimizationError, setOptimizationError] = useState<string>();
+  const [optimizationError, setOptimizationError] = useState<
+    OptimizationError | string
+  >();
 
   const objectives = useMemo<Objective[]>(
     () => [
@@ -131,10 +134,14 @@ export const OptimizationFlow = () => {
           objectives,
         },
       });
+      console.log(optimization);
+      if (!optimization.success) {
+        throw optimization;
+      }
 
       const cdsAnalysis = await analyzeSequence({
         data: {
-          sequence: optimization.output.nucleic_acid_sequence,
+          sequence: optimization.result.sequence.nucleicAcidSequence,
           organism: objectives[0].organism,
         },
       });
@@ -188,9 +195,12 @@ export const OptimizationFlow = () => {
     } catch (e) {
       console.error(e);
       setOptimizationResults(undefined);
-      setOptimizationError(
-        "Error resolving constraints. Sequence cannot be optimised. Please verify your input sequence or adjust input parameters (e.g. increase GC content/window).",
-      );
+      const error = OptimizationError.safeParse(e);
+      if (error.success) {
+        setOptimizationError(error.data);
+      } else {
+        setOptimizationError("N/A");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -322,7 +332,16 @@ export const OptimizationFlow = () => {
           )}
           {optimizationError && (
             <Alert title="Optimization failed" color="red">
-              {optimizationError}
+              Error resolving constraints. Sequence cannot be optimised. Please
+              verify your input sequence or adjust input parameters (e.g.
+              increase GC content/window).
+              <Text ff="monospace">
+                {typeof optimizationError === "string"
+                  ? optimizationError
+                  : optimizationError.error.message
+                      .split("\n")
+                      .map((v) => <Text key={v}>{v}</Text>)}
+              </Text>
             </Alert>
           )}
         </Stepper.Step>
