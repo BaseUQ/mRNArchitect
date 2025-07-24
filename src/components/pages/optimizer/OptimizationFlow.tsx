@@ -335,13 +335,13 @@ export const OptimizationFlow = () => {
               Error resolving constraints. Sequence cannot be optimised. Please
               verify your input sequence or adjust input parameters (e.g.
               increase GC content/window).
-              <Text ff="monospace">
+              <Stack ff="monospace">
                 {typeof optimizationError === "string"
                   ? optimizationError
                   : optimizationError.error.message
                       .split("\n")
                       .map((v) => <Text key={v}>{v}</Text>)}
-              </Text>
+              </Stack>
             </Alert>
           )}
         </Stepper.Step>

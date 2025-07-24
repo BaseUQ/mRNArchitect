@@ -177,6 +177,23 @@ class Objective(Location, frozen=True, kw_only=True, rename="camel"):
         return objectives
 
 
+DEFAULT_CONSTRAINT = Constraint(
+    enable_uridine_depletion=False,
+    avoid_ribosome_slip=False,
+    gc_content_min=0.4,
+    gc_content_max=0.7,
+    gc_content_window=100,
+    avoid_restriction_sites=[],
+    avoid_sequences=[],
+    avoid_poly_a=9,
+    avoid_poly_c=6,
+    avoid_poly_g=6,
+    avoid_poly_t=9,
+    hairpin_stem_size=10,
+    hairpin_window=60,
+)
+
+
 def optimize(
     nucleic_acid_sequence: str,
     constraints: typing.Sequence[Constraint],
