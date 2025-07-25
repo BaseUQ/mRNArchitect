@@ -59,16 +59,6 @@ interface OptimizationForm {
 export const OptimizationFlow = () => {
   const [active, setActive] = useState<number>(0);
 
-  const [sequence, setSequence] = useState<Sequence>({
-    codingSequenceType: "nucleic-acid",
-    codingSequence: "",
-    fivePrimeUTR: "",
-    threePrimeUTR: "",
-    polyATail: "",
-  });
-
-  const [constraints, setConstraints] = useState<Constraint[]>([]);
-
   const [numberOfSequences, setNumberOfSequences] = useState<number>(3);
   const [organism, setOrganism] = useState<string>(ORGANISMS[0].value);
 
@@ -128,37 +118,7 @@ export const OptimizationFlow = () => {
     form.removeListItem("constraints", index);
   };
 
-  const nextButtonIsDisabled = () => {
-    if (isLoading) {
-      return true;
-    }
-    if (active === 0) {
-      // Input sequence
-      // Sequence must not be empty
-      return !sequence;
-    }
-    if (active === 1) {
-      // Set constraints
-      // Must have at least 1 constraint
-      return constraints.length === 0;
-    }
-  };
-
-  const handleOnClickNext = () => {
-    if (active === 1) {
-      // Run optimization
-      handleOptimize();
-    }
-    setActive(active + 1);
-  };
-
   const handleOptimize = async () => {
-    if (!sequence) {
-      return;
-    }
-    if (!organism) {
-      return;
-    }
     const analyze = async (sequence: string, organism: string) => {
       if (sequence) {
         return await analyzeSequence({ data: { sequence, organism } });
@@ -197,6 +157,8 @@ export const OptimizationFlow = () => {
 
       return { optimization, cdsAnalysis, fullSequenceAnalysis };
     };
+
+    const { sequence } = form.getValues();
 
     setIsLoading(true);
     setOptimizationResults(undefined);
@@ -280,29 +242,14 @@ export const OptimizationFlow = () => {
                   color="green"
                   leftSection={<PlusIcon size={14} />}
                 >
-                  Add constraint
+                  Add another region
                 </Button>
               </Center>
             </Fieldset>
             <Button onClick={handleOptimize}>Optimize</Button>
           </Stack>
         </Stepper.Step>
-        <Stepper.Step label="Results" loading={isLoading}>
-          {sequence && optimizationResults && (
-            <OptimizationResults
-              sequence={form.getValues().sequence}
-              constraints={form.getValues().constraints}
-              objectives={form.getValues().objectives}
-              results={optimizationResults}
-            />
-          )}
-          {!optimizationResults && isLoading && (
-            <ProgressLoader
-              estimatedTimeInSeconds={
-                (sequence?.codingSequence.length ?? 100) / 30 + 60
-              }
-            />
-          )}
+        <Stepper.Step loading={isLoading}>
           {optimizationError && (
             <Alert title="Optimization failed" color="red">
               Error resolving constraints. Sequence cannot be optimised. Please
@@ -317,25 +264,34 @@ export const OptimizationFlow = () => {
               </Stack>
             </Alert>
           )}
+          {isLoading && (
+            <ProgressLoader
+              estimatedTimeInSeconds={
+                (form.getValues().sequence.codingSequence.length ?? 100) / 30 +
+                60
+              }
+            />
+          )}
+        </Stepper.Step>
+        <Stepper.Step label="Results">
+          {optimizationResults && (
+            <OptimizationResults
+              sequence={form.getValues().sequence}
+              constraints={form.getValues().constraints}
+              objectives={form.getValues().objectives}
+              results={optimizationResults}
+            />
+          )}
+          {!optimizationResults && isLoading && (
+            <ProgressLoader
+              estimatedTimeInSeconds={
+                (form.getValues().sequence?.codingSequence.length ?? 100) / 30 +
+                60
+              }
+            />
+          )}
         </Stepper.Step>
       </Stepper>
-      {!isLoading && (
-        <Group grow>
-          {active > 0 && (
-            <Button onClick={() => setActive(active - 1)} variant="outline">
-              Back
-            </Button>
-          )}
-          {active < 2 && (
-            <Button
-              onClick={handleOnClickNext}
-              disabled={nextButtonIsDisabled()}
-            >
-              Next
-            </Button>
-          )}
-        </Group>
-      )}
     </Stack>
   );
 };
