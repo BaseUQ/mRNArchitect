@@ -1,27 +1,20 @@
 import {
+  Accordion,
+  ActionIcon,
   Alert,
   Button,
   Center,
   Fieldset,
   Group,
-  InputWrapper,
-  NumberInput,
-  SegmentedControl,
   Stack,
   Stepper,
   Text,
 } from "@mantine/core";
-import { PlusIcon } from "@phosphor-icons/react";
-import { useMemo, useState } from "react";
-import z from "zod/v4";
-import {
-  ConstraintModal,
-  ConstraintRow,
-} from "~/components/forms/optimization/ConstraintsForm";
-import {
-  SequenceModal,
-  SequenceRow,
-} from "~/components/forms/optimization/SequenceForm";
+import { useForm } from "@mantine/form";
+import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
+import { useState } from "react";
+import { ConstraintInput } from "~/components/forms/optimization/ConstraintsForm";
+import { SequenceInput } from "~/components/forms/optimization/SequenceForm";
 import { ORGANISMS } from "~/constants";
 import { analyzeSequence, optimizeSequence } from "~/server/optimize";
 import { Constraint, Objective, OptimizationError } from "~/types/optimize";
@@ -32,20 +25,52 @@ import {
 } from "./OptimizationResults";
 import { ProgressLoader } from "./ProgressLoader";
 
+const createDefaultConstraint = (): Constraint => ({
+  start: null,
+  end: null,
+  enableUridineDepletion: false,
+  avoidRibosomeSlip: false,
+  gcContentMin: 0.4,
+  gcContentMax: 0.7,
+  gcContentWindow: 100,
+  avoidRestrictionSites: [],
+  avoidSequences: [],
+  avoidPolyT: 9,
+  avoidPolyA: 9,
+  avoidPolyC: 6,
+  avoidPolyG: 6,
+  hairpinStemSize: 10,
+  hairpinWindow: 60,
+});
+
+const createDefaultObjective = (): Objective => ({
+  start: null,
+  end: null,
+  organism: ORGANISMS[0].value,
+  avoidRepeatLength: 10,
+});
+
+interface OptimizationForm {
+  sequence: Sequence;
+  constraints: Constraint[];
+  objectives: Objective[];
+}
+
 export const OptimizationFlow = () => {
   const [active, setActive] = useState<number>(0);
 
-  const [sequenceModalOpened, setSequenceModalOpened] =
-    useState<boolean>(false);
-  const [sequence, setSequence] = useState<Sequence>();
+  const [sequence, setSequence] = useState<Sequence>({
+    codingSequenceType: "nucleic-acid",
+    codingSequence: "",
+    fivePrimeUTR: "",
+    threePrimeUTR: "",
+    polyATail: "",
+  });
 
-  const [constraintModalOpened, setConstraintModalOpened] =
-    useState<boolean>(false);
   const [constraints, setConstraints] = useState<Constraint[]>([]);
 
   const [numberOfSequences, setNumberOfSequences] = useState<number>(3);
   const [organism, setOrganism] = useState<string>(ORGANISMS[0].value);
-  const [avoidRepeatLength, setAvoidRepeatLength] = useState<number>(10);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [optimizationResults, setOptimizationResults] =
@@ -54,34 +79,53 @@ export const OptimizationFlow = () => {
     OptimizationError | string
   >();
 
-  const objectives = useMemo<Objective[]>(
-    () => [
-      {
-        start: null,
-        end: null,
-        organism,
-        avoidRepeatLength,
+  const form = useForm<OptimizationForm>({
+    initialValues: {
+      sequence: {
+        codingSequenceType: "nucleic-acid",
+        codingSequence: "",
+        fivePrimeUTR: "",
+        threePrimeUTR: "",
+        polyATail: "",
       },
-    ],
-    [organism, avoidRepeatLength],
-  );
+      constraints: [createDefaultConstraint()],
+      objectives: [createDefaultObjective()],
+    },
+    validate: (values) => {
+      const result = Constraint.safeParse(values);
+      if (!result.error) {
+        return {};
+      }
+      return Object.fromEntries(
+        result.error.issues
+          .filter((issue) => issue.path.length)
+          .map((issue) => [issue.path[0], issue.message]),
+      );
+    },
+  });
 
-  const handleOnSaveSequence = (sequence: Sequence) => {
-    setSequenceModalOpened(false);
-    setSequence(sequence);
-  };
-
-  const handleOnSaveConstraint = (index: number, constraint: Constraint) => {
-    const newConstraints = [...constraints];
-    newConstraints[index] = constraint;
-    setConstraints(newConstraints);
-    setConstraintModalOpened(false);
+  const handleOnAddConstraint = () => {
+    form.insertListItem("constraints", {
+      start: null,
+      end: null,
+      enableUridineDepletion: false,
+      avoidRibosomeSlip: false,
+      gcContentMin: 0.4,
+      gcContentMax: 0.7,
+      gcContentWindow: 100,
+      avoidRestrictionSites: [],
+      avoidSequences: [],
+      avoidPolyT: 9,
+      avoidPolyA: 9,
+      avoidPolyC: 6,
+      avoidPolyG: 6,
+      hairpinStemSize: 10,
+      hairpinWindow: 60,
+    });
   };
 
   const handleOnDeleteConstraint = (index: number) => {
-    const newConstraints = [...constraints];
-    newConstraints.splice(index, 1);
-    setConstraints(newConstraints);
+    form.removeListItem("constraints", index);
   };
 
   const nextButtonIsDisabled = () => {
@@ -123,10 +167,9 @@ export const OptimizationFlow = () => {
     };
 
     const optimizeAndAnalyze = async (
-      sequence: Sequence,
-      constraints: Constraint[],
-      objectives: Objective[],
+      optimizationForm: OptimizationForm,
     ): Promise<OptimizationResultsProps["results"]["outputs"][0]> => {
+      const { sequence, constraints, objectives } = optimizationForm;
       const optimization = await optimizeSequence({
         data: {
           sequence: sequence.codingSequence,
@@ -134,7 +177,6 @@ export const OptimizationFlow = () => {
           objectives,
         },
       });
-      console.log(optimization);
       if (!optimization.success) {
         throw optimization;
       }
@@ -180,7 +222,7 @@ export const OptimizationFlow = () => {
         }),
         ...Array(numberOfSequences)
           .fill(0)
-          .map(() => optimizeAndAnalyze(sequence, constraints, objectives)),
+          .map(() => optimizeAndAnalyze(form.getValues())),
       ]);
 
       setOptimizationResults({
@@ -210,100 +252,30 @@ export const OptimizationFlow = () => {
     <Stack>
       <Stepper active={active}>
         <Stepper.Step label="Input sequence">
-          <Fieldset legend="Input sequence">
-            {sequence && (
-              <SequenceRow
-                sequence={sequence}
-                onSave={handleOnSaveSequence}
-                onDelete={() => setSequence(undefined)}
-              />
-            )}
-            {!sequence && (
-              <>
-                <SequenceModal
-                  opened={sequenceModalOpened}
-                  onClose={() => setSequenceModalOpened(false)}
-                  onSave={handleOnSaveSequence}
-                />
-                <Center p="xl">
-                  <Button
-                    onClick={() => setSequenceModalOpened(true)}
-                    variant="outline"
-                    color="green"
-                    leftSection={<PlusIcon size={14} />}
-                  >
-                    Add sequence
-                  </Button>
-                </Center>
-              </>
-            )}
-          </Fieldset>
-        </Stepper.Step>
-        <Stepper.Step label="Set optimization parameters">
           <Stack>
-            <Fieldset legend="Optimization objectives">
-              <Stack>
-                <InputWrapper
-                  label="Organism"
-                  description="Select the target organism to be used for codon optimisation. The mRNA will be optimised using the preferred codon usage of highly expressed genes in this selected organism (1). By default, we use human codon optimisation."
-                >
-                  <SegmentedControl
-                    data={ORGANISMS}
-                    value={organism}
-                    onChange={setOrganism}
-                    mt="sm"
-                  />
-                </InputWrapper>
-                <NumberInput
-                  label="Avoid repeat length"
-                  description="Avoid repeating any sequences longer than this length within the mRNA. We recommend 10 nucleotides."
-                  value={avoidRepeatLength}
-                  onChange={(v) =>
-                    setAvoidRepeatLength(
-                      typeof v === "string" ? Number.parseInt(v) : v,
-                    )
-                  }
-                />
-                <NumberInput
-                  label="Number of output sequences"
-                  description="The number of sequence optimizations to run."
-                  value={numberOfSequences}
-                  onChange={(v) =>
-                    setNumberOfSequences(
-                      typeof v === "string" ? Number.parseInt(v) : v,
-                    )
-                  }
-                  min={1}
-                  max={10}
-                />
-              </Stack>
+            <Fieldset legend="Input sequence">
+              <SequenceInput form={form} />
             </Fieldset>
-            <Fieldset legend="Optimization constraints">
-              {constraintModalOpened && (
-                <ConstraintModal
-                  opened={constraintModalOpened}
-                  onClose={() => setConstraintModalOpened(false)}
-                  onSave={(c) => handleOnSaveConstraint(constraints.length, c)}
-                  onCancel={() => setConstraintModalOpened(false)}
-                />
-              )}
-              {constraints.map((constraint, index) => (
-                <ConstraintRow
-                  key="constraint"
-                  constraint={constraint}
-                  editable
-                  onSave={(c) => handleOnSaveConstraint(index, c)}
-                  onDelete={() => handleOnDeleteConstraint(index)}
-                />
-              ))}
-              {constraints.length === 0 && (
-                <Center>
-                  <Text>At least one constraint is required.</Text>
-                </Center>
-              )}
+            <Fieldset legend="Optimization regions">
+              <Accordion defaultValue={"0"}>
+                {form.getValues().constraints.map((constraint, index) => (
+                  <Accordion.Item key={index} value={index.toString()}>
+                    <Accordion.Control>{`Region ${index + 1}`}</Accordion.Control>
+                    <Accordion.Panel>
+                      <ActionIcon
+                        color="red"
+                        onClick={() => handleOnDeleteConstraint(index)}
+                      >
+                        <TrashIcon size={14} />
+                      </ActionIcon>
+                      <ConstraintInput index={index} form={form} />
+                    </Accordion.Panel>
+                  </Accordion.Item>
+                ))}
+              </Accordion>
               <Center mt="md">
                 <Button
-                  onClick={() => setConstraintModalOpened(true)}
+                  onClick={handleOnAddConstraint}
                   variant="outline"
                   color="green"
                   leftSection={<PlusIcon size={14} />}
@@ -312,14 +284,15 @@ export const OptimizationFlow = () => {
                 </Button>
               </Center>
             </Fieldset>
+            <Button onClick={handleOptimize}>Optimize</Button>
           </Stack>
         </Stepper.Step>
         <Stepper.Step label="Results" loading={isLoading}>
           {sequence && optimizationResults && (
             <OptimizationResults
-              sequence={sequence}
-              constraints={constraints}
-              objectives={objectives}
+              sequence={form.getValues().sequence}
+              constraints={form.getValues().constraints}
+              objectives={form.getValues().objectives}
               results={optimizationResults}
             />
           )}
