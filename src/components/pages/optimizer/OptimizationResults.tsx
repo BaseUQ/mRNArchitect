@@ -10,50 +10,48 @@ import {
   Title,
   Tooltip,
 } from "@mantine/core";
-import {
-  CaretLeftIcon,
-  DownloadSimpleIcon,
-  QuestionIcon,
-} from "@phosphor-icons/react";
+import { DownloadSimpleIcon, QuestionIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import type {
-  AnalyzeResponse,
-  OptimizationRequest,
-  OptimizationResponse,
+  Analysis,
+  Constraint,
+  Objective,
+  OptimizationResult,
 } from "~/types/optimize";
-import { ORGANISMS } from "./constants";
+import type { Sequence } from "~/types/sequence";
 
-interface OptimizationResults {
-  input: OptimizationRequest;
+export interface OptimizationResultsProps {
+  sequence: Sequence;
+  constraints: Constraint[];
+  objectives: Objective[];
   results: {
     input: {
-      cdsAnalysis: AnalyzeResponse;
-      fivePrimeUTRAnalysis: AnalyzeResponse | null;
-      threePrimeUTRAnalysis: AnalyzeResponse | null;
-      fullSequenceAnalysis: AnalyzeResponse;
+      cdsAnalysis: Analysis;
+      fivePrimeUTRAnalysis: Analysis | null;
+      threePrimeUTRAnalysis: Analysis | null;
+      fullSequenceAnalysis: Analysis;
     };
     outputs: {
-      optimization: OptimizationResponse;
-      cdsAnalysis: AnalyzeResponse;
-      fullSequenceAnalysis: AnalyzeResponse;
+      optimization: OptimizationResult;
+      cdsAnalysis: Analysis;
+      fullSequenceAnalysis: Analysis;
     }[];
   };
-  onClickBack: () => void;
 }
 
 export const OptimizationResults = ({
-  input,
-  onClickBack,
+  sequence,
+  constraints,
   results,
-}: OptimizationResults) => {
+}: OptimizationResultsProps) => {
   const [showHelp, setShowHelp] = useState<boolean>(false);
 
   const generateRow = (
     title: string,
     getter: (
       data:
-        | OptimizationResults["results"]["input"]
-        | OptimizationResults["results"]["outputs"][0],
+        | OptimizationResultsProps["results"]["input"]
+        | OptimizationResultsProps["results"]["outputs"][0],
     ) => number | string,
   ) => {
     return [
@@ -107,37 +105,38 @@ export const OptimizationResults = ({
     `Date\t${new Date().toISOString()}`,
     "",
     "---Input Sequence",
-    `CDS\t\t${input.sequence}`,
-    `5' UTR\t\t${input.fivePrimeUTR}`,
-    `3' UTR\t\t${input.threePrimeUTR}`,
-    `Poly(A) tail\t${input.polyATail}`,
-    "",
-    "---Parameters",
-    `Number of sequences\t\t${input.numberOfSequences}`,
-    `Organism\t\t\t${ORGANISMS.find(({ value }) => value === input.organism)?.label ?? "-"}`,
-    `Enable uridine depletion\t${input.enableUridineDepletion}`,
-    `Avoid ribosome slip\t\t${input.avoidRibosomeSlip}`,
-    `GC content minimum\t\t${input.gcContentMin}`,
-    `GC content maximum\t\t${input.gcContentMax}`,
-    `GC content window\t\t${input.gcContentWindow}`,
-    `Avoid cut sites\t\t\t${input.avoidRestrictionSites}`,
-    `Avoid sequences\t\t\t${input.avoidSequences}`,
-    `Avoid repeat length\t\t${input.avoidRepeatLength}`,
-    `Avoid poly(U)\t\t\t${input.avoidPolyT}`,
-    `Avoid poly(A)\t\t\t${input.avoidPolyA}`,
-    `Avoid poly(C)\t\t\t${input.avoidPolyC}`,
-    `Avoid poly(G}\t\t\t${input.avoidPolyG}`,
-    `Hairpin stem size\t\t${input.hairpinStemSize}`,
-    `Hairpin window\t\t\t${input.hairpinWindow}`,
+    `CDS\t\t${sequence.codingSequence}`,
+    `5' UTR\t\t${sequence.fivePrimeUTR}`,
+    `3' UTR\t\t${sequence.threePrimeUTR}`,
+    `Poly(A) tail\t${sequence.polyATail}`,
   ];
+
+  const constraintReports = constraints
+    .map((c, index) => [
+      `---Constraint #${index + 1}`,
+      `Enable uridine depletion\t${c.enableUridineDepletion}`,
+      `Avoid ribosome slip\t\t${c.avoidRibosomeSlip}`,
+      `GC content minimum\t\t${c.gcContentMin}`,
+      `GC content maximum\t\t${c.gcContentMax}`,
+      `GC content window\t\t${c.gcContentWindow}`,
+      `Avoid cut sites\t\t\t${c.avoidRestrictionSites}`,
+      `Avoid sequences\t\t\t${c.avoidSequences}`,
+      `Avoid poly(U)\t\t\t${c.avoidPolyT}`,
+      `Avoid poly(A)\t\t\t${c.avoidPolyA}`,
+      `Avoid poly(C)\t\t\t${c.avoidPolyC}`,
+      `Avoid poly(G}\t\t\t${c.avoidPolyG}`,
+      `Hairpin stem size\t\t${c.hairpinStemSize}`,
+      `Hairpin window\t\t\t${c.hairpinWindow}`,
+    ])
+    .reduce((prev, current) => prev.concat([""], current), []);
 
   const outputReports = results.outputs.map(
     ({ optimization, cdsAnalysis, fullSequenceAnalysis }, index) => [
       `---Optimized Sequence #${index + 1}`,
       "",
-      `CDS:\t\t\t${optimization.output.nucleic_acid_sequence}`,
+      `CDS:\t\t\t${optimization.result.sequence.nucleicAcidSequence}`,
       "",
-      `Full-length mRNA:\t${input.fivePrimeUTR + optimization.output.nucleic_acid_sequence + input.threePrimeUTR + input.polyATail}`,
+      `Full-length mRNA:\t${sequence.fivePrimeUTR + optimization.result.sequence.nucleicAcidSequence + sequence.threePrimeUTR + sequence.polyATail}`,
       "",
       "---Results",
       "Metric\t\t\tInput\tOptimized",
@@ -159,6 +158,9 @@ export const OptimizationResults = ({
 
   const reportText = [
     ...inputReport,
+    "",
+    ...constraintReports,
+    "",
     ...outputReports.reduce(
       (accumulator, current) => accumulator.concat([""], current),
       [],
@@ -168,22 +170,14 @@ export const OptimizationResults = ({
 
   return (
     <Stack>
-      <Group justify="space-between">
-        <Button
-          variant="subtle"
-          size="sm"
-          onClick={onClickBack}
-          leftSection={<CaretLeftIcon />}
-        >
-          Back
-        </Button>
+      <Group justify="end">
         <Group>
           <Button
             component="a"
             href={URL.createObjectURL(
               new Blob([reportText], { type: "text/plain" }),
             )}
-            download={`report-${new Date().toISOString()}.txt`}
+            download={`mRNAchitect-report-${new Date().toISOString()}.txt`}
             leftSection={<DownloadSimpleIcon />}
           >
             Download report (.txt format)
@@ -283,35 +277,35 @@ export const OptimizationResults = ({
         <Tabs.List>
           {results.outputs.map((output, index) => (
             <Tabs.Tab
-              key={`${index}-${output.optimization.output}`}
+              key={`${index}-${output.optimization.result.sequence.nucleicAcidSequence}`}
               value={index.toString()}
             >{`Output ${index + 1}`}</Tabs.Tab>
           ))}
         </Tabs.List>
         {results.outputs.map((output, index) => (
           <Tabs.Panel
-            key={`${index}-${output.optimization.output}`}
+            key={`${index}-${output.optimization.result.sequence.nucleicAcidSequence}`}
             value={index.toString()}
           >
             <Text ff="monospace" p="md" style={{ wordBreak: "break-all" }}>
               <Tooltip label="5' UTR">
                 <Text component="span" c="green">
-                  {input.fivePrimeUTR}
+                  {sequence.fivePrimeUTR}
                 </Text>
               </Tooltip>
               <Tooltip label="Coding sequence">
                 <Text component="span">
-                  {output.optimization.output.nucleic_acid_sequence}
+                  {output.optimization.result.sequence.nucleicAcidSequence}
                 </Text>
               </Tooltip>
               <Tooltip label="3' UTR">
                 <Text component="span" c="green">
-                  {input.threePrimeUTR}
+                  {sequence.threePrimeUTR}
                 </Text>
               </Tooltip>
               <Tooltip label="Poly(A) tail">
                 <Text component="span" c="blue">
-                  {input.polyATail}
+                  {sequence.polyATail}
                 </Text>
               </Tooltip>
             </Text>

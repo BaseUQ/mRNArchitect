@@ -1,45 +1,92 @@
-import z from "zod";
+import z from "zod/v4";
 
-export const OptimizationRequest = z.object({
-  sequenceType: z.union([z.literal("nucleic-acid"), z.literal("amino-acid")]),
-  sequence: z.string().nonempty("Coding sequence is required."),
-  fivePrimeUTR: z.string(),
-  threePrimeUTR: z.string(),
-  polyATail: z.string(),
-  numberOfSequences: z.number().int().min(1).max(10),
-  organism: z.string(),
+const Location = z
+  .object({
+    start: z.number().int().nullable(),
+    end: z.number().int().nullable(),
+  })
+  .check((ctx) => {
+    if (
+      ctx.value.start !== null &&
+      ctx.value.end !== null &&
+      ctx.value.start > ctx.value.end
+    ) {
+      ctx.issues.push({
+        code: "custom",
+        message:
+          "Start coordinate must be less than or equal to end coordinate.",
+        input: ctx.value,
+        path: ["start"],
+      });
+    }
+  });
+
+export const Constraint = Location.extend({
   enableUridineDepletion: z.boolean(),
   avoidRibosomeSlip: z.boolean(),
   gcContentMin: z.number().min(0).max(1),
   gcContentMax: z.number().min(0).max(1),
   gcContentWindow: z.number().int().min(1),
   avoidRestrictionSites: z.array(z.string()),
-  avoidSequences: z.string(),
-  avoidRepeatLength: z.number().int().min(6),
+  avoidSequences: z.array(
+    z.string().regex(/[ACGTU]/gim, "Sequences must be nucleic acids."),
+  ),
   avoidPolyT: z.number().int().min(0),
   avoidPolyA: z.number().int().min(0),
   avoidPolyC: z.number().int().min(0),
   avoidPolyG: z.number().int().min(0),
   hairpinStemSize: z.number().int().min(0),
   hairpinWindow: z.number().int().min(0),
+}).check((ctx) => {
+  const result = Location.safeParse(ctx.value);
+  if (!result.success) {
+    ctx.issues = [...ctx.issues, ...result.error.issues];
+  }
 });
 
-export type OptimizationRequest = z.infer<typeof OptimizationRequest>;
+export type Constraint = z.infer<typeof Constraint>;
 
-export const OptimizationResponse = z.object({
-  output: z.object({
-    nucleic_acid_sequence: z.string().nonempty(),
-  }),
-  debug: z.object({
+export const Objective = Location.extend({
+  organism: z.string(),
+  avoidRepeatLength: z.number().int().min(6),
+}).check((ctx) => {
+  const result = Location.safeParse(ctx.value);
+  if (!result.success) {
+    ctx.issues = [...ctx.issues, ...result.error.issues];
+  }
+});
+
+export type Objective = z.infer<typeof Objective>;
+
+export const OptimizationResult = z.object({
+  success: z.literal(true),
+  result: z.object({
+    sequence: z.object({
+      nucleicAcidSequence: z.string().nonempty(),
+    }),
     constraints: z.string().nonempty(),
     objectives: z.string().nonempty(),
-    timeSeconds: z.number(),
   }),
 });
 
-export type OptimizationResponse = z.infer<typeof OptimizationResponse>;
+export type OptimizationResult = z.infer<typeof OptimizationResult>;
 
-export const AnalyzeResponse = z.object({
+export const OptimizationError = z.object({
+  success: z.literal(false),
+  error: z.object({
+    message: z.string(),
+    location: z.any(),
+    constraint: z.any(),
+  }),
+});
+
+export type OptimizationError = z.infer<typeof OptimizationError>;
+
+export const Optimization = z.union([OptimizationResult, OptimizationError]);
+
+export type Optimization = z.infer<typeof Optimization>;
+
+export const Analysis = z.object({
   aRatio: z.number(),
   cRatio: z.number(),
   gRatio: z.number(),
@@ -58,4 +105,4 @@ export const AnalyzeResponse = z.object({
   }),
 });
 
-export type AnalyzeResponse = z.infer<typeof AnalyzeResponse>;
+export type Analysis = z.infer<typeof Analysis>;
