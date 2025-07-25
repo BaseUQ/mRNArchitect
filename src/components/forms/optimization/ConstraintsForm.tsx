@@ -33,9 +33,9 @@ const INITIAL_CONSTRAINT: Constraint = {
   avoidRestrictionSites: [],
   avoidSequences: [],
   avoidPolyT: 9,
-  avoidPolyA: 6,
+  avoidPolyA: 9,
   avoidPolyC: 6,
-  avoidPolyG: 9,
+  avoidPolyG: 6,
   hairpinStemSize: 10,
   hairpinWindow: 60,
 };
