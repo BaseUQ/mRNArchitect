@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { Box, Tabs } from "@mantine/core";
 import { DnaIcon, FileIcon, QuestionIcon } from "@phosphor-icons/react";
+import { useState } from "react";
 import { Help } from "./Help";
 import { Input } from "./Input";
 import { Output } from "./Output";

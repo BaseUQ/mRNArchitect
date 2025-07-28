@@ -1,4 +1,4 @@
-import { Stack, Text, Table, Title } from "@mantine/core";
+import { Stack, Table, Text, Title } from "@mantine/core";
 
 export const Help = () => {
   return (

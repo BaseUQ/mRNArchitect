@@ -1,6 +1,6 @@
 import {
   Accordion,
-  AccordionControlProps,
+  type AccordionControlProps,
   ActionIcon,
   Alert,
   Button,
@@ -13,15 +13,17 @@ import {
 import { useForm } from "@mantine/form";
 import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useState } from "react";
-import z from "zod/v4";
-import { RegionInput } from "~/components/inputs/RegionInput";
-import { SequenceInput } from "~/components/inputs/SequenceInput";
 import { ORGANISMS } from "~/constants";
 import { analyzeSequence, optimizeSequence } from "~/server/optimize";
-import { Constraint, Objective, OptimizationError } from "~/types/optimize";
-import { Sequence } from "~/types/sequence";
+import {
+  type Constraint,
+  type Objective,
+  OptimizationError,
+} from "~/types/optimize";
+import { RegionInput } from "./inputs/RegionInput";
+import { SequenceInput } from "./inputs/SequenceInput";
 import { ProgressLoader } from "./ProgressLoader";
-import { OptimizationInput, OptimizationOutput } from "./types";
+import { OptimizationInput, type OptimizationOutput } from "./types";
 
 const createDefaultConstraint = (): Constraint => ({
   start: null,
@@ -61,7 +63,7 @@ const AccordionControl = ({
 );
 
 export const Input = () => {
-  const [accordionValue, setAccordionValue] = useState<string | null>(null);
+  const [accordionValue, setAccordionValue] = useState<string | null>("0");
 
   const [numberOfSequences, setNumberOfSequences] = useState<number>(3);
   const [organism, setOrganism] = useState<string>(ORGANISMS[0].value);

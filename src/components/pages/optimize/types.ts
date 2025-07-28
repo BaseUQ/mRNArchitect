@@ -1,9 +1,9 @@
 import z from "zod/v4";
 import {
+  type Analysis,
   Constraint,
   Objective,
-  Analysis,
-  OptimizationResult,
+  type OptimizationResult,
 } from "~/types/optimize";
 import { Sequence } from "~/types/sequence";
 
