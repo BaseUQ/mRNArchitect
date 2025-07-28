@@ -13,7 +13,7 @@ import {
 import { useForm } from "@mantine/form";
 import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useState } from "react";
-import { ORGANISMS } from "~/constants";
+import { EGFP, ORGANISMS } from "~/constants";
 import { analyzeSequence, optimizeSequence } from "~/server/optimize";
 import {
   type Constraint,
@@ -266,6 +266,15 @@ export const Input = () => {
             </Stack>
           </Alert>
         )}
+        <Button
+          variant="outline"
+          onClick={() => {
+            form.setFieldValue("sequence.codingSequenceType", "amino-acid");
+            form.setFieldValue("sequence.codingSequence", EGFP);
+          }}
+        >
+          Pre-fill example sequence (eGFP)
+        </Button>
         <Button type="submit">Optimize</Button>
 
         {isLoading && (
