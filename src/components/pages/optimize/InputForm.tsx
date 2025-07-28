@@ -9,12 +9,12 @@ import {
   LoadingOverlay,
   Stack,
   Text,
+  Tooltip,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { EGFP, ORGANISMS } from "~/constants";
-import { analyzeSequence, optimizeSequence } from "~/server/optimize";
 import {
   type Constraint,
   type Objective,
@@ -23,7 +23,7 @@ import {
 import { RegionInput } from "./inputs/RegionInput";
 import { SequenceInput } from "./inputs/SequenceInput";
 import { ProgressLoader } from "./ProgressLoader";
-import { OptimizationInput, type OptimizationOutput } from "./types";
+import { OptimizationInput } from "./types";
 
 const createDefaultConstraint = (): Constraint => ({
   start: null,
@@ -56,21 +56,23 @@ const AccordionControl = ({
 }: { onClickDelete: () => void } & AccordionControlProps) => (
   <Center>
     <Accordion.Control {...props} />
-    <ActionIcon size="lg" variant="subtle" color="red" onClick={onClickDelete}>
-      <TrashIcon size={14} />
-    </ActionIcon>
+    <Tooltip label="Remove region">
+      <ActionIcon size="lg" color="red" onClick={onClickDelete}>
+        <TrashIcon size={20} />
+      </ActionIcon>
+    </Tooltip>
   </Center>
 );
 
-export const Input = () => {
+interface InputFormProps {
+  onSubmit: (v: OptimizationInput) => Promise<void>;
+}
+
+export const InputForm = ({ onSubmit }: InputFormProps) => {
   const [accordionValue, setAccordionValue] = useState<string | null>("0");
 
   const [numberOfSequences, setNumberOfSequences] = useState<number>(3);
-  const [organism, setOrganism] = useState<string>(ORGANISMS[0].value);
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [optimizationResults, setOptimizationResults] =
-    useState<OptimizationOutput>();
   const [optimizationError, setOptimizationError] = useState<
     OptimizationError | string
   >();
@@ -86,6 +88,7 @@ export const Input = () => {
       },
       constraints: [createDefaultConstraint()],
       objectives: [createDefaultObjective()],
+      numberOfSequences,
     },
     validate: (values) => {
       const result = OptimizationInput.safeParse(values);
@@ -126,100 +129,8 @@ export const Input = () => {
     form.removeListItem("constraints", index);
   };
 
-  const handleOptimize = async () => {
-    const analyze = async (sequence: string, organism: string) => {
-      if (sequence) {
-        return await analyzeSequence({ data: { sequence, organism } });
-      }
-      return null;
-    };
-
-    const optimizeAndAnalyze = async (
-      optimizationForm: OptimizationInput,
-    ): Promise<OptimizationOutput["outputs"][0]> => {
-      const { sequence, constraints, objectives } = optimizationForm;
-      const optimization = await optimizeSequence({
-        data: {
-          sequence: sequence.codingSequence,
-          constraints,
-          objectives,
-        },
-      });
-      if (!optimization.success) {
-        throw optimization;
-      }
-
-      const cdsAnalysis = await analyzeSequence({
-        data: {
-          sequence: optimization.result.sequence.nucleicAcidSequence,
-          organism: objectives[0].organism,
-        },
-      });
-
-      const fullSequenceAnalysis = await analyzeSequence({
-        data: {
-          sequence: `${sequence.fivePrimeUTR}${sequence.codingSequence}${sequence.threePrimeUTR}${sequence.polyATail}`,
-          organism: objectives[0].organism,
-        },
-      });
-
-      return { optimization, cdsAnalysis, fullSequenceAnalysis };
-    };
-
-    const { sequence } = form.getValues();
-
-    setIsLoading(true);
-    setOptimizationResults(undefined);
-    setOptimizationError(undefined);
-    try {
-      const [
-        cdsAnalysis,
-        fivePrimeUTRAnalysis,
-        threePrimeUTRAnalysis,
-        fullSequenceAnalysis,
-        ...outputs
-      ] = await Promise.all([
-        analyzeSequence({
-          data: { sequence: sequence.codingSequence, organism },
-        }),
-        analyze(sequence.fivePrimeUTR, organism),
-        analyze(sequence.threePrimeUTR, organism),
-        analyzeSequence({
-          data: {
-            sequence: `${sequence.fivePrimeUTR}${sequence.codingSequence}${sequence.threePrimeUTR}${sequence.polyATail}`,
-            organism,
-          },
-        }),
-        ...Array(numberOfSequences)
-          .fill(0)
-          .map(() => optimizeAndAnalyze(form.getValues())),
-      ]);
-
-      setOptimizationResults({
-        input: {
-          cdsAnalysis,
-          fivePrimeUTRAnalysis,
-          threePrimeUTRAnalysis,
-          fullSequenceAnalysis,
-        },
-        outputs,
-      });
-    } catch (e) {
-      console.error(e);
-      setOptimizationResults(undefined);
-      const error = OptimizationError.safeParse(e);
-      if (error.success) {
-        setOptimizationError(error.data);
-      } else {
-        setOptimizationError("N/A");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
-    <form onSubmit={form.onSubmit(handleOptimize)}>
+    <form onSubmit={form.onSubmit(onSubmit)}>
       <Stack pos="relative">
         <Fieldset legend="Input sequence">
           <SequenceInput form={form} />
@@ -230,7 +141,14 @@ export const Input = () => {
             value={accordionValue}
             onChange={setAccordionValue}
           >
-            {form.getValues().constraints.map((constraint, index) => (
+            {form.getValues().constraints.length === 0 && (
+              <Center>
+                <Alert color="red">
+                  <Text>At least one region must be added to optimize.</Text>
+                </Alert>
+              </Center>
+            )}
+            {form.getValues().constraints.map((_, index) => (
               <Accordion.Item key={index} value={index.toString()}>
                 <AccordionControl
                   onClickDelete={() => handleOnDeleteConstraint(index)}
@@ -275,11 +193,16 @@ export const Input = () => {
         >
           Pre-fill example sequence (eGFP)
         </Button>
-        <Button type="submit">Optimize</Button>
+        <Button
+          type="submit"
+          disabled={form.getValues().constraints.length === 0}
+        >
+          Optimize
+        </Button>
 
-        {isLoading && (
+        {form.submitting && (
           <LoadingOverlay
-            visible={isLoading}
+            visible={form.submitting}
             zIndex={1000}
             overlayProps={{ blur: 2 }}
           >

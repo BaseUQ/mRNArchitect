@@ -11,6 +11,7 @@ export const OptimizationInput = z.object({
   sequence: Sequence,
   constraints: z.array(Constraint),
   objectives: z.array(Objective),
+  numberOfSequences: z.int().positive().min(1).max(10),
 });
 
 export type OptimizationInput = z.infer<typeof OptimizationInput>;
