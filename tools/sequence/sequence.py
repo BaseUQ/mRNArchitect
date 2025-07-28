@@ -146,6 +146,13 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
     def __getitem__(self, val) -> "Sequence":
         return Sequence(self.nucleic_acid_sequence[val])
 
+    def __contains__(self, val: "Sequence | str") -> bool:
+        if isinstance(val, Sequence):
+            return val.nucleic_acid_sequence in self.nucleic_acid_sequence
+        if isinstance(val, str):
+            return val in self.nucleic_acid_sequence
+        raise NotImplementedError
+
     @property
     @functools.cache
     def is_amino_acid_sequence(self):

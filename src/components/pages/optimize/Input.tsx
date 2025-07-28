@@ -1,29 +1,27 @@
 import {
   Accordion,
+  AccordionControlProps,
   ActionIcon,
   Alert,
   Button,
   Center,
   Fieldset,
-  Group,
+  LoadingOverlay,
   Stack,
-  Stepper,
   Text,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useState } from "react";
-import { ConstraintInput } from "~/components/forms/optimization/ConstraintsForm";
-import { SequenceInput } from "~/components/forms/optimization/SequenceForm";
+import z from "zod/v4";
+import { RegionInput } from "~/components/inputs/RegionInput";
+import { SequenceInput } from "~/components/inputs/SequenceInput";
 import { ORGANISMS } from "~/constants";
 import { analyzeSequence, optimizeSequence } from "~/server/optimize";
 import { Constraint, Objective, OptimizationError } from "~/types/optimize";
-import type { Sequence } from "~/types/sequence";
-import {
-  OptimizationResults,
-  type OptimizationResultsProps,
-} from "./OptimizationResults";
+import { Sequence } from "~/types/sequence";
 import { ProgressLoader } from "./ProgressLoader";
+import { OptimizationInput, OptimizationOutput } from "./types";
 
 const createDefaultConstraint = (): Constraint => ({
   start: null,
@@ -50,26 +48,32 @@ const createDefaultObjective = (): Objective => ({
   avoidRepeatLength: 10,
 });
 
-interface OptimizationForm {
-  sequence: Sequence;
-  constraints: Constraint[];
-  objectives: Objective[];
-}
+const AccordionControl = ({
+  onClickDelete,
+  ...props
+}: { onClickDelete: () => void } & AccordionControlProps) => (
+  <Center>
+    <Accordion.Control {...props} />
+    <ActionIcon size="lg" variant="subtle" color="red" onClick={onClickDelete}>
+      <TrashIcon size={14} />
+    </ActionIcon>
+  </Center>
+);
 
-export const OptimizationFlow = () => {
-  const [active, setActive] = useState<number>(0);
+export const Input = () => {
+  const [accordionValue, setAccordionValue] = useState<string | null>(null);
 
   const [numberOfSequences, setNumberOfSequences] = useState<number>(3);
   const [organism, setOrganism] = useState<string>(ORGANISMS[0].value);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [optimizationResults, setOptimizationResults] =
-    useState<OptimizationResultsProps["results"]>();
+    useState<OptimizationOutput>();
   const [optimizationError, setOptimizationError] = useState<
     OptimizationError | string
   >();
 
-  const form = useForm<OptimizationForm>({
+  const form = useForm<OptimizationInput>({
     initialValues: {
       sequence: {
         codingSequenceType: "nucleic-acid",
@@ -82,14 +86,15 @@ export const OptimizationFlow = () => {
       objectives: [createDefaultObjective()],
     },
     validate: (values) => {
-      const result = Constraint.safeParse(values);
-      if (!result.error) {
+      const result = OptimizationInput.safeParse(values);
+      console.log(result);
+      if (result.success) {
         return {};
       }
       return Object.fromEntries(
         result.error.issues
           .filter((issue) => issue.path.length)
-          .map((issue) => [issue.path[0], issue.message]),
+          .map((issue) => [issue.path.join("."), issue.message]),
       );
     },
   });
@@ -112,6 +117,7 @@ export const OptimizationFlow = () => {
       hairpinStemSize: 10,
       hairpinWindow: 60,
     });
+    setAccordionValue((form.getValues().constraints.length - 1).toString());
   };
 
   const handleOnDeleteConstraint = (index: number) => {
@@ -127,8 +133,8 @@ export const OptimizationFlow = () => {
     };
 
     const optimizeAndAnalyze = async (
-      optimizationForm: OptimizationForm,
-    ): Promise<OptimizationResultsProps["results"]["outputs"][0]> => {
+      optimizationForm: OptimizationInput,
+    ): Promise<OptimizationOutput["outputs"][0]> => {
       const { sequence, constraints, objectives } = optimizationForm;
       const optimization = await optimizeSequence({
         data: {
@@ -211,87 +217,70 @@ export const OptimizationFlow = () => {
   };
 
   return (
-    <Stack>
-      <Stepper active={active}>
-        <Stepper.Step label="Input sequence">
-          <Stack>
-            <Fieldset legend="Input sequence">
-              <SequenceInput form={form} />
-            </Fieldset>
-            <Fieldset legend="Optimization regions">
-              <Accordion defaultValue={"0"}>
-                {form.getValues().constraints.map((constraint, index) => (
-                  <Accordion.Item key={index} value={index.toString()}>
-                    <Accordion.Control>{`Region ${index + 1}`}</Accordion.Control>
-                    <Accordion.Panel>
-                      <ActionIcon
-                        color="red"
-                        onClick={() => handleOnDeleteConstraint(index)}
-                      >
-                        <TrashIcon size={14} />
-                      </ActionIcon>
-                      <ConstraintInput index={index} form={form} />
-                    </Accordion.Panel>
-                  </Accordion.Item>
-                ))}
-              </Accordion>
-              <Center mt="md">
-                <Button
-                  onClick={handleOnAddConstraint}
-                  variant="outline"
-                  color="green"
-                  leftSection={<PlusIcon size={14} />}
-                >
-                  Add another region
-                </Button>
-              </Center>
-            </Fieldset>
-            <Button onClick={handleOptimize}>Optimize</Button>
-          </Stack>
-        </Stepper.Step>
-        <Stepper.Step loading={isLoading}>
-          {optimizationError && (
-            <Alert title="Optimization failed" color="red">
-              Error resolving constraints. Sequence cannot be optimised. Please
-              verify your input sequence or adjust input parameters (e.g.
-              increase GC content/window).
-              <Stack ff="monospace">
-                {typeof optimizationError === "string"
-                  ? optimizationError
-                  : optimizationError.error.message
-                      .split("\n")
-                      .map((v) => <Text key={v}>{v}</Text>)}
-              </Stack>
-            </Alert>
-          )}
-          {isLoading && (
+    <form onSubmit={form.onSubmit(handleOptimize)}>
+      <Stack pos="relative">
+        <Fieldset legend="Input sequence">
+          <SequenceInput form={form} />
+        </Fieldset>
+        <Fieldset legend="Input optimization regions">
+          <Accordion
+            chevronPosition="left"
+            value={accordionValue}
+            onChange={setAccordionValue}
+          >
+            {form.getValues().constraints.map((constraint, index) => (
+              <Accordion.Item key={index} value={index.toString()}>
+                <AccordionControl
+                  onClickDelete={() => handleOnDeleteConstraint(index)}
+                >{`Region ${index + 1}`}</AccordionControl>
+                <Accordion.Panel>
+                  <RegionInput index={index} form={form} />
+                </Accordion.Panel>
+              </Accordion.Item>
+            ))}
+          </Accordion>
+          <Center mt="md">
+            <Button
+              onClick={handleOnAddConstraint}
+              variant="outline"
+              color="green"
+              leftSection={<PlusIcon size={14} />}
+            >
+              Add another region
+            </Button>
+          </Center>
+        </Fieldset>
+        {optimizationError && (
+          <Alert title="Optimization failed" color="red">
+            Error resolving constraints. Sequence cannot be optimised. Please
+            verify your input sequence or adjust input parameters (e.g. increase
+            GC content/window).
+            <Stack ff="monospace">
+              {typeof optimizationError === "string"
+                ? optimizationError
+                : optimizationError.error.message
+                    .split("\n")
+                    .map((v) => <Text key={v}>{v}</Text>)}
+            </Stack>
+          </Alert>
+        )}
+        <Button type="submit">Optimize</Button>
+
+        {isLoading && (
+          <LoadingOverlay
+            visible={isLoading}
+            zIndex={1000}
+            overlayProps={{ blur: 2 }}
+          >
             <ProgressLoader
               estimatedTimeInSeconds={
                 (form.getValues().sequence.codingSequence.length ?? 100) / 30 +
                 60
               }
             />
-          )}
-        </Stepper.Step>
-        <Stepper.Step label="Results">
-          {optimizationResults && (
-            <OptimizationResults
-              sequence={form.getValues().sequence}
-              constraints={form.getValues().constraints}
-              objectives={form.getValues().objectives}
-              results={optimizationResults}
-            />
-          )}
-          {!optimizationResults && isLoading && (
-            <ProgressLoader
-              estimatedTimeInSeconds={
-                (form.getValues().sequence?.codingSequence.length ?? 100) / 30 +
-                60
-              }
-            />
-          )}
-        </Stepper.Step>
-      </Stepper>
-    </Stack>
+          </LoadingOverlay>
+        )}
+      </Stack>
+    </form>
   );
 };

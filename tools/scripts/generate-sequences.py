@@ -4,7 +4,8 @@ import multiprocessing
 import sys
 import typing
 
-from ..constants import SEQUENCES
+from tools.sequence.sequence import Analysis, OptimizationResult
+
 from ..sequence import Sequence
 from ..sequence.optimize import Constraint, Objective
 
@@ -38,43 +39,53 @@ def _iterate_fasta_file(input_file: str, sequence_type: SequenceType):
 def _optimize(
     index: int,
     sequence_name: str,
-    sequence: str,
+    input_sequence: str,
     enable_uridine_depletion: bool,
     avoid_ribosome_slip: bool,
     gc_content_min: float,
     gc_content_max: float,
     gc_content_window: int,
     avoid_repeat_length: int,
-) -> tuple[dict, dict | None, Exception | None]:
+) -> tuple[
+    str,
+    str,
+    Analysis | None,
+    Constraint,
+    Objective,
+    str | None,
+    Analysis | None,
+    Exception | None,
+]:
     print(f"#{index:<8}: Optimizing {sequence_name}")
-    input = {
-        "sequence_name": sequence_name,
-        "input_sequence": sequence,
-        "enable_uridine_depletion": enable_uridine_depletion,
-        "avoid_ribosome_slip": avoid_ribosome_slip,
-        "gc_content_min": gc_content_min,
-        "gc_content_max": gc_content_max,
-        "gc_content_window": gc_content_window,
-        "avoid_repeat_length": avoid_repeat_length,
-    }
-    result, error = None, None
+    constraint = Constraint(
+        enable_uridine_depletion=enable_uridine_depletion,
+        avoid_ribosome_slip=avoid_ribosome_slip,
+        gc_content_min=gc_content_min,
+        gc_content_max=gc_content_max,
+        gc_content_window=gc_content_window,
+        avoid_restriction_sites=[],
+        avoid_sequences=[],
+        avoid_poly_a=9,
+        avoid_poly_c=6,
+        avoid_poly_g=6,
+        avoid_poly_t=9,
+        hairpin_stem_size=10,
+        hairpin_window=60,
+    )
+    objective = Objective(
+        organism="human",
+        avoid_repeat_length=avoid_repeat_length,
+    )
+
+    input_analysis, output_sequence, output_analysis, error = None, None, None, None
     try:
-        optimized = Sequence.from_nucleic_acid_sequence(sequence).optimize(
-            constraints=[
-                Constraint(
-                    gc_content_min=gc_content_min,
-                    gc_content_max=gc_content_max,
-                    gc_content_window=gc_content_window,
-                    enable_uridine_depletion=enable_uridine_depletion,
-                    avoid_ribosome_slip=avoid_ribosome_slip,
-                )
-            ],
-            objectives=[
-                Objective(
-                    organism="human",
-                    avoid_repeat_length=10,
-                )
-            ],
+        input_analysis = Sequence.from_nucleic_acid_sequence(input_sequence).analyze(
+            "human"
+        )
+
+        optimized = Sequence.from_nucleic_acid_sequence(input_sequence).optimize(
+            constraints=[constraint],
+            objectives=[objective],
         )
         if not optimized.result:
             raise RuntimeError(
@@ -82,39 +93,40 @@ def _optimize(
                 if optimized.error
                 else "Could not optimize: unknown error"
             )
-        result = {
-            "output_sequence": optimized.result.sequence.nucleic_acid_sequence,
-            "a_ratio": optimized.result.sequence.a_ratio,
-            "c_ratio": optimized.result.sequence.c_ratio,
-            "g_ratio": optimized.result.sequence.g_ratio,
-            "t_ratio": optimized.result.sequence.t_ratio,
-            "at_ratio": optimized.result.sequence.at_ratio,
-            "ga_ratio": optimized.result.sequence.ga_ratio,
-            "gc_ratio": optimized.result.sequence.gc_ratio,
-            "uridine_depletion": optimized.result.sequence.uridine_depletion,
-            "cai": optimized.result.sequence.codon_adaptation_index("h_sapiens"),
-            "mfe": optimized.result.sequence.minimum_free_energy.energy,
-        }
+        output_sequence = optimized.result.sequence.nucleic_acid_sequence
+        output_analysis = optimized.result.sequence.analyze("human")
     except Exception as e:
         print(f"#{index:<8}: Error - {e}")
         error = e
-    return input, result, error
+    return (
+        sequence_name,
+        input_sequence,
+        input_analysis,
+        constraint,
+        objective,
+        output_sequence,
+        output_analysis,
+        error,
+    )
 
 
 if __name__ == "__main__":
     input_fasta_file = sys.argv[1]
     sequence_type = typing.cast(SequenceType, sys.argv[2])
     output_file = sys.argv[3]
-    # for header, sequence in _iterate_fasta_file(input_fasta_file, sequence_type):
-    #    print(header)
-    #    print(sequence)
 
-    enable_uridine_depletion_range = [True, False]
-    avoid_ribosome_slip_range = [True, False]
-    gc_content_min_range = list(i / 10 for i in range(0, 11))
-    gc_content_max_range = list(i / 10 for i in range(0, 11))
-    gc_content_window_range = list(range(0, 201, 40))
-    avoid_repeat_length_range = list(range(5, 16, 2))
+    # enable_uridine_depletion_range = [True, False]
+    # avoid_ribosome_slip_range = [True, False]
+    # gc_content_min_range = list(i / 10 for i in range(0, 11))
+    # gc_content_max_range = list(i / 10 for i in range(0, 11))
+    # gc_content_window_range = list(range(0, 201, 40))
+    # avoid_repeat_length_range = list(range(5, 16, 2))
+    enable_uridine_depletion_range = [False]
+    avoid_ribosome_slip_range = [False]
+    gc_content_min_range = [0.4]
+    gc_content_max_range = [0.7]
+    gc_content_window_range = [100]
+    avoid_repeat_length_range = [10]
 
     def _iterate_parameters():
         index = 0
@@ -150,17 +162,8 @@ if __name__ == "__main__":
                 index += 1
 
     with multiprocessing.Pool() as pool:
-        results = pool.starmap(_optimize, _iterate_parameters(), chunksize=100)
+        results = pool.starmap(_optimize, _iterate_parameters(), chunksize=2)
 
-        formatted_results = [
-            {
-                "status": "success" if not error else "failure",
-                "reason": str(error) if error else "",
-                **input,
-                **(result if result else {}),
-            }
-            for input, result, error in results
-        ]
         with open(output_file, "w") as f:
             writer = csv.DictWriter(
                 f,
@@ -169,6 +172,7 @@ if __name__ == "__main__":
                     "reason",
                     "sequence_name",
                     "input_sequence",
+                    "output_sequence",
                     "enable_uridine_depletion",
                     "avoid_ribosome_slip",
                     "gc_content_min",
@@ -176,19 +180,108 @@ if __name__ == "__main__":
                     "gc_content_window",
                     "avoid_repeat_length",
                     "output_sequence",
-                    "a_ratio",
-                    "c_ratio",
-                    "g_ratio",
-                    "t_ratio",
-                    "at_ratio",
-                    "ga_ratio",
-                    "gc_ratio",
-                    "cai",
-                    "mfe",
+                    "input_a_ratio",
+                    "input_c_ratio",
+                    "input_g_ratio",
+                    "input_t_ratio",
+                    "input_at_ratio",
+                    "input_ga_ratio",
+                    "input_gc_ratio",
+                    "input_cai",
+                    "input_mfe",
+                    "output_a_ratio",
+                    "output_c_ratio",
+                    "output_g_ratio",
+                    "output_t_ratio",
+                    "output_at_ratio",
+                    "output_ga_ratio",
+                    "output_gc_ratio",
+                    "output_cai",
+                    "output_mfe",
                 ],
                 extrasaction="ignore",
                 restval="",
             )
             writer.writeheader()
-            for r in formatted_results:
-                writer.writerow(r)
+            for (
+                sequence_name,
+                input_sequence,
+                input_analysis,
+                constraint,
+                objective,
+                output_sequence,
+                output_analysis,
+                error,
+            ) in results:
+                writer.writerow(
+                    {
+                        "status": "success" if not error else "failure",
+                        "reason": str(error) if error else "",
+                        "sequence_name": sequence_name,
+                        "input_sequence": input_sequence,
+                        "enable_uridine_depletion": constraint.enable_uridine_depletion,
+                        "avoid_ribosome_slip": constraint.avoid_ribosome_slip,
+                        "gc_content_min": constraint.gc_content_min,
+                        "gc_content_max": constraint.gc_content_max,
+                        "gc_content_window": constraint.gc_content_window,
+                        "avoid_repeat_length": objective.avoid_repeat_length,
+                        "output_sequence": output_sequence or "",
+                        "input_a_ratio": input_analysis.a_ratio
+                        if input_analysis
+                        else "",
+                        "input_c_ratio": input_analysis.c_ratio
+                        if input_analysis
+                        else "",
+                        "input_g_ratio": input_analysis.g_ratio
+                        if input_analysis
+                        else "",
+                        "input_t_ratio": input_analysis.t_ratio
+                        if input_analysis
+                        else "",
+                        "input_at_ratio": input_analysis.at_ratio
+                        if input_analysis
+                        else "",
+                        "input_ga_ratio": input_analysis.ga_ratio
+                        if input_analysis
+                        else "",
+                        "input_gc_ratio": input_analysis.gc_ratio
+                        if input_analysis
+                        else "",
+                        "input_cai": input_analysis.codon_adaptation_index
+                        if input_analysis
+                        else "",
+                        "input_mfe": input_analysis.minimum_free_energy.energy
+                        if input_analysis
+                        else "",
+                        "output_a_ratio": output_analysis.a_ratio
+                        if output_analysis
+                        else "",
+                        "output_c_ratio": output_analysis.c_ratio
+                        if output_analysis
+                        else "",
+                        "output_g_ratio": output_analysis.g_ratio
+                        if output_analysis
+                        else "",
+                        "output_t_ratio": output_analysis.t_ratio
+                        if output_analysis
+                        else "",
+                        "output_at_ratio": output_analysis.at_ratio
+                        if output_analysis
+                        else "",
+                        "output_ga_ratio": output_analysis.ga_ratio
+                        if output_analysis
+                        else "",
+                        "output_gc_ratio": output_analysis.gc_ratio
+                        if output_analysis
+                        else "",
+                        "output_cai": output_analysis.codon_adaptation_index
+                        if output_analysis
+                        else "",
+                        "output_mfe": output_analysis.minimum_free_energy.energy
+                        if output_analysis
+                        else "",
+                    }
+                )
+
+            # for r in formatted_results:
+            #    writer.writerow(r)

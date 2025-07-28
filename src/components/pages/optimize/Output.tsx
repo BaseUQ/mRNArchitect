@@ -20,7 +20,7 @@ import type {
 } from "~/types/optimize";
 import type { Sequence } from "~/types/sequence";
 
-export interface OptimizationResultsProps {
+export interface OutputProps {
   sequence: Sequence;
   constraints: Constraint[];
   objectives: Objective[];
@@ -39,19 +39,15 @@ export interface OptimizationResultsProps {
   };
 }
 
-export const OptimizationResults = ({
-  sequence,
-  constraints,
-  results,
-}: OptimizationResultsProps) => {
+export const Output = ({ sequence, constraints, results }: OutputProps) => {
   const [showHelp, setShowHelp] = useState<boolean>(false);
 
   const generateRow = (
     title: string,
     getter: (
       data:
-        | OptimizationResultsProps["results"]["input"]
-        | OptimizationResultsProps["results"]["outputs"][0],
+        | OutputProps["results"]["input"]
+        | OutputProps["results"]["outputs"][0],
     ) => number | string,
   ) => {
     return [
