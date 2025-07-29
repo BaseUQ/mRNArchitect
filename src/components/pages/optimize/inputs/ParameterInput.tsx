@@ -29,13 +29,14 @@ export const ParameterInput = ({
       : "sub-region";
 
   const handleOnChangeCoordinateType = (value: string) => {
+    const end = form.getValues().sequence.codingSequence.length || 100;
     form.setFieldValue(
       `parameters.${index}.start`,
       value === "sub-region" ? 1 : null,
     );
     form.setFieldValue(
       `parameters.${index}.end`,
-      value === "sub-region" ? 100 : null,
+      value === "sub-region" ? end : null,
     );
   };
 
