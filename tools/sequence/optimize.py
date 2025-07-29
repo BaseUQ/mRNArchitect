@@ -1,4 +1,3 @@
-import itertools
 import typing
 
 import msgspec
