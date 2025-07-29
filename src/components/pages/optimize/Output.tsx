@@ -75,6 +75,7 @@ export const Output = ({
   const reportText = [
     ...inputReport,
     "",
+    "---Optimization parameters:",
     ...parameterReports,
     "",
     ...outputReports.reduce(
