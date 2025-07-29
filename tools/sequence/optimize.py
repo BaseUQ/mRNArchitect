@@ -166,36 +166,6 @@ class OptimizationParameter(Location, frozen=True, kw_only=True, rename="camel")
         return constraints, objectives
 
 
-class Objective(Location, frozen=True, kw_only=True, rename="camel"):
-    organism: Organism | str | None = None
-    avoid_repeat_length: int | None = None
-
-    def __post_init__(self):
-        super().__post_init__()
-
-    @property
-    def dnachisel_objectives(self):
-        objectives = []
-
-        if self.organism is not None:
-            objectives.append(
-                CodonOptimize(
-                    codon_usage_table=load_organism(self.organism).to_dnachisel_dict(),
-                    method="use_best_codon",
-                    location=self.dnachisel_location,
-                )
-            )
-
-        if self.avoid_repeat_length is not None:
-            objectives.append(
-                UniquifyAllKmers(
-                    k=self.avoid_repeat_length, location=self.dnachisel_location
-                )
-            )
-
-        return objectives
-
-
 DEFAULT_PARAMETERS = OptimizationParameter(
     organism="human",
     avoid_repeat_length=10,

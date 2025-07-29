@@ -53,6 +53,11 @@ def main():
         )
         .with_columns(
             pl.col("Sequence")
+            .map_elements(lambda x: x.optimize().output)
+            .alias("Optimized sequence")
+        )
+        .with_columns(
+            pl.col("Sequence")
             .map_elements(
                 lambda x: generate_sequence(x, gc_depletion=True),
                 return_dtype=pl.Object,
@@ -130,40 +135,54 @@ def main():
 
     plot = (
         p9.ggplot(
-            df,
+            df.with_columns(
+                pl.col("Optimized sequence")
+                .map_elements(lambda x: x.gc_ratio, return_dtype=pl.Float64)
+                .alias("GC-ratio (Optimized)"),
+                pl.col("Optimized sequence")
+                .map_elements(
+                    lambda x: min(
+                        x[i : i + WINDOW_SIZE].gc_ratio
+                        for i in range(len(x) - WINDOW_SIZE)
+                    ),
+                    return_dtype=pl.Float64,
+                )
+                .alias(f"Minimum window GC-ratio (Optimized, n={WINDOW_SIZE})"),
+                pl.col("Optimized sequence")
+                .map_elements(
+                    lambda x: max(
+                        x[i : i + WINDOW_SIZE].gc_ratio
+                        for i in range(len(x) - WINDOW_SIZE)
+                    ),
+                    return_dtype=pl.Float64,
+                )
+                .alias(f"Maximum window GC-ratio (Optimized, n={WINDOW_SIZE})"),
+            ),
             p9.aes(
                 y="Name",
                 yend="Name",
             ),
         )
-        # + p9.geom_segment(
-        #    p9.aes(
-        #        x=f"Minimum window GC-ratio (GC depleted, n={WINDOW_SIZE})",
-        #        xend=f"Maximum window GC-ratio (GC enriched, n={WINDOW_SIZE})",
-        #        color="'lightblue'",
-        #    ),
-        #    size=2,
-        #    lineend="round",
-        # )
-        # + p9.geom_segment(
-        #    p9.aes(
-        #        x="GC-ratio (GC depleted)",
-        #        xend="GC-ratio (GC enriched)",
-        #        color="'steelblue'",
-        #    ),
-        #    size=3,
-        #    lineend="round",
-        # )
         + p9.geom_segment(
             p9.aes(
                 x=f"Minimum window GC-ratio (Max CAI, n={WINDOW_SIZE})",
                 xend=f"Maximum window GC-ratio (Max CAI, n={WINDOW_SIZE})",
                 color="'pink'",
             ),
+            size=2,
+            lineend="round",
+        )
+        + p9.geom_point(p9.aes(x="GC-ratio (Max CAI)", color="'red'"), size=4)
+        + p9.geom_segment(
+            p9.aes(
+                x=f"Minimum window GC-ratio (Optimized, n={WINDOW_SIZE})",
+                xend=f"Maximum window GC-ratio (Optimized, n={WINDOW_SIZE})",
+                color="'lightblue'",
+            ),
             size=1,
             lineend="round",
         )
-        + p9.geom_point(p9.aes(x="GC-ratio (Max CAI)", color="'red'"), size=3)
+        + p9.geom_point(p9.aes(x="GC-ratio (Optimized)", color="'blue'"), size=3)
         + p9.geom_vline(xintercept=[0.4, 0.7], color="black", linetype="dotted")
         + p9.scale_y_discrete(limits=df["Name"].to_list())
         + p9.labs(
@@ -174,12 +193,12 @@ def main():
         + p9.scale_color_identity(
             guide="legend",
             name="Legend",
-            breaks=["lightblue", "steelblue", "pink", "red"],
+            breaks=["pink", "red", "lightblue", "blue"],
             labels=[
-                "Min/max windowed GC-ratio (n=100)",
-                "Min/max global GC-ratio",
                 "Max CAI windowed GC-ratio",
                 "Max CAI global GC-ratio",
+                "Optimized windowed GC-ratio",
+                "Optimized global GC-ratio",
             ],
         )
         + p9.theme_gray()

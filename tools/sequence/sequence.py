@@ -358,8 +358,8 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
     ) -> OptimizationResult:
         """Optimize the sequence based on the configuration parameters.
 
-        >>> Sequence("ACGACCATTAAA").optimize(constraints=[], objectives=[Objective(organism="human")]).output
-        Sequence(nucleic_acid_sequence='ACCACCATGAAC')
+        >>> Sequence("ACGACCATTAAA").optimize(parameters=[OptimizationParameter(organism="human")]).result.sequence
+        Sequence(nucleic_acid_sequence='ACCACCATCAAG')
         """
         start = time.time()
         try:

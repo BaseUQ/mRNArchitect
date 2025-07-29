@@ -4,10 +4,10 @@ import multiprocessing
 import sys
 import typing
 
-from tools.sequence.sequence import Analysis, OptimizationResult
+from tools.sequence.sequence import Analysis
 
 from ..sequence import Sequence
-from ..sequence.optimize import Constraint, Objective
+from ..sequence.optimize import OptimizationParameter
 
 SequenceType = typing.Literal["nucleic-acid", "amino-acid"]
 
@@ -50,14 +50,15 @@ def _optimize(
     str,
     str,
     Analysis | None,
-    Constraint,
-    Objective,
+    OptimizationParameter,
     str | None,
     Analysis | None,
     Exception | None,
 ]:
     print(f"#{index:<8}: Optimizing {sequence_name}")
-    constraint = Constraint(
+    parameter = OptimizationParameter(
+        organism="human",
+        avoid_repeat_length=avoid_repeat_length,
         enable_uridine_depletion=enable_uridine_depletion,
         avoid_ribosome_slip=avoid_ribosome_slip,
         gc_content_min=gc_content_min,
@@ -72,10 +73,6 @@ def _optimize(
         hairpin_stem_size=10,
         hairpin_window=60,
     )
-    objective = Objective(
-        organism="human",
-        avoid_repeat_length=avoid_repeat_length,
-    )
 
     input_analysis, output_sequence, output_analysis, error = None, None, None, None
     try:
@@ -84,8 +81,7 @@ def _optimize(
         )
 
         optimized = Sequence.from_nucleic_acid_sequence(input_sequence).optimize(
-            constraints=[constraint],
-            objectives=[objective],
+            parameters=[parameter],
         )
         if not optimized.result:
             raise RuntimeError(
@@ -102,8 +98,7 @@ def _optimize(
         sequence_name,
         input_sequence,
         input_analysis,
-        constraint,
-        objective,
+        parameter,
         output_sequence,
         output_analysis,
         error,
@@ -130,7 +125,9 @@ if __name__ == "__main__":
 
     def _iterate_parameters():
         index = 0
-        for header, sequence in _iterate_fasta_file(input_fasta_file, sequence_type):
+        for header, sequence in _iterate_fasta_file(
+            input_fasta_file, typing.cast(SequenceType, sequence_type)
+        ):
             for (
                 enable_uridine_depletion,
                 avoid_ribosome_slip,
@@ -207,8 +204,7 @@ if __name__ == "__main__":
                 sequence_name,
                 input_sequence,
                 input_analysis,
-                constraint,
-                objective,
+                parameter,
                 output_sequence,
                 output_analysis,
                 error,
@@ -219,12 +215,12 @@ if __name__ == "__main__":
                         "reason": str(error) if error else "",
                         "sequence_name": sequence_name,
                         "input_sequence": input_sequence,
-                        "enable_uridine_depletion": constraint.enable_uridine_depletion,
-                        "avoid_ribosome_slip": constraint.avoid_ribosome_slip,
-                        "gc_content_min": constraint.gc_content_min,
-                        "gc_content_max": constraint.gc_content_max,
-                        "gc_content_window": constraint.gc_content_window,
-                        "avoid_repeat_length": objective.avoid_repeat_length,
+                        "enable_uridine_depletion": parameter.enable_uridine_depletion,
+                        "avoid_ribosome_slip": parameter.avoid_ribosome_slip,
+                        "gc_content_min": parameter.gc_content_min,
+                        "gc_content_max": parameter.gc_content_max,
+                        "gc_content_window": parameter.gc_content_window,
+                        "avoid_repeat_length": parameter.avoid_repeat_length,
                         "output_sequence": output_sequence or "",
                         "input_a_ratio": input_analysis.a_ratio
                         if input_analysis
