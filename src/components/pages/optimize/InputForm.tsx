@@ -7,6 +7,7 @@ import {
   Center,
   Fieldset,
   LoadingOverlay,
+  NumberInput,
   Stack,
   Text,
   Tooltip,
@@ -15,7 +16,7 @@ import { useForm } from "@mantine/form";
 import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import { EGFP } from "~/constants";
-import { OptimizationParameter, OptimizationError } from "~/types/optimize";
+import type { OptimizationParameter } from "~/types/optimize";
 import { ParameterInput } from "./inputs/ParameterInput";
 import { SequenceInput } from "./inputs/SequenceInput";
 import { ProgressLoader } from "./ProgressLoader";
@@ -61,12 +62,7 @@ interface InputFormProps {
 
 export const InputForm = ({ onSubmit }: InputFormProps) => {
   const [accordionValue, setAccordionValue] = useState<string | null>("0");
-
   const [numberOfSequences, setNumberOfSequences] = useState<number>(3);
-
-  const [optimizationError, setOptimizationError] = useState<
-    OptimizationError | string
-  >();
 
   const form = useForm<OptimizationInput>({
     initialValues: {
@@ -138,8 +134,11 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
                 </Alert>
               </Center>
             )}
-            {form.getValues().parameters.map((_, index) => (
-              <Accordion.Item key={index} value={index.toString()}>
+            {form.getValues().parameters.map((p, index) => (
+              <Accordion.Item
+                key={`${p.start}-${p.end}`}
+                value={index.toString()}
+              >
                 <AccordionControl
                   onClickDelete={() => handleOnDeleteConstraint(index)}
                 >{`Region ${index + 1}`}</AccordionControl>
@@ -160,20 +159,16 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
             </Button>
           </Center>
         </Fieldset>
-        {optimizationError && (
-          <Alert title="Optimization failed" color="red">
-            Error resolving constraints. Sequence cannot be optimised. Please
-            verify your input sequence or adjust input parameters (e.g. increase
-            GC content/window).
-            <Stack ff="monospace">
-              {typeof optimizationError === "string"
-                ? optimizationError
-                : optimizationError.error.message
-                    .split("\n")
-                    .map((v) => <Text key={v}>{v}</Text>)}
-            </Stack>
-          </Alert>
-        )}
+        <Fieldset legend="Number of optimized sequences">
+          <NumberInput
+            value={numberOfSequences}
+            onChange={(v) =>
+              setNumberOfSequences(
+                typeof v === "string" ? Number.parseInt(v) : v,
+              )
+            }
+          />
+        </Fieldset>
         <Button
           variant="outline"
           onClick={() => {
@@ -189,20 +184,23 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
         >
           Optimize
         </Button>
-
         {form.submitting && (
           <LoadingOverlay
             visible={form.submitting}
             zIndex={1000}
             overlayProps={{ blur: 2 }}
-          >
-            <ProgressLoader
-              estimatedTimeInSeconds={
-                (form.getValues().sequence.codingSequence.length ?? 100) / 30 +
-                60
-              }
-            />
-          </LoadingOverlay>
+            loaderProps={{
+              children: (
+                <ProgressLoader
+                  estimatedTimeInSeconds={
+                    (form.getValues().sequence.codingSequence.length ?? 100) /
+                      30 +
+                    60
+                  }
+                />
+              ),
+            }}
+          />
         )}
       </Stack>
     </form>

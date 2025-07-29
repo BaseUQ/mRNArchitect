@@ -369,10 +369,10 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
                 success=False,
                 result=None,
                 error=OptimizationResult.Error(
-                    message=e.message,
+                    message=str(e.message),
                     problem=str(e.problem),
-                    location=e.location,
-                    constraint=e.constraint,
+                    location=str(e.location),
+                    constraint=str(e.constraint),
                 ),
                 time_in_seconds=(time.time() - start),
             )

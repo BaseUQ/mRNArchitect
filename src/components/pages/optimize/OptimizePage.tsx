@@ -1,16 +1,16 @@
-import { Box, Tabs } from "@mantine/core";
+import { Alert, Box, Modal, Stack, Tabs, Text } from "@mantine/core";
 import { DnaIcon, FileIcon, QuestionIcon } from "@phosphor-icons/react";
 import { useState } from "react";
-import { Help } from "./Help";
-import { InputForm } from "./InputForm";
-import { Output, OutputProps } from "./Output";
-import { OptimizationInput, OptimizationOutput } from "./types";
-import { OptimizationError } from "~/types/optimize";
 import {
-  convertSequenceToNucleicAcid,
   analyzeSequence,
+  convertSequenceToNucleicAcid,
   optimizeSequence,
 } from "~/server/optimize";
+import { OptimizationError } from "~/types/optimize";
+import { Help } from "./Help";
+import { InputForm } from "./InputForm";
+import { Output, type OutputProps } from "./Output";
+import type { OptimizationInput, OptimizationOutput } from "./types";
 
 export const OptimizePage = () => {
   const [activeTab, setActiveTab] = useState<string | null>("input");
@@ -168,6 +168,22 @@ export const OptimizePage = () => {
           <Help />
         </Tabs.Panel>
       </Box>
+      {optimizationError && (
+        <Modal opened={true} onClose={() => setOptimizationError(undefined)}>
+          <Alert title="Optimization failed" color="red">
+            Error resolving constraints. Sequence cannot be optimised. Please
+            verify your input sequence or adjust input parameters (e.g. increase
+            GC content/window).
+            <Stack ff="monospace">
+              {typeof optimizationError === "string"
+                ? optimizationError
+                : optimizationError.error.message
+                    .split("\n")
+                    .map((v) => <Text key={v}>{v}</Text>)}
+            </Stack>
+          </Alert>
+        </Modal>
+      )}
     </Tabs>
   );
 };

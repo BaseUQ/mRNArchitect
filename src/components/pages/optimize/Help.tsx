@@ -10,17 +10,22 @@ export const Help = () => {
             body: [
               [
                 "Email",
-                <a href="mailto:basedesign@uq.edu.au">basedesign@uq.edu.au</a>,
+                <a key="email-link" href="mailto:basedesign@uq.edu.au">
+                  basedesign@uq.edu.au
+                </a>,
               ],
               [
                 "GitHub",
-                <a href="https://github.com/BaseUQ/mRNArchitect">
+                <a
+                  key="github-link"
+                  href="https://github.com/BaseUQ/mRNArchitect"
+                >
                   https://github.com/BaseUQ/mRNArchitect
                 </a>,
               ],
               [
                 "Example",
-                <Text>
+                <Text key="example">
                   For guidance on how to design an mRNA, please see the
                   step-by-step example{" "}
                   <a href="https://basefacility.org.au/wp-content/uploads/2024/12/mRNArchitect_Example.pdf">
@@ -31,7 +36,7 @@ export const Help = () => {
               ],
               [
                 "Sequences",
-                <Text>
+                <Text key="sequences">
                   Please find useful sequences (promoters, UTRs etc.){" "}
                   <a href="https://basefacility.org.au/wp-content/uploads/2024/08/mRNArchitect_ExampleSequences.txt">
                     here

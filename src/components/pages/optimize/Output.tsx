@@ -1,6 +1,7 @@
 import { Button, Card, Group, Stack, Text } from "@mantine/core";
 import { DownloadSimpleIcon } from "@phosphor-icons/react";
-import { OptimizationInput, OptimizationOutput } from "./types";
+import { Fragment } from "react/jsx-runtime";
+import type { OptimizationInput, OptimizationOutput } from "./types";
 
 export interface OutputProps {
   input: OptimizationInput;
@@ -83,7 +84,7 @@ export const Output = ({
       [],
     ),
     "",
-  ].join("\n");
+  ];
 
   return (
     <Stack>
@@ -92,7 +93,7 @@ export const Output = ({
           <Button
             component="a"
             href={URL.createObjectURL(
-              new Blob([reportText], { type: "text/plain" }),
+              new Blob([reportText.join("\n")], { type: "text/plain" }),
             )}
             download={`mRNAchitect-report-${new Date().toISOString()}.txt`}
             leftSection={<DownloadSimpleIcon />}
@@ -105,11 +106,11 @@ export const Output = ({
       <Card withBorder>
         <Text ff="monospace" style={{ overflowWrap: "break-word" }}>
           <pre style={{ whiteSpace: "pre-wrap" }}>
-            {reportText.split("\n").map((line) => (
-              <>
+            {reportText.map((line) => (
+              <Fragment key={line}>
                 {line}
                 <br />
-              </>
+              </Fragment>
             ))}
           </pre>
         </Text>

@@ -5,8 +5,8 @@ import z from "zod/v4";
 import { loggingMiddleware } from "~/global-middleware";
 import {
   Analysis,
-  OptimizationParameter,
   Optimization,
+  OptimizationParameter,
 } from "~/types/optimize";
 
 const execFileAsync = utils.promisify(execFile);
