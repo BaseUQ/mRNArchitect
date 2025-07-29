@@ -12,7 +12,6 @@ import {
   TagsInput,
 } from "@mantine/core";
 import type { UseFormReturnType } from "@mantine/form";
-import { useState } from "react";
 import type { OptimizationInput } from "~/components/pages/optimize/types";
 import { ORGANISMS } from "~/constants";
 import RESTRICTION_SITES from "~/data/restriction-sites.json";
@@ -24,7 +23,21 @@ export const ParameterInput = ({
   index: number;
   form: UseFormReturnType<OptimizationInput>;
 }) => {
-  const [coordinateType, setCoordinateType] = useState<string>("full-sequence");
+  const coordinateType =
+    form.getValues().parameters[index].start === null
+      ? "full-sequence"
+      : "sub-region";
+
+  const handleOnChangeCoordinateType = (value: string) => {
+    form.setFieldValue(
+      `parameters.${index}.start`,
+      value === "sub-region" ? 1 : null,
+    );
+    form.setFieldValue(
+      `parameters.${index}.end`,
+      value === "sub-region" ? 100 : null,
+    );
+  };
 
   return (
     <Stack>
@@ -33,10 +46,10 @@ export const ParameterInput = ({
           <SegmentedControl
             data={[
               { label: "Full sequence", value: "full-sequence" },
-              { label: "Sub-sequence", value: "sub-sequence" },
+              { label: "Sub-region", value: "sub-region" },
             ]}
             value={coordinateType}
-            onChange={setCoordinateType}
+            onChange={handleOnChangeCoordinateType}
           />
           <Group>
             <NumberInput
