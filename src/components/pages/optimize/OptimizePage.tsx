@@ -69,7 +69,7 @@ export const OptimizePage = () => {
 
       const fullSequenceAnalysis = await analyzeSequence({
         data: {
-          sequence: `${sequence.fivePrimeUTR}${sequence.codingSequence}${sequence.threePrimeUTR}${sequence.polyATail}`,
+          sequence: `${sequence.fivePrimeUTR}${optimization.result.sequence.nucleicAcidSequence}${sequence.threePrimeUTR}${sequence.polyATail}`,
           organism: parameters[0].organism,
         },
       });
