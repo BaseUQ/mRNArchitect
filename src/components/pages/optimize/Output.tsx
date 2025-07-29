@@ -14,7 +14,7 @@ export const Output = ({
 }: OutputProps) => {
   const inputReport = [
     "---mRNArchitect",
-    "Version\t0.1",
+    "Version\t0.3",
     `Date\t${new Date().toISOString()}`,
     "",
     "---Input Sequence",
