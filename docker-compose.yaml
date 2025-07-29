@@ -34,19 +34,22 @@ services:
     command: pnpm playwright test --ui-host 0.0.0.0 --ui-port 2345
     ports:
       - 2345:2345
+    volumes:
+      - .:/app
+      - /app/node_modules
     develop:
       watch:
         - path: ./pnpm-lock.yaml
           action: rebuild
         - path: ./uv.lock
           action: rebuild
-        - path: ./
-          target: /app
-          action: rebuild
-          ignore:
-            - .venv/
-            - node_modules/
-            - notebooks/
+        #- path: ./
+        #  target: /app
+        #  action: rebuild
+        #  ignore:
+        #    - .venv/
+        #    - node_modules/
+        #    - notebooks/
   jupyter:
     profiles: [jupyter]
     build:

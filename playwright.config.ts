@@ -47,7 +47,7 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
     : {
-        command: "pnpm build && pnpm start",
+        command: "pnpm dev",
         url: "http://localhost:8080",
         reuseExistingServer: !process.env.CI,
         timeout: 60_000,

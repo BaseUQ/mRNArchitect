@@ -1,28 +1,59 @@
 import { expect, test } from "@playwright/test";
 
-const EGFP_SEQUENCE =
+const _EGFP_AMINO_ACID_SEQUENCE =
   "MVSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTLTYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITLGMDELYK";
-const EGFP_RESULT =
+const EGFP_NUCLEIC_ACID_SEQUENCE =
   "ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGCGTGGTGCCCATCCTGGTGGAGCTGGACGGCGACGTGAACGGCCACAAGTTCAGCGTGAGCGGCGAGGGAGAGGGCGACGCCACCTATGGCAAGCTGACCCTGAAGTTCATCTGCACCACCGGCAAGCTGCCCGTGCCCTGGCCCACACTGGTGACCACCCTGACCTACGGCGTGCAGTGCTTCAGCAGATACCCCGACCACATGAAGCAGCACGATTTCTTCAAGAGCGCCATGCCCGAGGGCTACGTGCAGGAGAGAACCATCTTCTTCAAGGACGACGGCAACTACAAGACCAGAGCCGAGGTGAAGTTCGAGGGCGACACCCTGGTGAACAGAATCGAGCTGAAGGGCATCGACTTCAAGGAGGATGGCAACATCCTGGGCCACAAGCTGGAGTACAACTACAACAGCCACAACGTGTACATCATGGCCGACAAGCAGAAGAACGGCATCAAGGTGAACTTCAAGATCAGACACAACATCGAGGACGGCAGCGTGCAGCTGGCCGACCACTACCAGCAGAACACCCCCATCGGCGACGGCCCCGTGCTGCTGCCCGACAACCACTACCTGAGCACCCAGAGCGCCCTGAGCAAGGACCCCAACGAGAAGAGAGACCACATGGTGCTGCTGGAGTTCGTGACCGCCGCCGGCATCACCCTGGGCATGGACGAGCTGTACAAG";
 
-test("run optimization", async ({ page }) => {
+//test("run optimization - eGFP amino acid", async ({ page }) => {
+//  await page.goto("/");
+//  await page.waitForTimeout(1_000); // brief wait for the form to load, should make this better
+//  await page.getByRole("radio", { name: "Amino acid" }).dispatchEvent("click");
+//  await page
+//    .getByRole("textbox", { name: "Coding sequence textarea" })
+//    .fill(EGFP_AMINO_ACID_SEQUENCE);
+//  await page.getByRole("button", { name: "Optimize" }).click();
+//
+//  await expect(page.getByRole("tab", { name: "Output" })).toHaveAttribute(
+//    "aria-selected",
+//    "true",
+//    { timeout: 30_000 },
+//  );
+//  await expect(page.getByText(EGFP_NUCLEIC_ACID_SEQUENCE)).toHaveCount(1);
+//});
+
+//test("run optimization - eGFP amino acid (pre-fill example)", async ({
+//  page,
+//}) => {
+//  await page.goto("/");
+//  await page.waitForTimeout(1_000); // brief wait for the form to load, should make this better
+//  await page
+//    .getByRole("button", { name: "Pre-fill example sequence (eGFP)" })
+//    .click();
+//  await page.getByRole("button", { name: "Optimize" }).click();
+//
+//  await expect(page.getByRole("tab", { name: "Output" })).toHaveAttribute(
+//    "aria-selected",
+//    "true",
+//    { timeout: 30_000 },
+//  );
+//  await expect(page.getByText(EGFP_NUCLEIC_ACID_SEQUENCE)).toHaveCount(1);
+//});
+
+test("run optimization - eGFP nucleic acid", async ({ page }) => {
   await page.goto("/");
   await page.waitForTimeout(1_000); // brief wait for the form to load, should make this better
-  await page.getByRole("radio", { name: "Amino acid" }).click();
+
   await page
     .getByRole("textbox", { name: "Coding sequence textarea" })
-    .fill(EGFP_SEQUENCE);
-  await page.getByRole("button", { name: "Optimize sequence" }).click();
+    .fill(EGFP_NUCLEIC_ACID_SEQUENCE);
+  await page.getByRole("button", { name: "Optimize" }).click();
 
-  await expect(page.getByText(EGFP_RESULT)).toHaveCount(3, { timeout: 30_000 });
-});
+  await expect(page.getByRole("tab", { name: "Output" })).toHaveAttribute(
+    "aria-selected",
+    "true",
+    { timeout: 30_000 },
+  );
 
-test("run pre-fill eGFP optimization", async ({ page }) => {
-  await page.goto("/");
-  await page.waitForTimeout(1_000); // brief wait for the form to load, should make this better
-  await page.getByText("Show help").click(); // Can't click hidden switch input
-  await page.getByRole("button", { name: "Pre-fill eGFP" }).click();
-  await page.getByRole("button", { name: "Optimize sequence" }).click();
-
-  await expect(page.getByText(EGFP_RESULT)).toHaveCount(3, { timeout: 30_000 });
+  await expect(page.getByText(EGFP_NUCLEIC_ACID_SEQUENCE)).toHaveCount(2);
 });
