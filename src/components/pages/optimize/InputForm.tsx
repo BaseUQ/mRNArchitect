@@ -23,8 +23,8 @@ import { ProgressLoader } from "./ProgressLoader";
 import { OptimizationInput } from "./types";
 
 const createDefaultParameter = (): OptimizationParameter => ({
-  start: null,
-  end: null,
+  start_coordinate: null,
+  end_coordinate: null,
   organism: "human",
   avoidRepeatLength: 10,
   enableUridineDepletion: false,
@@ -92,8 +92,8 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
 
   const handleOnAddConstraint = () => {
     form.insertListItem("constraints", {
-      start: null,
-      end: null,
+      start_corodinate: null,
+      end_coordinate: null,
       enableUridineDepletion: false,
       avoidRibosomeSlip: false,
       gcContentMin: 0.4,
@@ -134,11 +134,9 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
                 </Alert>
               </Center>
             )}
-            {form.getValues().parameters.map((p, index) => (
-              <Accordion.Item
-                key={`${p.start}-${p.end}`}
-                value={index.toString()}
-              >
+            {form.getValues().parameters.map((_, index) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: No other suitable key
+              <Accordion.Item key={`${index}`} value={index.toString()}>
                 <AccordionControl
                   onClickDelete={() => handleOnDeleteConstraint(index)}
                 >{`Region ${index + 1}`}</AccordionControl>

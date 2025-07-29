@@ -24,18 +24,18 @@ export const ParameterInput = ({
   form: UseFormReturnType<OptimizationInput>;
 }) => {
   const coordinateType =
-    form.getValues().parameters[index].start === null
+    form.getValues().parameters[index].start_coordinate === null
       ? "full-sequence"
       : "sub-region";
 
   const handleOnChangeCoordinateType = (value: string) => {
     const end = form.getValues().sequence.codingSequence.length || 100;
     form.setFieldValue(
-      `parameters.${index}.start`,
+      `parameters.${index}.start_coordinate`,
       value === "sub-region" ? 1 : null,
     );
     form.setFieldValue(
-      `parameters.${index}.end`,
+      `parameters.${index}.end_coordinate`,
       value === "sub-region" ? end : null,
     );
   };
@@ -57,15 +57,17 @@ export const ParameterInput = ({
               label="Start coordinate"
               disabled={coordinateType === "full-sequence"}
               min={1}
-              key={form.key(`parameters.${index}.start`)}
-              {...form.getInputProps(`parameters.${index}.start`)}
+              step={1}
+              key={form.key(`parameters.${index}.start_coordinate`)}
+              {...form.getInputProps(`parameters.${index}.start_coordinate`)}
             />
             <NumberInput
               label="End coordinate"
               disabled={coordinateType === "full-sequence"}
               min={1}
-              key={form.key(`parameters.${index}.end`)}
-              {...form.getInputProps(`parameters.${index}.end`)}
+              step={1}
+              key={form.key(`parameters.${index}.end_coordinate`)}
+              {...form.getInputProps(`parameters.${index}.end_coordinate`)}
             />
           </Group>
         </Stack>

@@ -1,15 +1,32 @@
 import z from "zod/v4";
 
-const Location = z
+export const OptimizationParameter = z
   .object({
-    start: z.number().int().nullable(),
-    end: z.number().int().nullable(),
+    start_coordinate: z.int().min(1).nullable(),
+    end_coordinate: z.int().min(1).nullable(),
+    organism: z.string(),
+    avoidRepeatLength: z.int().min(0),
+    enableUridineDepletion: z.boolean(),
+    avoidRibosomeSlip: z.boolean(),
+    gcContentMin: z.number().min(0).max(1),
+    gcContentMax: z.number().min(0).max(1),
+    gcContentWindow: z.int().min(1),
+    avoidRestrictionSites: z.array(z.string()),
+    avoidSequences: z.array(
+      z.string().regex(/[ACGTU]/gim, "Sequences must be nucleic acids."),
+    ),
+    avoidPolyT: z.int().min(0),
+    avoidPolyA: z.int().min(0),
+    avoidPolyC: z.int().min(0),
+    avoidPolyG: z.int().min(0),
+    hairpinStemSize: z.int().min(0),
+    hairpinWindow: z.int().min(0),
   })
   .check((ctx) => {
     if (
-      ctx.value.start !== null &&
-      ctx.value.end !== null &&
-      ctx.value.start > ctx.value.end
+      ctx.value.start_coordinate !== null &&
+      ctx.value.end_coordinate !== null &&
+      ctx.value.start_coordinate > ctx.value.end_coordinate
     ) {
       ctx.issues.push({
         code: "custom",
@@ -20,31 +37,6 @@ const Location = z
       });
     }
   });
-
-export const OptimizationParameter = Location.extend({
-  organism: z.string(),
-  avoidRepeatLength: z.number().int().min(0),
-  enableUridineDepletion: z.boolean(),
-  avoidRibosomeSlip: z.boolean(),
-  gcContentMin: z.number().min(0).max(1),
-  gcContentMax: z.number().min(0).max(1),
-  gcContentWindow: z.number().int().min(1),
-  avoidRestrictionSites: z.array(z.string()),
-  avoidSequences: z.array(
-    z.string().regex(/[ACGTU]/gim, "Sequences must be nucleic acids."),
-  ),
-  avoidPolyT: z.number().int().min(0),
-  avoidPolyA: z.number().int().min(0),
-  avoidPolyC: z.number().int().min(0),
-  avoidPolyG: z.number().int().min(0),
-  hairpinStemSize: z.number().int().min(0),
-  hairpinWindow: z.number().int().min(0),
-}).check((ctx) => {
-  const result = Location.safeParse(ctx.value);
-  if (!result.success) {
-    ctx.issues = [...ctx.issues, ...result.error.issues];
-  }
-});
 
 export type OptimizationParameter = z.infer<typeof OptimizationParameter>;
 

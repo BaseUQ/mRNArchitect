@@ -24,19 +24,23 @@ OptimizationError = NoSolutionError
 
 
 class Location(msgspec.Struct, frozen=True, kw_only=True, rename="camel"):
-    start: int | None = None
-    end: int | None = None
+    start_coordinate: int | None = None
+    end_coordinate: int | None = None
 
     def __post_init__(self):
-        if self.start is not None and self.end is not None and self.start >= self.end:
-            raise ValueError("`start` must be less than `end`.")
+        if (
+            self.start_coordinate is not None
+            and self.end_coordinate is not None
+            and self.start_coordinate >= self.end_coordinate
+        ):
+            raise ValueError("`start_coordinate` must be less than `end_coordinate`.")
 
     @property
     def dnachisel_location(self):
-        if not self.start or not self.end:
+        if not self.start_coordinate or not self.end_coordinate:
             return None
 
-        return DnaChiselLocation(self.start, self.end)
+        return DnaChiselLocation(self.start_coordinate, self.end_coordinate)
 
 
 class OptimizationParameter(Location, frozen=True, kw_only=True, rename="camel"):
@@ -163,25 +167,6 @@ class OptimizationParameter(Location, frozen=True, kw_only=True, rename="camel")
             )
 
         return constraints, objectives
-
-
-DEFAULT_PARAMETERS = OptimizationParameter(
-    organism="human",
-    avoid_repeat_length=10,
-    enable_uridine_depletion=False,
-    avoid_ribosome_slip=False,
-    gc_content_min=0.4,
-    gc_content_max=0.7,
-    gc_content_window=100,
-    avoid_restriction_sites=[],
-    avoid_sequences=[],
-    avoid_poly_a=9,
-    avoid_poly_c=6,
-    avoid_poly_g=6,
-    avoid_poly_t=9,
-    hairpin_stem_size=10,
-    hairpin_window=60,
-)
 
 
 def optimize(
