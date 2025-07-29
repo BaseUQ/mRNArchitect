@@ -139,19 +139,19 @@ export const OptimizePage = () => {
   return (
     <Tabs value={activeTab} onChange={setActiveTab}>
       <Tabs.List>
-        <Tabs.Tab value="input" leftSection={<DnaIcon size={12} />}>
+        <Tabs.Tab value="input" leftSection={<DnaIcon size={16} />}>
           Input
         </Tabs.Tab>
         <Tabs.Tab
           value="output"
-          leftSection={<FileIcon size={12} />}
+          leftSection={<FileIcon size={16} />}
           disabled={!outputProps}
         >
           Output
         </Tabs.Tab>
         <Tabs.Tab
           value="help"
-          leftSection={<QuestionIcon size={12} />}
+          leftSection={<QuestionIcon size={16} />}
           ml="auto"
         >
           Help
