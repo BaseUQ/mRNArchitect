@@ -3,6 +3,7 @@ import {
   Group,
   InputWrapper,
   MultiSelect,
+  NativeSelect,
   NumberInput,
   RangeSlider,
   SegmentedControl,
@@ -13,9 +14,10 @@ import {
 import type { UseFormReturnType } from "@mantine/form";
 import { useState } from "react";
 import type { OptimizationInput } from "~/components/pages/optimize/types";
+import { ORGANISMS } from "~/constants";
 import RESTRICTION_SITES from "~/data/restriction-sites.json";
 
-export const RegionInput = ({
+export const ParameterInput = ({
   index,
   form,
 }: {
@@ -26,7 +28,7 @@ export const RegionInput = ({
 
   return (
     <Stack>
-      <InputWrapper label="Nucleotide coordintates">
+      <InputWrapper label="Nucleotide coordinates">
         <Stack justify="start">
           <SegmentedControl
             data={[
@@ -41,25 +43,38 @@ export const RegionInput = ({
               label="Start coordinate"
               disabled={coordinateType === "full-sequence"}
               min={1}
-              key={form.key(`constraints.${index}.start`)}
-              {...form.getInputProps(`constraints.${index}.start`)}
+              key={form.key(`parameters.${index}.start`)}
+              {...form.getInputProps(`parameters.${index}.start`)}
             />
             <NumberInput
               label="End coordinate"
               disabled={coordinateType === "full-sequence"}
               min={1}
-              key={form.key(`constraints.${index}.end`)}
-              {...form.getInputProps(`constraints.${index}.end`)}
+              key={form.key(`parameters.${index}.end`)}
+              {...form.getInputProps(`parameters.${index}.end`)}
             />
           </Group>
         </Stack>
       </InputWrapper>
+      <NativeSelect
+        label="Organism"
+        data={ORGANISMS}
+        key={form.key(`parameters.${index}.organism`)}
+        {...form.getInputProps(`parameters.${index}.organism`)}
+      />
+      <NumberInput
+        label="Avoid repeat length"
+        min={6}
+        step={1}
+        key={form.key(`parameters.${index}.avoidRepeatLength`)}
+        {...form.getInputProps(`parameters.${index}.avoidRepeatLength`)}
+      />
       <Switch
         label="Enable uridine depletion"
         onLabel="ON"
         offLabel="OFF"
-        key={form.key(`constraints.${index}.enableUridineDepletion`)}
-        {...form.getInputProps(`constraints.${index}.enableUridineDepletion`, {
+        key={form.key(`parameters.${index}.enableUridineDepletion`)}
+        {...form.getInputProps(`parameters.${index}.enableUridineDepletion`, {
           type: "checkbox",
         })}
       />
@@ -67,8 +82,8 @@ export const RegionInput = ({
         label="Avoid ribosome slip"
         onLabel="ON"
         offLabel="OFF"
-        key={form.key(`constraints.${index}.avoidRibosomeSlip`)}
-        {...form.getInputProps(`constraints.${index}.avoidRibosomeSlip`, {
+        key={form.key(`parameters.${index}.avoidRibosomeSlip`)}
+        {...form.getInputProps(`parameters.${index}.avoidRibosomeSlip`, {
           type: "checkbox",
         })}
       />
@@ -92,14 +107,14 @@ export const RegionInput = ({
                 { value: 0.75, label: "0.75" },
                 { value: 1, label: "1" },
               ]}
-              key={form.key(`constraints.${index}.minMaxGCContent`)}
+              key={form.key(`parameters.${index}.minMaxGCContent`)}
               value={[
-                form.getValues().constraints[index].gcContentMin,
-                form.getValues().constraints[index].gcContentMax,
+                form.getValues().parameters[index].gcContentMin,
+                form.getValues().parameters[index].gcContentMax,
               ]}
               onChange={([min, max]) => {
-                form.setFieldValue(`constraints.${index}.gcContentMin`, min);
-                form.setFieldValue(`constraints.${index}.gcContentMax`, max);
+                form.setFieldValue(`parameters.${index}.gcContentMin`, min);
+                form.setFieldValue(`parameters.${index}.gcContentMax`, max);
               }}
             />
           </InputWrapper>
@@ -107,8 +122,8 @@ export const RegionInput = ({
             label="GC content window"
             min={1}
             step={1}
-            key={form.key(`constraints.${index}.gcContentWindow`)}
-            {...form.getInputProps(`constraints.${index}.gcContentWindow`)}
+            key={form.key(`parameters.${index}.gcContentWindow`)}
+            {...form.getInputProps(`parameters.${index}.gcContentWindow`)}
           />
         </Flex>
       </InputWrapper>
@@ -122,14 +137,14 @@ export const RegionInput = ({
             label: v,
             value: v,
           }))}
-        key={form.key(`constraints.${index}.avoidRestrictionSites`)}
-        {...form.getInputProps(`constraints.${index}.avoidRestrictionSites`)}
+        key={form.key(`parameters.${index}.avoidRestrictionSites`)}
+        {...form.getInputProps(`parameters.${index}.avoidRestrictionSites`)}
       />
       <TagsInput
         label="Avoid sequences"
         placeholder="Press Enter to add sequence"
-        key={form.key(`constraints.${index}.avoidSequences`)}
-        {...form.getInputProps(`constraints.${index}.avoidSequences`)}
+        key={form.key(`parameters.${index}.avoidSequences`)}
+        {...form.getInputProps(`parameters.${index}.avoidSequences`)}
       />
       <InputWrapper label="Avoid homopolymer tracts">
         <Flex
@@ -142,29 +157,29 @@ export const RegionInput = ({
             label="Poly(U)"
             min={0}
             step={1}
-            key={form.key(`constraints.${index}.avoidPolyT`)}
-            {...form.getInputProps(`constraints.${index}.avoidPolyT`)}
+            key={form.key(`parameters.${index}.avoidPolyT`)}
+            {...form.getInputProps(`parameters.${index}.avoidPolyT`)}
           />
           <NumberInput
             label="Poly(A)"
             min={0}
             step={1}
-            key={form.key(`constraints.${index}.avoidPolyA`)}
-            {...form.getInputProps(`constraints.${index}.avoidPolyA`)}
+            key={form.key(`parameters.${index}.avoidPolyA`)}
+            {...form.getInputProps(`parameters.${index}.avoidPolyA`)}
           />
           <NumberInput
             label="Poly(C)"
             min={0}
             step={1}
-            key={form.key(`constraints.${index}.avoidPolyC`)}
-            {...form.getInputProps(`constraints.${index}.avoidPolyC`)}
+            key={form.key(`parameters.${index}.avoidPolyC`)}
+            {...form.getInputProps(`parameters.${index}.avoidPolyC`)}
           />
           <NumberInput
             label="Poly(G)"
             min={0}
             step={1}
-            key={form.key(`constraints.${index}.avoidPolyG`)}
-            {...form.getInputProps(`constraints.${index}.avoidPolyG`)}
+            key={form.key(`parameters.${index}.avoidPolyG`)}
+            {...form.getInputProps(`parameters.${index}.avoidPolyG`)}
           />
         </Flex>
       </InputWrapper>
@@ -179,15 +194,15 @@ export const RegionInput = ({
             label="Hairpin stem size"
             min={0}
             step={1}
-            key={form.key(`constraints.${index}.hairpinStemSize`)}
-            {...form.getInputProps(`constraints.${index}.hairpinStemSize`)}
+            key={form.key(`parameters.${index}.hairpinStemSize`)}
+            {...form.getInputProps(`parameters.${index}.hairpinStemSize`)}
           />
           <NumberInput
             label="Hairpin window"
             min={0}
             step={1}
-            key={form.key(`constraints.${index}.hairpinWindow`)}
-            {...form.getInputProps(`constraints.${index}.hairpinWindow`)}
+            key={form.key(`parameters.${index}.hairpinWindow`)}
+            {...form.getInputProps(`parameters.${index}.hairpinWindow`)}
           />
         </Flex>
       </InputWrapper>

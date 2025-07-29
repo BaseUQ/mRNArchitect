@@ -40,7 +40,9 @@ class Location(msgspec.Struct, frozen=True, kw_only=True, rename="camel"):
         return DnaChiselLocation(self.start, self.end)
 
 
-class Constraint(Location, frozen=True, kw_only=True, rename="camel"):
+class OptimizationParameter(Location, frozen=True, kw_only=True, rename="camel"):
+    organism: Organism | str | None = None
+    avoid_repeat_length: int | None = None
     enable_uridine_depletion: bool = False
     avoid_ribosome_slip: bool = False
     gc_content_min: float | None = None
@@ -65,8 +67,9 @@ class Constraint(Location, frozen=True, kw_only=True, rename="camel"):
             raise ValueError("GC content minimum must be less than maximum.")
 
     @property
-    def dnachisel_constraints(self):
+    def dnachisel(self) -> tuple[list, list]:
         constraints: list = [EnforceTranslation()]
+        objectives: list = []
 
         if self.gc_content_min is not None and self.gc_content_max is not None:
             constraints.append(
@@ -144,7 +147,23 @@ class Constraint(Location, frozen=True, kw_only=True, rename="camel"):
         ]
         constraints.extend(custom_pattern_constraints)
 
-        return constraints
+        if self.organism is not None:
+            objectives.append(
+                CodonOptimize(
+                    codon_usage_table=load_organism(self.organism).to_dnachisel_dict(),
+                    method="use_best_codon",
+                    location=self.dnachisel_location,
+                )
+            )
+
+        if self.avoid_repeat_length is not None:
+            objectives.append(
+                UniquifyAllKmers(
+                    k=self.avoid_repeat_length, location=self.dnachisel_location
+                )
+            )
+
+        return constraints, objectives
 
 
 class Objective(Location, frozen=True, kw_only=True, rename="camel"):
@@ -177,7 +196,9 @@ class Objective(Location, frozen=True, kw_only=True, rename="camel"):
         return objectives
 
 
-DEFAULT_CONSTRAINT = Constraint(
+DEFAULT_PARAMETERS = OptimizationParameter(
+    organism="human",
+    avoid_repeat_length=10,
     enable_uridine_depletion=False,
     avoid_ribosome_slip=False,
     gc_content_min=0.4,
@@ -196,18 +217,19 @@ DEFAULT_CONSTRAINT = Constraint(
 
 def optimize(
     nucleic_acid_sequence: str,
-    constraints: typing.Sequence[Constraint],
-    objectives: typing.Sequence[Objective],
+    parameters: typing.Sequence[OptimizationParameter],
     max_random_iters: int = 20_000,
 ):
+    constraints, objectives = [], []
+    for p in parameters:
+        c, o = p.dnachisel
+        constraints.extend(c)
+        objectives.extend(o)
+
     optimization_problem = DnaOptimizationProblem(
         sequence=nucleic_acid_sequence,
-        constraints=list(
-            itertools.chain(*[it.dnachisel_constraints for it in constraints])
-        ),
-        objectives=list(
-            itertools.chain(*[it.dnachisel_objectives for it in objectives])
-        ),
+        constraints=constraints,
+        objectives=objectives,
         logger=None,  # type: ignore
     )
     optimization_problem.max_random_iters = max_random_iters

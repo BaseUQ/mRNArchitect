@@ -14,7 +14,6 @@ import {
 
 export const OptimizePage = () => {
   const [activeTab, setActiveTab] = useState<string | null>("input");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [outputProps, setOutputProps] = useState<OutputProps>();
   const [optimizationError, setOptimizationError] = useState<
     OptimizationError | string
@@ -50,12 +49,11 @@ export const OptimizePage = () => {
     const optimizeAndAnalyze = async (
       optimizationForm: OptimizationInput,
     ): Promise<OptimizationOutput["outputs"][0]> => {
-      const { sequence, constraints, objectives } = optimizationForm;
+      const { sequence, parameters } = optimizationForm;
       const optimization = await optimizeSequence({
         data: {
           sequence: sequence.codingSequence,
-          constraints,
-          objectives,
+          parameters,
         },
       });
       if (!optimization.success) {
@@ -65,14 +63,14 @@ export const OptimizePage = () => {
       const cdsAnalysis = await analyzeSequence({
         data: {
           sequence: optimization.result.sequence.nucleicAcidSequence,
-          organism: objectives[0].organism,
+          organism: parameters[0].organism,
         },
       });
 
       const fullSequenceAnalysis = await analyzeSequence({
         data: {
           sequence: `${sequence.fivePrimeUTR}${sequence.codingSequence}${sequence.threePrimeUTR}${sequence.polyATail}`,
-          organism: objectives[0].organism,
+          organism: parameters[0].organism,
         },
       });
 
@@ -83,7 +81,8 @@ export const OptimizePage = () => {
     setOptimizationError(undefined);
     try {
       const formValues = await parseInput(values);
-      const { sequence, objectives, numberOfSequences } = formValues;
+      const { sequence, parameters, numberOfSequences } = formValues;
+      const organism = parameters[0].organism;
 
       const [
         cdsAnalysis,
@@ -95,15 +94,15 @@ export const OptimizePage = () => {
         analyzeSequence({
           data: {
             sequence: sequence.codingSequence,
-            organism: objectives[0].organism,
+            organism,
           },
         }),
-        analyze(sequence.fivePrimeUTR, objectives[0].organism),
-        analyze(sequence.threePrimeUTR, objectives[0].organism),
+        analyze(sequence.fivePrimeUTR, organism),
+        analyze(sequence.threePrimeUTR, organism),
         analyzeSequence({
           data: {
             sequence: `${sequence.fivePrimeUTR}${sequence.codingSequence}${sequence.threePrimeUTR}${sequence.polyATail}`,
-            organism: objectives[0].organism,
+            organism: organism,
           },
         }),
         ...Array(numberOfSequences)

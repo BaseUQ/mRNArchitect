@@ -5,7 +5,6 @@ import time
 import typing
 
 import msgspec
-from pandas.core.base import NoNewAttributesMixin
 
 from ..constants import (
     CODON_TO_AMINO_ACID_MAP,
@@ -16,7 +15,7 @@ from ..organism import (
     Organism,
 )
 from ..types import AminoAcid, Codon
-from .optimize import Constraint, Location, Objective, OptimizationError, optimize
+from .optimize import OptimizationParameter, OptimizationError, optimize
 
 
 class OptimizationException(Exception):
@@ -355,9 +354,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         )
 
     def optimize(
-        self,
-        constraints: typing.Sequence[Constraint],
-        objectives: typing.Sequence[Objective],
+        self, parameters: typing.Sequence[OptimizationParameter]
     ) -> OptimizationResult:
         """Optimize the sequence based on the configuration parameters.
 
@@ -366,11 +363,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         """
         start = time.time()
         try:
-            result = optimize(
-                self.nucleic_acid_sequence,
-                constraints=constraints,
-                objectives=objectives,
-            )
+            result = optimize(self.nucleic_acid_sequence, parameters=parameters)
         except OptimizationError as e:
             return OptimizationResult(
                 success=False,

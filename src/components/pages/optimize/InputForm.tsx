@@ -14,20 +14,18 @@ import {
 import { useForm } from "@mantine/form";
 import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useState } from "react";
-import { EGFP, ORGANISMS } from "~/constants";
-import {
-  type Constraint,
-  type Objective,
-  OptimizationError,
-} from "~/types/optimize";
-import { RegionInput } from "./inputs/RegionInput";
+import { EGFP } from "~/constants";
+import { OptimizationParameter, OptimizationError } from "~/types/optimize";
+import { ParameterInput } from "./inputs/ParameterInput";
 import { SequenceInput } from "./inputs/SequenceInput";
 import { ProgressLoader } from "./ProgressLoader";
 import { OptimizationInput } from "./types";
 
-const createDefaultConstraint = (): Constraint => ({
+const createDefaultParameter = (): OptimizationParameter => ({
   start: null,
   end: null,
+  organism: "human",
+  avoidRepeatLength: 10,
   enableUridineDepletion: false,
   avoidRibosomeSlip: false,
   gcContentMin: 0.4,
@@ -41,13 +39,6 @@ const createDefaultConstraint = (): Constraint => ({
   avoidPolyG: 6,
   hairpinStemSize: 10,
   hairpinWindow: 60,
-});
-
-const createDefaultObjective = (): Objective => ({
-  start: null,
-  end: null,
-  organism: ORGANISMS[0].value,
-  avoidRepeatLength: 10,
 });
 
 const AccordionControl = ({
@@ -86,8 +77,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
         threePrimeUTR: "",
         polyATail: "",
       },
-      constraints: [createDefaultConstraint()],
-      objectives: [createDefaultObjective()],
+      parameters: [createDefaultParameter()],
       numberOfSequences,
     },
     validate: (values) => {
@@ -122,7 +112,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
       hairpinStemSize: 10,
       hairpinWindow: 60,
     });
-    setAccordionValue((form.getValues().constraints.length - 1).toString());
+    setAccordionValue((form.getValues().parameters.length - 1).toString());
   };
 
   const handleOnDeleteConstraint = (index: number) => {
@@ -135,26 +125,26 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
         <Fieldset legend="Input sequence">
           <SequenceInput form={form} />
         </Fieldset>
-        <Fieldset legend="Input optimization regions">
+        <Fieldset legend="Input parameter regions">
           <Accordion
             chevronPosition="left"
             value={accordionValue}
             onChange={setAccordionValue}
           >
-            {form.getValues().constraints.length === 0 && (
+            {form.getValues().parameters.length === 0 && (
               <Center>
                 <Alert color="red">
                   <Text>At least one region must be added to optimize.</Text>
                 </Alert>
               </Center>
             )}
-            {form.getValues().constraints.map((_, index) => (
+            {form.getValues().parameters.map((_, index) => (
               <Accordion.Item key={index} value={index.toString()}>
                 <AccordionControl
                   onClickDelete={() => handleOnDeleteConstraint(index)}
                 >{`Region ${index + 1}`}</AccordionControl>
                 <Accordion.Panel>
-                  <RegionInput index={index} form={form} />
+                  <ParameterInput index={index} form={form} />
                 </Accordion.Panel>
               </Accordion.Item>
             ))}
@@ -166,7 +156,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
               color="green"
               leftSection={<PlusIcon size={14} />}
             >
-              Add another region
+              Add another parameter region
             </Button>
           </Center>
         </Fieldset>
@@ -195,7 +185,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
         </Button>
         <Button
           type="submit"
-          disabled={form.getValues().constraints.length === 0}
+          disabled={form.getValues().parameters.length === 0}
         >
           Optimize
         </Button>

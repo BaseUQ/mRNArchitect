@@ -1,16 +1,14 @@
 import z from "zod/v4";
 import {
   type Analysis,
-  Constraint,
-  Objective,
+  OptimizationParameter,
   type OptimizationResult,
 } from "~/types/optimize";
 import { Sequence } from "~/types/sequence";
 
 export const OptimizationInput = z.object({
   sequence: Sequence,
-  constraints: z.array(Constraint),
-  objectives: z.array(Objective),
+  parameters: z.array(OptimizationParameter).nonempty(),
   numberOfSequences: z.int().positive().min(1).max(10),
 });
 

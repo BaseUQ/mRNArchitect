@@ -7,7 +7,7 @@ from .organism import (
     KAZUSA_MUS_MUSCULUS,
 )
 from .sequence import Sequence
-from .sequence.optimize import Constraint, Objective
+from .sequence.optimize import OptimizationParameter
 
 DEFAULT_ORGANISMS = {
     "human": KAZUSA_HOMO_SAPIENS,
@@ -33,17 +33,12 @@ def _print(output, args):
 def _optimize(args):
     sequence = _parse_sequence(args)
     if args.config:
-
-        class Configuration(msgspec.Struct, kw_only=True, rename="camel"):
-            constraints: list[Constraint]
-            objectives: list[Objective]
-
-        configuration = msgspec.json.decode(args.config, type=Configuration)
-        constraints = configuration.constraints
-        objectives = configuration.objectives
+        parameters = msgspec.json.decode(args.config, type=list[OptimizationParameter])
     else:
-        constraints = [
-            Constraint(
+        parameters = [
+            OptimizationParameter(
+                organism=args.organism,
+                avoid_repeat_length=args.avoid_repeat_length,
                 enable_uridine_depletion=args.enable_uridine_depletion,
                 avoid_ribosome_slip=args.avoid_ribosome_slip,
                 gc_content_min=args.gc_content_min,
@@ -59,14 +54,8 @@ def _optimize(args):
                 hairpin_window=args.hairpin_window,
             )
         ]
-        objectives = [
-            Objective(
-                organism=args.organism,
-                avoid_repeat_length=args.avoid_repeat_length,
-            )
-        ]
 
-    result = sequence.optimize(constraints=constraints, objectives=objectives)
+    result = sequence.optimize(parameters=parameters)
     _print(result, args)
 
 

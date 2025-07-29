@@ -8,7 +8,7 @@ export interface OutputProps {
 }
 
 export const Output = ({
-  input: { sequence, constraints, objectives },
+  input: { sequence, parameters },
   output,
 }: OutputProps) => {
   const inputReport = [
@@ -23,9 +23,13 @@ export const Output = ({
     `Poly(A) tail\t${sequence.polyATail}`,
   ];
 
-  const constraintReports = constraints
+  const parameterReports = parameters
     .map((c, index) => [
-      `---Constraint #${index + 1}`,
+      `---Parameter #${index + 1}`,
+      `Start nucleotide\t\t${c.start || "-"}`,
+      `End nucleotide\t\t\t${c.end || "-"}`,
+      `Organism:\t\t\t${c.organism}`,
+      `Avoid repeat length\t\t${c.avoidRepeatLength}`,
       `Enable uridine depletion\t${c.enableUridineDepletion}`,
       `Avoid ribosome slip\t\t${c.avoidRibosomeSlip}`,
       `GC content minimum\t\t${c.gcContentMin}`,
@@ -71,7 +75,7 @@ export const Output = ({
   const reportText = [
     ...inputReport,
     "",
-    ...constraintReports,
+    ...parameterReports,
     "",
     ...outputReports.reduce(
       (accumulator, current) => accumulator.concat([""], current),

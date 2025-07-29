@@ -21,7 +21,9 @@ const Location = z
     }
   });
 
-export const Constraint = Location.extend({
+export const OptimizationParameter = Location.extend({
+  organism: z.string(),
+  avoidRepeatLength: z.number().int().min(0),
   enableUridineDepletion: z.boolean(),
   avoidRibosomeSlip: z.boolean(),
   gcContentMin: z.number().min(0).max(1),
@@ -44,19 +46,7 @@ export const Constraint = Location.extend({
   }
 });
 
-export type Constraint = z.infer<typeof Constraint>;
-
-export const Objective = Location.extend({
-  organism: z.string(),
-  avoidRepeatLength: z.number().int().min(6),
-}).check((ctx) => {
-  const result = Location.safeParse(ctx.value);
-  if (!result.success) {
-    ctx.issues = [...ctx.issues, ...result.error.issues];
-  }
-});
-
-export type Objective = z.infer<typeof Objective>;
+export type OptimizationParameter = z.infer<typeof OptimizationParameter>;
 
 export const OptimizationResult = z.object({
   success: z.literal(true),

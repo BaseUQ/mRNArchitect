@@ -5,8 +5,7 @@ import z from "zod/v4";
 import { loggingMiddleware } from "~/global-middleware";
 import {
   Analysis,
-  Constraint,
-  Objective,
+  OptimizationParameter,
   Optimization,
 } from "~/types/optimize";
 
@@ -21,8 +20,7 @@ type SequenceAndOrganism = z.infer<typeof SequenceAndOrganism>;
 
 const OptimizationRequest = z.object({
   sequence: z.string().nonempty(),
-  constraints: z.array(Constraint),
-  objectives: z.array(Objective),
+  parameters: z.array(OptimizationParameter),
 });
 
 type OptimizationRequest = z.infer<typeof OptimizationRequest>;
@@ -76,7 +74,7 @@ export const analyzeSequence = createServerFn({ method: "POST" })
 export const optimizeSequence = createServerFn({ method: "POST" })
   .middleware([loggingMiddleware])
   .validator((data: OptimizationRequest) => OptimizationRequest.parse(data))
-  .handler(async ({ data: { sequence, constraints, objectives } }) => {
+  .handler(async ({ data: { sequence, parameters } }) => {
     const { stdout } = await execFileAsync(
       "python",
       [
@@ -87,10 +85,7 @@ export const optimizeSequence = createServerFn({ method: "POST" })
         "--sequence-type",
         "nucleic-acid",
         "--config",
-        JSON.stringify({
-          constraints,
-          objectives,
-        }),
+        JSON.stringify(parameters),
         "--format",
         "json",
       ],
