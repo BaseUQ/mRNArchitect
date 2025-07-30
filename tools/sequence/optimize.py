@@ -37,10 +37,10 @@ class Location(msgspec.Struct, frozen=True, kw_only=True, rename="camel"):
 
     @property
     def dnachisel_location(self):
-        if not self.start_coordinate or not self.end_coordinate:
+        if self.start_coordinate is None or self.end_coordinate is None:
             return None
 
-        return DnaChiselLocation(self.start_coordinate, self.end_coordinate)
+        return DnaChiselLocation(self.start_coordinate - 1, self.end_coordinate)
 
 
 class OptimizationParameter(Location, frozen=True, kw_only=True, rename="camel"):

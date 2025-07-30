@@ -24,7 +24,8 @@ export const ParameterInput = ({
   form: UseFormReturnType<OptimizationInput>;
 }) => {
   const coordinateType =
-    form.getValues().parameters[index].start_coordinate === null
+    !Number.isInteger(form.getValues().parameters[index].start_coordinate) ||
+    !Number.isInteger(form.getValues().parameters[index].end_coordinate)
       ? "full-sequence"
       : "sub-region";
 
