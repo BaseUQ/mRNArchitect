@@ -25,7 +25,9 @@ OptimizationError = NoSolutionError
 
 class Location(msgspec.Struct, frozen=True, kw_only=True, rename="camel"):
     start_coordinate: int | None = None
+    """The start coordinate (1-based)."""
     end_coordinate: int | None = None
+    """The end coordinate (1-based, inclusive)."""
 
     def __post_init__(self):
         if (
@@ -37,10 +39,19 @@ class Location(msgspec.Struct, frozen=True, kw_only=True, rename="camel"):
 
     @property
     def dnachisel_location(self):
+        """Returns a DNAChisel Location.
+
+        >>> Location(start_coordinate=1, end_coordinate=5).dnachisel_location.start
+        0
+
+        >>> Location(start_coordinate=1, end_coordinate=5).dnachisel_location.end
+        6
+        """
         if self.start_coordinate is None or self.end_coordinate is None:
             return None
 
-        return DnaChiselLocation(self.start_coordinate - 1, self.end_coordinate)
+        # NOTE: DNAChisel locations use python slice rules (i.e. they are 1-based, and inclusive of the end index)
+        return DnaChiselLocation(self.start_coordinate - 1, self.end_coordinate + 1)
 
 
 class OptimizationParameter(Location, frozen=True, kw_only=True, rename="camel"):

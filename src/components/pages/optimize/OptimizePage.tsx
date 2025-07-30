@@ -170,7 +170,7 @@ export const OptimizePage = () => {
       </Box>
       {optimizationError && (
         <Modal opened={true} onClose={() => setOptimizationError(undefined)}>
-          <Alert title="Optimization failed" color="red">
+          <Alert title="Optimisation failed" color="red">
             Error resolving constraints. Sequence cannot be optimised. Please
             verify your input sequence or adjust input parameters (e.g. increase
             GC content/window).

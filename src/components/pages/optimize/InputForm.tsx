@@ -15,7 +15,6 @@ import {
 import { useForm } from "@mantine/form";
 import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useState } from "react";
-import { EGFP } from "~/constants";
 import type { OptimizationParameter } from "~/types/optimize";
 import { ParameterInput } from "./inputs/ParameterInput";
 import { SequenceInput } from "./inputs/SequenceInput";
@@ -105,7 +104,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
         <Fieldset legend="Input sequence">
           <SequenceInput form={form} />
         </Fieldset>
-        <Fieldset legend="Input parameter regions">
+        <Fieldset legend="Input optimisation parameter regions">
           <Accordion
             chevronPosition="left"
             value={accordionValue}
@@ -141,7 +140,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
             </Button>
           </Center>
         </Fieldset>
-        <Fieldset legend="Number of optimized sequences">
+        <Fieldset legend="Number of optimised sequences">
           <NumberInput
             value={numberOfSequences}
             onChange={(v) =>

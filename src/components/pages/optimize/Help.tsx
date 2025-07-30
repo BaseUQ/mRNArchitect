@@ -162,27 +162,29 @@ export const Help = () => {
       </Stack>
       <Stack>
         <Title order={4}>References</Title>
-        <ol>
-          <li>
-            Zulkower, V., & Rosser, S. (2020). DNA Chisel, a versatile sequence
-            optimizer. Bioinformatics, 36(16), 4508-4509.
-          </li>
-          <li>
-            Mulroney, T.E., Pöyry, T., Yam-Puc, J.C. et al. (2024).
-            N1-methylpseudouridylation of mRNA causes +1 ribosomal
-            frameshifting. Nature 625, 189–194.
-          </li>
-          <li>
-            Sharp, P. M., & Li, W. H. (1987). The Codon Adaptation Index—a
-            measure of directional synonymous codon usage bias, and its
-            potential applications. Nucleic Acids Research 15(3), 1281-1295.
-          </li>
-          <li>
-            Lorenz, R., Bernhart, S. H., Höner Zu Siederdissen, C., Tafer, H.,
-            Flamm, C., Stadler, P. F., & Hofacker, I. L. (2011). ViennaRNA
-            Package 2.0. Algorithms for Molecular Biology, 6:26.
-          </li>
-        </ol>
+        <Text size="sm">
+          <ol>
+            <li>
+              Zulkower, V., & Rosser, S. (2020). DNA Chisel, a versatile
+              sequence optimizer. Bioinformatics, 36(16), 4508-4509.
+            </li>
+            <li>
+              Mulroney, T.E., Pöyry, T., Yam-Puc, J.C. et al. (2024).
+              N1-methylpseudouridylation of mRNA causes +1 ribosomal
+              frameshifting. Nature 625, 189–194.
+            </li>
+            <li>
+              Sharp, P. M., & Li, W. H. (1987). The Codon Adaptation Index—a
+              measure of directional synonymous codon usage bias, and its
+              potential applications. Nucleic Acids Research 15(3), 1281-1295.
+            </li>
+            <li>
+              Lorenz, R., Bernhart, S. H., Höner Zu Siederdissen, C., Tafer, H.,
+              Flamm, C., Stadler, P. F., & Hofacker, I. L. (2011). ViennaRNA
+              Package 2.0. Algorithms for Molecular Biology, 6:26.
+            </li>
+          </ol>
+        </Text>
       </Stack>
     </Stack>
   );
