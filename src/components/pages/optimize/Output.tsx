@@ -27,8 +27,8 @@ export const Output = ({
   const parameterReports = parameters
     .map((c, index) => [
       `---Parameter #${index + 1}`,
-      `Start nucleotide\t\t${c.start_coordinate || "-"}`,
-      `End nucleotide\t\t\t${c.end_coordinate || "-"}`,
+      `Start coordinate\t\t${c.start_coordinate || "1"}`,
+      `End coordinate\t\t\t${c.end_coordinate || output.outputs[0].optimization.result.sequence.nucleicAcidSequence.length}`,
       `Organism\t\t\t${c.organism}`,
       `Avoid repeat length\t\t${c.avoidRepeatLength}`,
       `Enable uridine depletion\t${c.enableUridineDepletion}`,

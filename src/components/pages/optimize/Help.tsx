@@ -1,4 +1,5 @@
 import { Stack, Table, Text, Title } from "@mantine/core";
+import { Fragment } from "react/jsx-runtime";
 
 export const Help = () => {
   return (
@@ -25,24 +26,24 @@ export const Help = () => {
               ],
               [
                 "Example",
-                <Text key="example">
+                <Fragment key="example">
                   For guidance on how to design an mRNA, please see the
                   step-by-step example{" "}
                   <a href="https://basefacility.org.au/wp-content/uploads/2024/12/mRNArchitect_Example.pdf">
                     here
                   </a>
                   .
-                </Text>,
+                </Fragment>,
               ],
               [
                 "Sequences",
-                <Text key="sequences">
+                <Fragment key="sequences">
                   Please find useful sequences (promoters, UTRs etc.){" "}
                   <a href="https://basefacility.org.au/wp-content/uploads/2024/08/mRNArchitect_ExampleSequences.txt">
                     here
                   </a>
                   .
-                </Text>,
+                </Fragment>,
               ],
             ],
           }}
