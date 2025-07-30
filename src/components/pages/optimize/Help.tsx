@@ -1,4 +1,4 @@
-import { Stack, Table, Text, Title } from "@mantine/core";
+import { Box, Stack, Table, Title } from "@mantine/core";
 import { Fragment } from "react/jsx-runtime";
 
 export const Help = () => {
@@ -162,7 +162,7 @@ export const Help = () => {
       </Stack>
       <Stack>
         <Title order={4}>References</Title>
-        <Text size="sm">
+        <Box size="sm">
           <ol>
             <li>
               Zulkower, V., & Rosser, S. (2020). DNA Chisel, a versatile
@@ -184,7 +184,7 @@ export const Help = () => {
               Package 2.0. Algorithms for Molecular Biology, 6:26.
             </li>
           </ol>
-        </Text>
+        </Box>
       </Stack>
     </Stack>
   );
