@@ -2,6 +2,17 @@ import { Button, Card, Group, Stack, Text } from "@mantine/core";
 import { DownloadSimpleIcon } from "@phosphor-icons/react";
 import { Fragment } from "react/jsx-runtime";
 import type { OptimizationInput, OptimizationOutput } from "./types";
+import type { Sequence } from "~/types/sequence";
+import type { OptimizationParameter } from "~/types/optimize";
+
+const parameterTitle = (
+  sequence: Sequence,
+  parameter: OptimizationParameter,
+): string => {
+  const start = parameter.start_coordinate ?? 1;
+  const end = parameter.end_coordinate ?? sequence.codingSequence.length - 1;
+  return `Parameters over region [${start}-${end}]`;
+};
 
 export interface OutputProps {
   input: OptimizationInput;
@@ -25,10 +36,10 @@ export const Output = ({
   ];
 
   const parameterReports = parameters
-    .map((c, index) => [
-      `---Parameter #${index + 1}`,
+    .map((c) => [
+      `---${parameterTitle(sequence, c)}`,
       `Start coordinate\t\t${c.start_coordinate || "1"}`,
-      `End coordinate\t\t\t${c.end_coordinate || output.outputs[0].optimization.result.sequence.nucleicAcidSequence.length}`,
+      `End coordinate\t\t\t${c.end_coordinate || output.outputs[0].optimization.result.sequence.nucleicAcidSequence.length - 1}`,
       `Organism\t\t\t${c.organism}`,
       `Avoid repeat length\t\t${c.avoidRepeatLength}`,
       `Enable uridine depletion\t${c.enableUridineDepletion}`,
