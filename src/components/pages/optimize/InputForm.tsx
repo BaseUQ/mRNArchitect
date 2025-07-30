@@ -142,6 +142,8 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
         </Fieldset>
         <Fieldset legend="Number of optimised sequences">
           <NumberInput
+            min={1}
+            max={10}
             value={numberOfSequences}
             onChange={(v) =>
               setNumberOfSequences(
