@@ -90,8 +90,8 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
     },
   });
 
-  const handleOnAddConstraint = () => {
-    form.insertListItem("constraints", {
+  const handleOnAddParameter = () => {
+    form.insertListItem("parameters", {
       start_corodinate: null,
       end_coordinate: null,
       enableUridineDepletion: false,
@@ -111,8 +111,8 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
     setAccordionValue((form.getValues().parameters.length - 1).toString());
   };
 
-  const handleOnDeleteConstraint = (index: number) => {
-    form.removeListItem("constraints", index);
+  const handleOnDeleteParameter = (index: number) => {
+    form.removeListItem("parameters", index);
   };
 
   return (
@@ -138,7 +138,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
               // biome-ignore lint/suspicious/noArrayIndexKey: No other suitable key
               <Accordion.Item key={`${index}`} value={index.toString()}>
                 <AccordionControl
-                  onClickDelete={() => handleOnDeleteConstraint(index)}
+                  onClickDelete={() => handleOnDeleteParameter(index)}
                 >{`Region ${index + 1}`}</AccordionControl>
                 <Accordion.Panel>
                   <ParameterInput index={index} form={form} />
@@ -148,7 +148,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
           </Accordion>
           <Center mt="md">
             <Button
-              onClick={handleOnAddConstraint}
+              onClick={handleOnAddParameter}
               variant="outline"
               color="green"
               leftSection={<PlusIcon size={14} />}
