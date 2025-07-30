@@ -41,7 +41,7 @@ export const Output = ({
       `Avoid poly(U)\t\t\t${c.avoidPolyT}`,
       `Avoid poly(A)\t\t\t${c.avoidPolyA}`,
       `Avoid poly(C)\t\t\t${c.avoidPolyC}`,
-      `Avoid poly(G}\t\t\t${c.avoidPolyG}`,
+      `Avoid poly(G)\t\t\t${c.avoidPolyG}`,
       `Hairpin stem size\t\t${c.hairpinStemSize}`,
       `Hairpin window\t\t\t${c.hairpinWindow}`,
     ])
