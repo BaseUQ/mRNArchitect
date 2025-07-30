@@ -12,7 +12,7 @@ const EGFP_NUCLEIC_ACID_SEQUENCE =
 //  await page
 //    .getByRole("textbox", { name: "Coding sequence textarea" })
 //    .fill(EGFP_AMINO_ACID_SEQUENCE);
-//  await page.getByRole("button", { name: "Optimize" }).click();
+//  await page.getByRole("button", { name: "Optimise" }).click();
 //
 //  await expect(page.getByRole("tab", { name: "Output" })).toHaveAttribute(
 //    "aria-selected",
@@ -30,7 +30,7 @@ const EGFP_NUCLEIC_ACID_SEQUENCE =
 //  await page
 //    .getByRole("button", { name: "Pre-fill example sequence (eGFP)" })
 //    .click();
-//  await page.getByRole("button", { name: "Optimize" }).click();
+//  await page.getByRole("button", { name: "Optimise" }).click();
 //
 //  await expect(page.getByRole("tab", { name: "Output" })).toHaveAttribute(
 //    "aria-selected",
@@ -47,7 +47,7 @@ test("run optimization - eGFP nucleic acid", async ({ page }) => {
   await page
     .getByRole("textbox", { name: "Coding sequence textarea" })
     .fill(EGFP_NUCLEIC_ACID_SEQUENCE);
-  await page.getByRole("button", { name: "Optimize" }).click();
+  await page.getByRole("button", { name: "Optimise" }).click();
 
   await expect(page.getByRole("tab", { name: "Output" })).toHaveAttribute(
     "aria-selected",
