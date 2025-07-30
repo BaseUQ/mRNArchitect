@@ -1,4 +1,5 @@
 import {
+  Button,
   InputWrapper,
   NumberInput,
   SegmentedControl,
@@ -9,6 +10,7 @@ import type { UseFormReturnType } from "@mantine/form";
 import { useState } from "react";
 import type { OptimizationInput } from "~/components/pages/optimize/types";
 import {
+  EGFP,
   FIVE_PRIME_HUMAN_ALPHA_GLOBIN,
   THREE_PRIME_HUMAN_ALPHA_GLOBIN,
 } from "~/constants";
@@ -96,6 +98,16 @@ export const SequenceInput = ({
           />
         </Stack>
       </InputWrapper>
+      <Button
+        variant="outline"
+        onClick={() => {
+          form.setFieldValue("sequence.codingSequenceType", "amino-acid");
+          form.setFieldValue("sequence.codingSequence", EGFP);
+        }}
+      >
+        Pre-fill example sequence (eGFP)
+      </Button>
+
       <InputWrapper label="5' UTR">
         <Stack>
           <SegmentedControl

@@ -91,23 +91,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
   });
 
   const handleOnAddParameter = () => {
-    form.insertListItem("parameters", {
-      start_corodinate: null,
-      end_coordinate: null,
-      enableUridineDepletion: false,
-      avoidRibosomeSlip: false,
-      gcContentMin: 0.4,
-      gcContentMax: 0.7,
-      gcContentWindow: 100,
-      avoidRestrictionSites: [],
-      avoidSequences: [],
-      avoidPolyT: 9,
-      avoidPolyA: 9,
-      avoidPolyC: 6,
-      avoidPolyG: 6,
-      hairpinStemSize: 10,
-      hairpinWindow: 60,
-    });
+    form.insertListItem("parameters", createDefaultParameter());
     setAccordionValue((form.getValues().parameters.length - 1).toString());
   };
 
@@ -167,15 +151,6 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
             }
           />
         </Fieldset>
-        <Button
-          variant="outline"
-          onClick={() => {
-            form.setFieldValue("sequence.codingSequenceType", "amino-acid");
-            form.setFieldValue("sequence.codingSequence", EGFP);
-          }}
-        >
-          Pre-fill example sequence (eGFP)
-        </Button>
         <Button
           type="submit"
           disabled={form.getValues().parameters.length === 0}
