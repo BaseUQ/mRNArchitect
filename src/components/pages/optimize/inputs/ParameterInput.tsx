@@ -53,24 +53,24 @@ export const ParameterInput = ({
             value={coordinateType}
             onChange={handleOnChangeCoordinateType}
           />
-          <Group>
-            <NumberInput
-              label="Start coordinate"
-              disabled={coordinateType === "full-sequence"}
-              min={1}
-              step={1}
-              key={form.key(`parameters.${index}.start_coordinate`)}
-              {...form.getInputProps(`parameters.${index}.start_coordinate`)}
-            />
-            <NumberInput
-              label="End coordinate"
-              disabled={coordinateType === "full-sequence"}
-              min={1}
-              step={1}
-              key={form.key(`parameters.${index}.end_coordinate`)}
-              {...form.getInputProps(`parameters.${index}.end_coordinate`)}
-            />
-          </Group>
+          {coordinateType === "sub-region" && (
+            <Group>
+              <NumberInput
+                label="Start coordinate"
+                min={1}
+                step={1}
+                key={form.key(`parameters.${index}.start_coordinate`)}
+                {...form.getInputProps(`parameters.${index}.start_coordinate`)}
+              />
+              <NumberInput
+                label="End coordinate"
+                min={1}
+                step={1}
+                key={form.key(`parameters.${index}.end_coordinate`)}
+                {...form.getInputProps(`parameters.${index}.end_coordinate`)}
+              />
+            </Group>
+          )}
         </Stack>
       </InputWrapper>
       <NativeSelect
