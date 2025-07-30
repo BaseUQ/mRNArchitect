@@ -154,7 +154,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
           type="submit"
           disabled={form.getValues().parameters.length === 0}
         >
-          Optimize
+          Optimise
         </Button>
         {form.submitting && (
           <LoadingOverlay
