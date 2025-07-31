@@ -86,7 +86,6 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
     },
     validate: (values) => {
       const result = OptimizationInput.safeParse(values);
-      console.log(result);
       if (result.success) {
         return {};
       }
