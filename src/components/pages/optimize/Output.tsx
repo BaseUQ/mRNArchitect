@@ -11,7 +11,7 @@ const parameterTitle = (
 ): string => {
   const start = parameter.startCoordinate ?? 1;
   const end = parameter.endCoordinate ?? sequence.codingSequence.length - 1;
-  return `Parameters [${start}-${end}]`;
+  return `Parameter region [${start}-${end}]`;
 };
 
 export interface OutputProps {
