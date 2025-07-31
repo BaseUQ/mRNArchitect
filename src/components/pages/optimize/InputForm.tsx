@@ -45,16 +45,22 @@ const createDefaultParameter = (
 });
 
 const AccordionControl = ({
+  showDelete,
   onClickDelete,
   ...props
-}: { onClickDelete: () => void } & AccordionControlProps) => (
+}: {
+  showDelete: boolean;
+  onClickDelete: () => void;
+} & AccordionControlProps) => (
   <Center>
     <Accordion.Control {...props} />
-    <Tooltip label="Remove region">
-      <ActionIcon size="lg" color="red" onClick={onClickDelete}>
-        <TrashIcon size={20} />
-      </ActionIcon>
-    </Tooltip>
+    {showDelete && (
+      <Tooltip label="Remove region">
+        <ActionIcon size="lg" color="red" onClick={onClickDelete}>
+          <TrashIcon size={20} />
+        </ActionIcon>
+      </Tooltip>
+    )}
   </Center>
 );
 
@@ -130,6 +136,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
               // biome-ignore lint/suspicious/noArrayIndexKey: No other suitable key
               <Accordion.Item key={`${index}`} value={index.toString()}>
                 <AccordionControl
+                  showDelete={form.getValues().parameters.length > 1}
                   onClickDelete={() => handleOnDeleteParameter(index)}
                 >{`Region ${index + 1}`}</AccordionControl>
                 <Accordion.Panel>
