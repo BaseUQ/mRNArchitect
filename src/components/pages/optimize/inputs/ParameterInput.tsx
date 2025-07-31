@@ -30,7 +30,7 @@ export const ParameterInput = ({
       : "sub-region";
 
   const handleOnChangeCoordinateType = (value: string) => {
-    const end = form.getValues().sequence.codingSequence.length || 30;
+    const end = form.getValues().sequence.codingSequence.length - 1 || 30;
     form.setFieldValue(
       `parameters.${index}.startCoordinate`,
       value === "sub-region" ? 1 : null,

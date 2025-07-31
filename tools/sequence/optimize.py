@@ -45,7 +45,7 @@ class Location(msgspec.Struct, frozen=True, kw_only=True, rename="camel"):
         0
 
         >>> Location(start_coordinate=1, end_coordinate=5).dnachisel_location.end
-        6
+        5
         """
         if self.start_coordinate is None or self.end_coordinate is None:
             return None
