@@ -75,13 +75,13 @@ export const Help = () => {
         />
       </Stack>
       <Stack>
-        <Title order={4}>Input optimization region</Title>
+        <Title order={4}>Input optimization parameter region</Title>
         <Table
           data={{
             body: [
               [
                 "Nucleotide coordinates",
-                'The coordinates within the coding region to which the constraints will be applied. Note that the coordinates start at 1, and is inclusive of the end coordinate. Selecting "Full sequence" will apply constraints to the whole seqeunce.',
+                'The coordinates within the coding region to which the constraints will be applied. Note that the coordinates are 1-based, and are inclusive of the end coordinate. Selecting "Full sequence" will apply constraints to the whole sequence.',
               ],
               [
                 "Enable uridine depletion",
