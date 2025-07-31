@@ -30,7 +30,13 @@ export const ParameterInput = ({
       : "sub-region";
 
   const handleOnChangeCoordinateType = (value: string) => {
-    const end = form.getValues().sequence.codingSequence.length - 1 || 30;
+    const {
+      sequence: { codingSequence, codingSequenceType },
+    } = form.getValues();
+    const nucleotideSequenceLength =
+      codingSequence.length * (codingSequenceType === "nucleic-acid" ? 1 : 3);
+    const end =
+      nucleotideSequenceLength > 3 ? nucleotideSequenceLength - 1 : 30;
     form.setFieldValue(
       `parameters.${index}.startCoordinate`,
       value === "sub-region" ? 1 : null,
