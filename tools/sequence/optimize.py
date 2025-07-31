@@ -51,7 +51,7 @@ class Location(msgspec.Struct, frozen=True, kw_only=True, rename="camel"):
             return None
 
         # NOTE: DNAChisel locations use python slice rules (i.e. they are 1-based, and inclusive of the end index)
-        return DnaChiselLocation(self.start_coordinate - 1, self.end_coordinate + 1)
+        return DnaChiselLocation(self.start_coordinate - 1, self.end_coordinate)
 
 
 class OptimizationParameter(Location, frozen=True, kw_only=True, rename="camel"):
