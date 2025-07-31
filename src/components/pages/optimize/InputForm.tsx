@@ -127,7 +127,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
             {form.getValues().parameters.length === 0 && (
               <Center>
                 <Alert color="red">
-                  <Text>At least one region must be added to optimize.</Text>
+                  <Text>At least one region must be added to optimise.</Text>
                 </Alert>
               </Center>
             )}

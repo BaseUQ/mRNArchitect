@@ -60,14 +60,14 @@ export const Output = ({
 
   const outputReports = output.outputs.map(
     ({ optimization, cdsAnalysis, fullSequenceAnalysis }, index) => [
-      `---Optimized Sequence #${index + 1}`,
+      `---Optimised Sequence #${index + 1}`,
       "",
       `CDS:\t\t\t${optimization.result.sequence.nucleicAcidSequence}`,
       "",
       `Full-length mRNA:\t${sequence.fivePrimeUTR + optimization.result.sequence.nucleicAcidSequence + sequence.threePrimeUTR + sequence.polyATail}`,
       "",
       "---Results",
-      "Metric\t\t\tInput\tOptimized",
+      "Metric\t\t\tInput\tOptimised",
       `A ratio\t\t\t${output.input.cdsAnalysis.aRatio.toFixed(2)}\t${cdsAnalysis.aRatio.toFixed(2)}`,
       `T/U ratio\t\t${output.input.cdsAnalysis.tRatio.toFixed(2)}\t${cdsAnalysis.tRatio.toFixed(2)}`,
       `G ratio\t\t\t${output.input.cdsAnalysis.gRatio.toFixed(2)}\t${cdsAnalysis.gRatio.toFixed(2)}`,
