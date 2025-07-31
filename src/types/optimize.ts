@@ -25,16 +25,35 @@ export const OptimizationParameter = z
   .check((ctx) => {
     if (
       ctx.value.startCoordinate !== null &&
-      ctx.value.endCoordinate !== null &&
-      ctx.value.startCoordinate > ctx.value.endCoordinate
+      ctx.value.endCoordinate !== null
     ) {
-      ctx.issues.push({
-        code: "custom",
-        message:
-          "Start coordinate must be less than or equal to end coordinate.",
-        input: ctx.value,
-        path: ["start"],
-      });
+      if (ctx.value.startCoordinate > ctx.value.endCoordinate) {
+        ctx.issues.push({
+          code: "custom",
+          message:
+            "Start coordinate must be less than or equal to end coordinate.",
+          input: ctx.value,
+          path: ["startCoordinate"],
+        });
+      }
+      if ((ctx.value.startCoordinate - 1) % 3 !== 0) {
+        ctx.issues.push({
+          code: "custom",
+          message:
+            "Start coordinate must align to the start of a codon frame (e.g. 1, 4, 7, etc).",
+          input: ctx.value,
+          path: ["startCoordinate"],
+        });
+      }
+      if (ctx.value.endCoordinate % 3 !== 0) {
+        ctx.issues.push({
+          code: "custom",
+          message:
+            "End coordinate must align to the end of a codon frame (e.g. 3, 6, 9, etc).",
+          input: ctx.value,
+          path: ["endCoordinate"],
+        });
+      }
     }
   });
 

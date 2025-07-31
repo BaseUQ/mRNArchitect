@@ -41,17 +41,17 @@ class Location(msgspec.Struct, frozen=True, kw_only=True, rename="camel"):
     def dnachisel_location(self):
         """Returns a DNAChisel Location.
 
-        >>> Location(start_coordinate=1, end_coordinate=5).dnachisel_location.start
+        >>> Location(start_coordinate=1, end_coordinate=30).dnachisel_location.start
         0
 
-        >>> Location(start_coordinate=1, end_coordinate=5).dnachisel_location.end
-        6
+        >>> Location(start_coordinate=1, end_coordinate=30).dnachisel_location.end
+        30
         """
         if self.start_coordinate is None or self.end_coordinate is None:
             return None
 
-        # NOTE: DNAChisel locations use python slice rules (i.e. they are 1-based, and inclusive of the end index)
-        return DnaChiselLocation(self.start_coordinate - 1, self.end_coordinate + 1)
+        # NOTE: DNAChisel locations use python slice rules (i.e. they are 0-based, and exclusive of the end index)
+        return DnaChiselLocation(self.start_coordinate - 1, self.end_coordinate)
 
 
 class OptimizationParameter(Location, frozen=True, kw_only=True, rename="camel"):
