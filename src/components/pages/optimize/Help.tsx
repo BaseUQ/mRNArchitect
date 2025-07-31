@@ -75,7 +75,7 @@ export const Help = () => {
         />
       </Stack>
       <Stack>
-        <Title order={4}>Input optimization parameter region</Title>
+        <Title order={4}>Input optimisation parameter region</Title>
         <Table
           data={{
             body: [
@@ -122,7 +122,7 @@ export const Help = () => {
             body: [
               [
                 "Full-length mRNA",
-                "The output mRNA sequence(s) that have been assembled and optimized according to the specified optimisation parameters.",
+                "The output mRNA sequence(s) that have been assembled and optimised according to the specified optimisation parameters.",
               ],
               [
                 "A/U/G/C ratio",
