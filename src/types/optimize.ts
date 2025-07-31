@@ -2,8 +2,8 @@ import z from "zod/v4";
 
 export const OptimizationParameter = z
   .object({
-    start_coordinate: z.int().min(1).nullable(),
-    end_coordinate: z.int().min(1).nullable(),
+    startCoordinate: z.int().min(1).nullable(),
+    endCoordinate: z.int().min(1).nullable(),
     organism: z.string(),
     avoidRepeatLength: z.int().min(0),
     enableUridineDepletion: z.boolean(),
@@ -24,9 +24,9 @@ export const OptimizationParameter = z
   })
   .check((ctx) => {
     if (
-      ctx.value.start_coordinate !== null &&
-      ctx.value.end_coordinate !== null &&
-      ctx.value.start_coordinate > ctx.value.end_coordinate
+      ctx.value.startCoordinate !== null &&
+      ctx.value.endCoordinate !== null &&
+      ctx.value.startCoordinate > ctx.value.endCoordinate
     ) {
       ctx.issues.push({
         code: "custom",

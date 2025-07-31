@@ -21,9 +21,12 @@ import { SequenceInput } from "./inputs/SequenceInput";
 import { ProgressLoader } from "./ProgressLoader";
 import { OptimizationInput } from "./types";
 
-const createDefaultParameter = (): OptimizationParameter => ({
-  start_coordinate: null,
-  end_coordinate: null,
+const createDefaultParameter = (
+  startCoordinate: number | null = null,
+  endCoordinate: number | null = null,
+): OptimizationParameter => ({
+  startCoordinate,
+  endCoordinate,
   organism: "human",
   avoidRepeatLength: 10,
   enableUridineDepletion: false,
@@ -90,8 +93,14 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
   });
 
   const handleOnAddParameter = () => {
-    form.insertListItem("parameters", createDefaultParameter());
-    setAccordionValue((form.getValues().parameters.length - 1).toString());
+    const numParameters = form.getValues().parameters.length;
+    const startCoordinate = numParameters ? 1 : null;
+    const endCoordinate = numParameters ? 30 : null;
+    form.insertListItem(
+      "parameters",
+      createDefaultParameter(startCoordinate, endCoordinate),
+    );
+    setAccordionValue((numParameters - 1).toString());
   };
 
   const handleOnDeleteParameter = (index: number) => {

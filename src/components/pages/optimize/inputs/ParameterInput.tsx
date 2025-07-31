@@ -24,19 +24,19 @@ export const ParameterInput = ({
   form: UseFormReturnType<OptimizationInput>;
 }) => {
   const coordinateType =
-    !Number.isInteger(form.getValues().parameters[index].start_coordinate) ||
-    !Number.isInteger(form.getValues().parameters[index].end_coordinate)
+    !Number.isInteger(form.getValues().parameters[index].startCoordinate) ||
+    !Number.isInteger(form.getValues().parameters[index].endCoordinate)
       ? "full-sequence"
       : "sub-region";
 
   const handleOnChangeCoordinateType = (value: string) => {
     const end = form.getValues().sequence.codingSequence.length || 100;
     form.setFieldValue(
-      `parameters.${index}.start_coordinate`,
+      `parameters.${index}.startCoordinate`,
       value === "sub-region" ? 1 : null,
     );
     form.setFieldValue(
-      `parameters.${index}.end_coordinate`,
+      `parameters.${index}.endCoordinate`,
       value === "sub-region" ? end : null,
     );
   };
@@ -59,15 +59,15 @@ export const ParameterInput = ({
                 label="Start coordinate"
                 min={1}
                 step={1}
-                key={form.key(`parameters.${index}.start_coordinate`)}
-                {...form.getInputProps(`parameters.${index}.start_coordinate`)}
+                key={form.key(`parameters.${index}.startCoordinate`)}
+                {...form.getInputProps(`parameters.${index}.startCoordinate`)}
               />
               <NumberInput
                 label="End coordinate"
                 min={1}
                 step={1}
-                key={form.key(`parameters.${index}.end_coordinate`)}
-                {...form.getInputProps(`parameters.${index}.end_coordinate`)}
+                key={form.key(`parameters.${index}.endCoordinate`)}
+                {...form.getInputProps(`parameters.${index}.endCoordinate`)}
               />
             </Group>
           )}
