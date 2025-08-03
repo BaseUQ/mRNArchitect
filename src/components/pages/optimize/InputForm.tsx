@@ -98,9 +98,15 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
   });
 
   const handleOnAddParameter = () => {
-    const numParameters = form.getValues().parameters.length;
+    const {
+      sequence: { codingSequence, codingSequenceType },
+      parameters,
+    } = form.getValues();
+    const nucleotideSequenceLength =
+      codingSequence.length * (codingSequenceType === "nucleic-acid" ? 1 : 3);
+    const numParameters = parameters.length;
     const startCoordinate = numParameters ? 1 : null;
-    const endCoordinate = numParameters ? 30 : null;
+    const endCoordinate = numParameters ? nucleotideSequenceLength || 90 : null;
     form.insertListItem(
       "parameters",
       createDefaultParameter(startCoordinate, endCoordinate),
