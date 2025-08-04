@@ -12,7 +12,6 @@ import { useState } from "react";
 import type { OptimizationInput } from "~/components/pages/optimize/types";
 import {
   EGFP,
-  FIVE_PRIME_HUMAN_ALPHA_GLOBIN,
   THREE_PRIME_HUMAN_ALPHA_GLOBIN,
   FIVE_PRIME_UTRS,
 } from "~/constants";
