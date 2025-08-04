@@ -1,6 +1,7 @@
 import {
   Button,
   InputWrapper,
+  NativeSelect,
   NumberInput,
   SegmentedControl,
   Stack,
@@ -11,8 +12,8 @@ import { useState } from "react";
 import type { OptimizationInput } from "~/components/pages/optimize/types";
 import {
   EGFP,
-  FIVE_PRIME_HUMAN_ALPHA_GLOBIN,
   THREE_PRIME_HUMAN_ALPHA_GLOBIN,
+  FIVE_PRIME_UTRS,
 } from "~/constants";
 import type { Sequence } from "~/types/sequence";
 
@@ -26,9 +27,8 @@ export const SequenceInput = ({
 }: {
   form: UseFormReturnType<OptimizationInput>;
 }) => {
-  const [fivePrimeUTRSequenceType, setFivePrimeUTRSequenceType] = useState<
-    "human-alpha-globin" | "custom"
-  >("custom");
+  const [fivePrimeUTRSequenceType, setFivePrimeUTRSequenceType] =
+    useState<string>("");
   const [threePrimeUTRSequenceType, setThreePrimeUTRSequenceType] = useState<
     "human-alpha-globin" | "custom"
   >("custom");
@@ -40,13 +40,8 @@ export const SequenceInput = ({
   );
 
   const handleOnChangeFivePrimeUTRSequenceType = (v: string) => {
-    setFivePrimeUTRSequenceType(v as typeof fivePrimeUTRSequenceType);
-    if (v === "human-alpha-globin") {
-      form.setFieldValue(
-        "sequence.fivePrimeUTR",
-        FIVE_PRIME_HUMAN_ALPHA_GLOBIN,
-      );
-    }
+    setFivePrimeUTRSequenceType(v);
+    form.setFieldValue("sequence.fivePrimeUTR", v);
   };
 
   const handleOnChangeThreePrimeUTRSequenceType = (v: string) => {
@@ -110,20 +105,16 @@ export const SequenceInput = ({
 
       <InputWrapper label="5' UTR">
         <Stack>
-          <SegmentedControl
-            data={[
-              {
-                label: "Human alpha-globin",
-                value: "human-alpha-globin",
-              },
-              { label: "Custom", value: "custom" },
-            ]}
+          <NativeSelect
+            data={[...FIVE_PRIME_UTRS, { label: "Custom", value: "" }]}
             value={fivePrimeUTRSequenceType}
-            onChange={handleOnChangeFivePrimeUTRSequenceType}
+            onChange={(e) =>
+              handleOnChangeFivePrimeUTRSequenceType(e.currentTarget.value)
+            }
           />
           <Textarea
             spellCheck={false}
-            disabled={fivePrimeUTRSequenceType === "human-alpha-globin"}
+            disabled={fivePrimeUTRSequenceType !== ""}
             placeholder="Paste your sequence here..."
             autosize
             minRows={2}

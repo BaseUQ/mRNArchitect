@@ -10,3 +10,26 @@ export const ORGANISMS = [
   { label: "Human", value: "human" },
   { label: "Mouse", value: "mouse" },
 ];
+
+export const FIVE_PRIME_UTRS = [
+  {
+    label: "Human alpha-globin",
+    value: "ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC",
+  },
+  {
+    label: "Human beta-globin",
+    value: "TACATTTGCTTCTGACACAACTGTGTTCACTAGCAACCTCAAACAGACACC",
+  },
+  {
+    label: "Beta-actin",
+    value: "CCCGCGAGCACAGAGCCTCGCCTTTGCCGATCCGCCGCCCGTCCACACCCGCCGCCAGCTCACC",
+  },
+  {
+    label: "Albumin",
+    value: "CTAGCTTTTCTCTTCTGTCAACCCCACACGCCTTTGGCACA",
+  },
+  {
+    label: "Minimal",
+    value: "GAGACT",
+  },
+];
