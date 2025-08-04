@@ -31,8 +31,8 @@ export const ProgressLoader = ({
       <Stack align="center">
         <Loader type="dots" />
         <Text>Optimisation in progress...</Text>
-        <Text size="s">{`Estimated time: < ${formattedEstimatedTime}`}</Text>
-        <Text size="s">{`Elapsed time: ${formattedElapsedTime}`}</Text>
+        <Text size="sm">{`Estimated time: < ${formattedEstimatedTime}`}</Text>
+        <Text size="sm">{`Elapsed time: ${formattedElapsedTime}`}</Text>
       </Stack>
     </Center>
   );
