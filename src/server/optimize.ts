@@ -94,6 +94,5 @@ export const optimizeSequence = createServerFn({ method: "POST" })
         timeout: 900_000,
       },
     );
-    console.error(stdout);
     return Optimization.parse(JSON.parse(stdout));
   });
