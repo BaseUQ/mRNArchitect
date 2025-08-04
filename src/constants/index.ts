@@ -21,7 +21,7 @@ export const FIVE_PRIME_UTRS = [
     value: "TACATTTGCTTCTGACACAACTGTGTTCACTAGCAACCTCAAACAGACACC",
   },
   {
-    label: "Beta actin",
+    label: "Beta-actin",
     value: "CCCGCGAGCACAGAGCCTCGCCTTTGCCGATCCGCCGCCCGTCCACACCCGCCGCCAGCTCACC",
   },
   {
