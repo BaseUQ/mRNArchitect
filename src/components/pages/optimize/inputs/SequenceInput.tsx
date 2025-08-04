@@ -1,5 +1,6 @@
 import {
   Button,
+  Group,
   InputWrapper,
   NativeSelect,
   NumberInput,
@@ -10,11 +11,7 @@ import {
 import type { UseFormReturnType } from "@mantine/form";
 import { useState } from "react";
 import type { OptimizationInput } from "~/components/pages/optimize/types";
-import {
-  EGFP,
-  THREE_PRIME_HUMAN_ALPHA_GLOBIN,
-  FIVE_PRIME_UTRS,
-} from "~/constants";
+import { EGFP, FIVE_PRIME_UTRS, THREE_PRIME_UTRS } from "~/constants";
 import type { Sequence } from "~/types/sequence";
 
 export interface SequenceFormProps {
@@ -29,9 +26,8 @@ export const SequenceInput = ({
 }) => {
   const [fivePrimeUTRSequenceType, setFivePrimeUTRSequenceType] =
     useState<string>("");
-  const [threePrimeUTRSequenceType, setThreePrimeUTRSequenceType] = useState<
-    "human-alpha-globin" | "custom"
-  >("custom");
+  const [threePrimeUTRSequenceType, setThreePrimeUTRSequenceType] =
+    useState<string>("");
   const [polyATailType, setPolyATailType] = useState<
     "none" | "generate" | "custom"
   >("none");
@@ -45,13 +41,8 @@ export const SequenceInput = ({
   };
 
   const handleOnChangeThreePrimeUTRSequenceType = (v: string) => {
-    setThreePrimeUTRSequenceType(v as typeof threePrimeUTRSequenceType);
-    if (v === "human-alpha-globin") {
-      form.setFieldValue(
-        "sequence.threePrimeUTR",
-        THREE_PRIME_HUMAN_ALPHA_GLOBIN,
-      );
-    }
+    setThreePrimeUTRSequenceType(v);
+    form.setFieldValue("sequence.threePrimeUTR", v);
   };
 
   const handleOnChangePolyATailType = (v: string) => {
@@ -69,6 +60,18 @@ export const SequenceInput = ({
 
   return (
     <Stack>
+      <Group justify="end">
+        <Button
+          size="xs"
+          variant="outline"
+          onClick={() => {
+            form.setFieldValue("sequence.codingSequenceType", "amino-acid");
+            form.setFieldValue("sequence.codingSequence", EGFP);
+          }}
+        >
+          Pre-fill example sequence (eGFP)
+        </Button>
+      </Group>
       <InputWrapper label="Coding sequence" required>
         <Stack>
           <SegmentedControl
@@ -93,7 +96,7 @@ export const SequenceInput = ({
           />
         </Stack>
       </InputWrapper>
-      <Button
+      {/*<Button
         variant="outline"
         onClick={() => {
           form.setFieldValue("sequence.codingSequenceType", "amino-acid");
@@ -101,7 +104,7 @@ export const SequenceInput = ({
         }}
       >
         Pre-fill example sequence (eGFP)
-      </Button>
+      </Button>*/}
 
       <InputWrapper label="5' UTR">
         <Stack>
@@ -126,20 +129,17 @@ export const SequenceInput = ({
       </InputWrapper>
       <InputWrapper label="3' UTR">
         <Stack>
-          <SegmentedControl
-            data={[
-              {
-                label: "Human alpha-globin",
-                value: "human-alpha-globin",
-              },
-              { label: "Custom", value: "custom" },
-            ]}
+          <NativeSelect
+            data={[...THREE_PRIME_UTRS, { label: "Custom", value: "" }]}
             value={threePrimeUTRSequenceType}
-            onChange={handleOnChangeThreePrimeUTRSequenceType}
+            onChange={(e) =>
+              handleOnChangeThreePrimeUTRSequenceType(e.currentTarget.value)
+            }
           />
+
           <Textarea
             spellCheck={false}
-            disabled={threePrimeUTRSequenceType === "human-alpha-globin"}
+            disabled={threePrimeUTRSequenceType !== ""}
             placeholder="Paste your sequence here..."
             autosize
             minRows={2}

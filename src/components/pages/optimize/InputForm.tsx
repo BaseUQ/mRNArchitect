@@ -2,14 +2,13 @@ import {
   Accordion,
   type AccordionControlProps,
   ActionIcon,
-  Alert,
   Button,
   Center,
+  Divider,
   Fieldset,
   LoadingOverlay,
   NumberInput,
   Stack,
-  Text,
   Tooltip,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
@@ -43,6 +42,15 @@ const createDefaultParameter = (
   hairpinStemSize: 10,
   hairpinWindow: 60,
 });
+
+const parameterTitle = (parameter: OptimizationParameter) => {
+  const start = parameter.startCoordinate;
+  const end = parameter.endCoordinate;
+  if (start !== null && end !== null) {
+    return `Sub-region [${start}-${end}]`;
+  }
+  return `Sub-region [full sequence]`;
+};
 
 const AccordionControl = ({
   showDelete,
@@ -124,40 +132,41 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
         <Fieldset legend="Input sequence">
           <SequenceInput form={form} />
         </Fieldset>
-        <Fieldset legend="Input optimisation parameter regions">
+        <Fieldset legend="Sequence optimisation">
+          <ParameterInput index={0} form={form} hideCoordinates />
+          <Divider my="sm" />
           <Accordion
             chevronPosition="left"
             value={accordionValue}
             onChange={setAccordionValue}
           >
-            {form.getValues().parameters.length === 0 && (
-              <Center>
-                <Alert color="red">
-                  <Text>At least one region must be added to optimise.</Text>
-                </Alert>
-              </Center>
-            )}
-            {form.getValues().parameters.map((_, index) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: No other suitable key
-              <Accordion.Item key={`${index}`} value={index.toString()}>
-                <AccordionControl
-                  showDelete={form.getValues().parameters.length > 1}
-                  onClickDelete={() => handleOnDeleteParameter(index)}
-                >{`Region ${index + 1}`}</AccordionControl>
-                <Accordion.Panel>
-                  <ParameterInput index={index} form={form} />
-                </Accordion.Panel>
-              </Accordion.Item>
-            ))}
+            {form
+              .getValues()
+              .parameters.slice(1)
+              .map((p, index) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: No other suitable key
+                <Accordion.Item key={`${index}`} value={index.toString()}>
+                  <AccordionControl
+                    showDelete
+                    onClickDelete={() => handleOnDeleteParameter(index)}
+                  >
+                    {parameterTitle(p)}
+                  </AccordionControl>
+                  <Accordion.Panel>
+                    <ParameterInput index={index} form={form} />
+                  </Accordion.Panel>
+                </Accordion.Item>
+              ))}
           </Accordion>
           <Center mt="md">
             <Button
               onClick={handleOnAddParameter}
               variant="outline"
               color="green"
+              fullWidth
               leftSection={<PlusIcon size={14} />}
             >
-              Add another parameter region
+              Add sub-region for regional optimisation
             </Button>
           </Center>
         </Fieldset>
@@ -177,7 +186,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
           type="submit"
           disabled={form.getValues().parameters.length === 0}
         >
-          Optimise
+          Optimise sequence
         </Button>
         {form.submitting && (
           <LoadingOverlay

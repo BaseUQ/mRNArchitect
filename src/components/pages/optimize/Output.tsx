@@ -109,7 +109,7 @@ export const Output = ({
             download={`mRNAchitect-report-${new Date().toISOString()}.txt`}
             leftSection={<DownloadSimpleIcon />}
           >
-            Download report (.txt format)
+            Download (.txt format)
           </Button>
         </Group>
       </Group>

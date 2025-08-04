@@ -17,11 +17,13 @@ import { ORGANISMS } from "~/constants";
 import RESTRICTION_SITES from "~/data/restriction-sites.json";
 
 export const ParameterInput = ({
-  index,
   form,
+  hideCoordinates = false,
+  index,
 }: {
-  index: number;
   form: UseFormReturnType<OptimizationInput>;
+  hideCoordinates?: boolean;
+  index: number;
 }) => {
   const coordinateType =
     !Number.isInteger(form.getValues().parameters[index].startCoordinate) ||
@@ -48,36 +50,38 @@ export const ParameterInput = ({
 
   return (
     <Stack>
-      <InputWrapper label="Nucleotide coordinates">
-        <Stack justify="start">
-          <SegmentedControl
-            data={[
-              { label: "Full sequence", value: "full-sequence" },
-              { label: "Sub-region", value: "sub-region" },
-            ]}
-            value={coordinateType}
-            onChange={handleOnChangeCoordinateType}
-          />
-          {coordinateType === "sub-region" && (
-            <Group>
-              <NumberInput
-                label="Start coordinate"
-                min={1}
-                step={1}
-                key={form.key(`parameters.${index}.startCoordinate`)}
-                {...form.getInputProps(`parameters.${index}.startCoordinate`)}
-              />
-              <NumberInput
-                label="End coordinate"
-                min={1}
-                step={1}
-                key={form.key(`parameters.${index}.endCoordinate`)}
-                {...form.getInputProps(`parameters.${index}.endCoordinate`)}
-              />
-            </Group>
-          )}
-        </Stack>
-      </InputWrapper>
+      {!hideCoordinates && (
+        <InputWrapper label="Nucleotide coordinates">
+          <Stack justify="start">
+            <SegmentedControl
+              data={[
+                { label: "Full sequence", value: "full-sequence" },
+                { label: "Sub-region", value: "sub-region" },
+              ]}
+              value={coordinateType}
+              onChange={handleOnChangeCoordinateType}
+            />
+            {coordinateType === "sub-region" && (
+              <Group>
+                <NumberInput
+                  label="Start coordinate"
+                  min={1}
+                  step={1}
+                  key={form.key(`parameters.${index}.startCoordinate`)}
+                  {...form.getInputProps(`parameters.${index}.startCoordinate`)}
+                />
+                <NumberInput
+                  label="End coordinate"
+                  min={1}
+                  step={1}
+                  key={form.key(`parameters.${index}.endCoordinate`)}
+                  {...form.getInputProps(`parameters.${index}.endCoordinate`)}
+                />
+              </Group>
+            )}
+          </Stack>
+        </InputWrapper>
+      )}
       <NativeSelect
         label="Organism"
         data={ORGANISMS}
