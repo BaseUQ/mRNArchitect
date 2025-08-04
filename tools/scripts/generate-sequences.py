@@ -27,13 +27,15 @@ def _iterate_fasta_file(input_file: str, sequence_type: SequenceType):
                 continue
             if line.startswith(">"):
                 if sequences:
-                    yield header, _sequence("".join(sequences))
+                    if all("N" not in s for s in sequences):
+                        yield header, _sequence("".join(sequences))
                 header = line.lstrip(">")
                 sequences = []
             else:
                 sequences.append(line)
     if header and sequences:
-        yield header, _sequence("".join(sequences))
+        if all("N" not in s for s in sequences):
+            yield header, _sequence("".join(sequences))
 
 
 def _optimize(

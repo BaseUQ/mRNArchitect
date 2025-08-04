@@ -16,13 +16,23 @@ export const ProgressLoader = ({
     1000,
     { autoInvoke: true },
   );
+
+  const formattedEstimatedTime = formatDuration(
+    intervalToDuration({ start: 0, end: estimatedTimeInSeconds * 1000 }),
+    { format: ["minutes"] },
+  );
+  const formattedElapsedTime = formatDuration(
+    intervalToDuration({ start: 0, end: elapsedSeconds * 1000 }),
+    { format: ["minutes", "seconds"], zero: true },
+  );
+
   return (
     <Center p="lg">
       <Stack align="center">
         <Loader type="dots" />
         <Text>Optimisation in progress...</Text>
-        <Text size="s">{`Estimated time: < ${formatDuration(intervalToDuration({ start: 0, end: estimatedTimeInSeconds * 1000 }), { format: ["minutes"] })}`}</Text>
-        <Text size="s">{`Elapsed time: ${formatDuration(intervalToDuration({ start: 0, end: elapsedSeconds * 1000 }), { format: ["minutes", "seconds"], zero: true })}`}</Text>
+        <Text size="s">{`Estimated time: < ${formattedEstimatedTime}`}</Text>
+        <Text size="s">{`Elapsed time: ${formattedElapsedTime}`}</Text>
       </Stack>
     </Center>
   );
