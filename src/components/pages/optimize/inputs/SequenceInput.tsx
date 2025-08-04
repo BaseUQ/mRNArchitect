@@ -113,21 +113,9 @@ export const SequenceInput = ({
               handleOnChangeFivePrimeUTRSequenceType(e.currentTarget.value)
             }
           />
-
-          {/*<SegmentedControl
-            data={[
-              {
-                label: "Human alpha-globin",
-                value: "human-alpha-globin",
-              },
-              { label: "Custom", value: "custom" },
-            ]}
-            value={fivePrimeUTRSequenceType}
-            onChange={handleOnChangeFivePrimeUTRSequenceType}
-          />*/}
           <Textarea
             spellCheck={false}
-            disabled={fivePrimeUTRSequenceType != ""}
+            disabled={fivePrimeUTRSequenceType !== ""}
             placeholder="Paste your sequence here..."
             autosize
             minRows={2}
