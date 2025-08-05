@@ -62,7 +62,13 @@ export const ParameterInput = ({
               onChange={handleOnChangeCoordinateType}
             />
             {coordinateType === "sub-region" && (
-              <Group align="start">
+              <Flex
+                direction={{ base: "column", sm: "row" }}
+                justify="flex-start"
+                align="start"
+                gap="lg"
+                pl="sm"
+              >
                 <NumberInput
                   label="Start coordinate"
                   min={1}
@@ -77,7 +83,7 @@ export const ParameterInput = ({
                   key={form.key(`parameters.${index}.endCoordinate`)}
                   {...form.getInputProps(`parameters.${index}.endCoordinate`)}
                 />
-              </Group>
+              </Flex>
             )}
           </Stack>
         </InputWrapper>

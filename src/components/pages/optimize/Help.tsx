@@ -60,17 +60,59 @@ export const Help = () => {
               ],
               [
                 "5' UTR",
-                <Flex key="five_prime_utr">
-                  <Text size="sm">
-                    Paste your 5' untranslated sequence here. The 5'
-                    untranslated region (UTR) is bound and scanned by the
-                    ribosome and is needed for translation. We provide a
-                    well-validated option, the human alpha-globin (HBA1; Gene ID
-                    3039) 5' UTR sequence that has been validated in different
-                    cell types and applications. By default, no 5' UTR will be
-                    added.
-                  </Text>
-                  <Image src="/images/five_prime_utrs_graph.png" />
+                <Flex
+                  key="five_prime_utr"
+                  direction={{ base: "column", sm: "row" }}
+                  justify="flex-start"
+                  align="start"
+                  gap="lg"
+                >
+                  <Stack>
+                    <Text size="sm">
+                      Paste your 5' untranslated sequence here. The 5'
+                      untranslated region (UTR) is bound and scanned by the
+                      ribosome and is needed for translation. We provide a
+                      well-validated option, the human alpha-globin (HBA1; Gene
+                      ID 3039) 5' UTR sequence that has been validated in
+                      different cell types and applications. By default, no 5'
+                      UTR will be added.
+                    </Text>
+                    {/* TODO: Add proper help text. */}
+                    <Text>--- PLACEHOLDER TEXT BELOW ---</Text>
+                    <Text size="sm">
+                      Here is the validation data for the UTRs. Luciferase mRNAs
+                      were designed, incorporating the different 5' UTR
+                      sequences, proceeded by an AGG capping signal and KOZAK
+                      sequence. mRNAs were prepared using BASE's standard
+                      methods, and transfected into HEK293-T cells. Luminescence
+                      was measured at 24 hours post transfection. All tested 5'
+                      UTRs showed equal or higher expression compared to the
+                      human alpha globin 5' UTR.
+                    </Text>
+                    <Text size="sm">
+                      The UTR sequences were derived from the following
+                      manuscripts:
+                    </Text>
+                    <ul>
+                      <li>
+                        <a
+                          href="https://www.liebertpub.com/doi/full/10.1089/ten.tea.2017.0485"
+                          target="_blank"
+                        >
+                          https://www.liebertpub.com/doi/full/10.1089/ten.tea.2017.0485
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="https://www.nature.com/articles/s41598-024-70792-x"
+                          target="_blank"
+                        >
+                          https://www.nature.com/articles/s41598-024-70792-x
+                        </a>
+                      </li>
+                    </ul>
+                  </Stack>
+                  <Image miw="250px" src="/images/five_prime_utrs_graph.png" />
                 </Flex>,
               ],
               [
