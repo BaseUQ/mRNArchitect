@@ -6,7 +6,8 @@ from .organism import (
     KAZUSA_HOMO_SAPIENS,
     KAZUSA_MUS_MUSCULUS,
 )
-from .sequence import OptimizationConfiguration, Sequence
+from .sequence import Sequence
+from .sequence.optimize import OptimizationParameter
 
 DEFAULT_ORGANISMS = {
     "human": KAZUSA_HOMO_SAPIENS,
@@ -32,26 +33,29 @@ def _print(output, args):
 def _optimize(args):
     sequence = _parse_sequence(args)
     if args.config:
-        config = msgspec.json.decode(args.config, type=OptimizationConfiguration)
+        parameters = msgspec.json.decode(args.config, type=list[OptimizationParameter])
     else:
-        config = OptimizationConfiguration(
-            organism=DEFAULT_ORGANISMS[args.organism],
-            enable_uridine_depletion=args.enable_uridine_depletion,
-            avoid_ribosome_slip=args.avoid_ribosome_slip,
-            gc_content_min=args.gc_content_min,
-            gc_content_max=args.gc_content_max,
-            gc_content_window=args.gc_content_window,
-            avoid_restriction_sites=args.avoid_restriction_sites or [],
-            avoid_sequences=args.avoid_sequences or [],
-            avoid_poly_a=args.avoid_poly_a,
-            avoid_poly_c=args.avoid_poly_c,
-            avoid_poly_g=args.avoid_poly_g,
-            avoid_poly_t=args.avoid_poly_t,
-            hairpin_stem_size=args.hairpin_stem_size,
-            hairpin_window=args.hairpin_window,
-        )
+        parameters = [
+            OptimizationParameter(
+                organism=args.organism,
+                avoid_repeat_length=args.avoid_repeat_length,
+                enable_uridine_depletion=args.enable_uridine_depletion,
+                avoid_ribosome_slip=args.avoid_ribosome_slip,
+                gc_content_min=args.gc_content_min,
+                gc_content_max=args.gc_content_max,
+                gc_content_window=args.gc_content_window,
+                avoid_restriction_sites=args.avoid_restriction_sites or [],
+                avoid_sequences=args.avoid_sequences or [],
+                avoid_poly_a=args.avoid_poly_a,
+                avoid_poly_c=args.avoid_poly_c,
+                avoid_poly_g=args.avoid_poly_g,
+                avoid_poly_t=args.avoid_poly_t,
+                hairpin_stem_size=args.hairpin_stem_size,
+                hairpin_window=args.hairpin_window,
+            )
+        ]
 
-    result = sequence.optimize(config)
+    result = sequence.optimize(parameters=parameters)
     _print(result, args)
 
 
@@ -90,7 +94,7 @@ def cli():
         "--config",
         type=str,
         default="",
-        help="The optimization options given as a JSON structure. If given, other command line options are ignored.",
+        help="The optimization configuration given as a JSON structure. Other command line options are ignored.",
     )
     optimize.add_argument(
         "--organism",

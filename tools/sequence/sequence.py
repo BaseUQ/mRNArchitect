@@ -6,15 +6,16 @@ import typing
 
 import msgspec
 
-from .constants import (
+from ..constants import (
     CODON_TO_AMINO_ACID_MAP,
 )
-from .organism import (
+from ..organism import (
     KAZUSA_HOMO_SAPIENS,
     load_organism,
     Organism,
 )
-from .types import AminoAcid, Codon
+from ..types import AminoAcid, Codon
+from .optimize import OptimizationParameter, OptimizationError, optimize
 
 
 class OptimizationException(Exception):
@@ -43,48 +44,25 @@ class Analysis(msgspec.Struct, kw_only=True, rename="camel"):
     debug: Debug
 
 
-class OptimizationConfiguration(msgspec.Struct, kw_only=True, rename="camel"):
-    class OrganismDef(msgspec.Struct, kw_only=True, rename="camel"):
-        source: typing.Literal["kazusa"]
-        id: str
-
-    organism: Organism | str = KAZUSA_HOMO_SAPIENS
-    enable_uridine_depletion: bool = False
-    avoid_ribosome_slip: bool = False
-    gc_content_min: float = 0.4
-    gc_content_max: float = 0.7
-    gc_content_window: int = 100
-    avoid_restriction_sites: list[str] = msgspec.field(default_factory=list)
-    avoid_sequences: str | list[str] = msgspec.field(default_factory=list)
-    avoid_repeat_length: int = 10
-    avoid_poly_a: int = 9
-    avoid_poly_c: int = 6
-    avoid_poly_g: int = 6
-    avoid_poly_t: int = 9
-    hairpin_stem_size: int = 10
-    hairpin_window: int = 60
-
-    def __post_init__(self):
-        if isinstance(self.avoid_sequences, str):
-            self.avoid_sequences = self.avoid_sequences.split(",")
-        if self.gc_content_min > self.gc_content_max:
-            raise ValueError("GC content minmum must be less than maximum.")
-
-    def to_dict(self):
-        return {f: getattr(self, f) for f in self.__struct_fields__}
-
-
 class OptimizationResult(msgspec.Struct, kw_only=True, rename="camel"):
-    class Debug(msgspec.Struct, kw_only=True, rename="camel"):
-        time_seconds: float
-        constraints: str
-        objectives: str
+    class Error(msgspec.Struct, kw_only=True, rename="camel"):
+        message: str
+        problem: str | None
+        constraint: str | None
+        location: str | None
 
-    output: "Sequence"
-    debug: Debug
+    class Result(msgspec.Struct, kw_only=True, rename="camel"):
+        sequence: "Sequence"
+        constraints: str | None
+        objectives: str | None
+
+    success: bool
+    result: Result | None
+    error: Error | None
+    time_in_seconds: float
 
 
-class Sequence(msgspec.Struct, frozen=True):
+class Sequence(msgspec.Struct, frozen=True, rename="camel"):
     """A sequence.
 
     >>> str(Sequence("ATT"))
@@ -166,6 +144,13 @@ class Sequence(msgspec.Struct, frozen=True):
 
     def __getitem__(self, val) -> "Sequence":
         return Sequence(self.nucleic_acid_sequence[val])
+
+    def __contains__(self, val: "Sequence | str") -> bool:
+        if isinstance(val, Sequence):
+            return val.nucleic_acid_sequence in self.nucleic_acid_sequence
+        if isinstance(val, str):
+            return val in self.nucleic_acid_sequence
+        raise NotImplementedError
 
     @property
     @functools.cache
@@ -369,114 +354,35 @@ class Sequence(msgspec.Struct, frozen=True):
         )
 
     def optimize(
-        self,
-        config: OptimizationConfiguration | None = None,
+        self, parameters: typing.Sequence[OptimizationParameter]
     ) -> OptimizationResult:
         """Optimize the sequence based on the configuration parameters.
 
-        >>> Sequence("ACGACCATTAAA").optimize(OptimizationConfiguration()).output
+        >>> Sequence("ACGACCATTAAA").optimize(parameters=[OptimizationParameter(organism="human")]).result.sequence
         Sequence(nucleic_acid_sequence='ACCACCATCAAG')
         """
-        from dnachisel import DnaOptimizationProblem
-        from dnachisel.builtin_specifications import (
-            AvoidPattern,
-            AvoidHairpins,
-            AvoidRareCodons,
-            EnforceGCContent,
-            EnforceTranslation,
-            UniquifyAllKmers,
-        )
-        from dnachisel.builtin_specifications.codon_optimization import (
-            CodonOptimize,
-        )
-
-        MAX_RANDOM_ITERS = 20_000
-        """The maximum number of iterations to run when optimizing."""
-
-        config = config or OptimizationConfiguration()
-
-        constraints = [
-            EnforceGCContent(mini=config.gc_content_min, maxi=config.gc_content_max),  # type: ignore
-            EnforceGCContent(
-                mini=config.gc_content_min,  # type: ignore
-                maxi=config.gc_content_max,
-                window=config.gc_content_window,
-            ),
-            AvoidHairpins(
-                stem_size=config.hairpin_stem_size, hairpin_window=config.hairpin_window
-            ),
-            AvoidPattern(f"{config.avoid_poly_a}xA"),
-            AvoidPattern(f"{config.avoid_poly_c}xC"),
-            AvoidPattern(f"{config.avoid_poly_g}xG"),
-            EnforceTranslation(),
-        ]
-
-        if config.enable_uridine_depletion:
-            uridine_depletion_codon_usage_table = {
-                amino_acid: {
-                    codon: (0.0 if codon[-1] == "T" else 1.0)
-                    for codon, aa in CODON_TO_AMINO_ACID_MAP.items()
-                    if aa == amino_acid
-                }
-                for amino_acid in set(CODON_TO_AMINO_ACID_MAP.values())
-            }
-            constraints.append(
-                AvoidRareCodons(
-                    0.5, codon_usage_table=uridine_depletion_codon_usage_table
-                )
-            )
-
-        if config.avoid_ribosome_slip:
-            constraints.append(AvoidPattern("3xT"))
-        else:
-            constraints.append(AvoidPattern(f"{config.avoid_poly_t}xT"))
-
-        cut_site_constraints = [
-            AvoidPattern(f"{site}_site")
-            for site in config.avoid_restriction_sites or []
-            if site
-        ]
-        constraints.extend(cut_site_constraints)
-
-        custom_pattern_constraints = [
-            AvoidPattern(it) for it in config.avoid_sequences or [] if it
-        ]
-        constraints.extend(custom_pattern_constraints)
-
         start = time.time()
-
-        organism = load_organism(config.organism)
-        optimization_problem = DnaOptimizationProblem(
-            sequence=self.nucleic_acid_sequence,
-            constraints=constraints,
-            objectives=[
-                CodonOptimize(
-                    codon_usage_table=organism.to_dnachisel_dict(),
-                    method="use_best_codon",
+        try:
+            result = optimize(self.nucleic_acid_sequence, parameters=parameters)
+        except OptimizationError as e:
+            return OptimizationResult(
+                success=False,
+                result=None,
+                error=OptimizationResult.Error(
+                    message=str(e.message),
+                    problem=str(e.problem),
+                    location=str(e.location),
+                    constraint=str(e.constraint),
                 ),
-                UniquifyAllKmers(k=config.avoid_repeat_length),
-            ],
-            logger=None,  # type: ignore
-        )
-        optimization_problem.max_random_iters = MAX_RANDOM_ITERS
-
-        try:
-            optimization_problem.resolve_constraints()
-        except Exception as e:
-            raise OptimizationException(
-                f"Input sequence is invalid, cannot optimize: {e}"
+                time_in_seconds=(time.time() - start),
             )
-
-        try:
-            optimization_problem.optimize()
-        except Exception as e:
-            raise OptimizationException(f"Optimization process failed: {e}")
-
         return OptimizationResult(
-            output=Sequence(optimization_problem.sequence),
-            debug=OptimizationResult.Debug(
-                time_seconds=(time.time() - start),
-                constraints=optimization_problem.constraints_text_summary(),
-                objectives=optimization_problem.objectives_text_summary(),
+            success=True,
+            result=OptimizationResult.Result(
+                sequence=Sequence(result.sequence),
+                constraints=result.constraints_text_summary(),
+                objectives=result.objectives_text_summary(),
             ),
+            error=None,
+            time_in_seconds=(time.time() - start),
         )

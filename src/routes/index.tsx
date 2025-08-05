@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { OptimizeForm } from "~/components/pages/optimizer/OptimizationForm";
+import { OptimizePage } from "~/components/pages/optimize/OptimizePage";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  return <OptimizeForm />;
+  return <OptimizePage />;
 }
