@@ -60,28 +60,28 @@ export const SequenceInput = ({
 
   return (
     <Stack>
-      <Group justify="end">
-        <Button
-          size="xs"
-          variant="outline"
-          onClick={() => {
-            form.setFieldValue("sequence.codingSequenceType", "amino-acid");
-            form.setFieldValue("sequence.codingSequence", EGFP);
-          }}
-        >
-          Pre-fill example sequence (eGFP)
-        </Button>
-      </Group>
       <InputWrapper label="Coding sequence" required>
         <Stack>
-          <SegmentedControl
-            data={[
-              { label: "Nucleic acid", value: "nucleic-acid" },
-              { label: "Amino acid", value: "amino-acid" },
-            ]}
-            key={form.key("sequence.codingSequenceType")}
-            {...form.getInputProps("sequence.codingSequenceType")}
-          />
+          <Group grow>
+            <SegmentedControl
+              data={[
+                { label: "Nucleic acid", value: "nucleic-acid" },
+                { label: "Amino acid", value: "amino-acid" },
+              ]}
+              key={form.key("sequence.codingSequenceType")}
+              {...form.getInputProps("sequence.codingSequenceType")}
+            />
+            <Button
+              size="xs"
+              variant="outline"
+              onClick={() => {
+                form.setFieldValue("sequence.codingSequenceType", "amino-acid");
+                form.setFieldValue("sequence.codingSequence", EGFP);
+              }}
+            >
+              Pre-fill example sequence (eGFP)
+            </Button>
+          </Group>
           <Textarea
             spellCheck={false}
             label="Coding sequence textarea"
@@ -96,16 +96,6 @@ export const SequenceInput = ({
           />
         </Stack>
       </InputWrapper>
-      {/*<Button
-        variant="outline"
-        onClick={() => {
-          form.setFieldValue("sequence.codingSequenceType", "amino-acid");
-          form.setFieldValue("sequence.codingSequence", EGFP);
-        }}
-      >
-        Pre-fill example sequence (eGFP)
-      </Button>*/}
-
       <InputWrapper label="5' UTR">
         <Stack>
           <NativeSelect

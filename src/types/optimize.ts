@@ -1,33 +1,33 @@
 import z from "zod/v4";
 
+const REQUIRED_MESSAGE = "Field cannot be empty.";
+
 export const OptimizationParameter = z
   .object({
-    startCoordinate: z.int().min(1).nullable(),
-    endCoordinate: z.int().min(1).nullable(),
+    startCoordinate: z.int(REQUIRED_MESSAGE).min(1).nullable(),
+    endCoordinate: z.int(REQUIRED_MESSAGE).min(1).nullable(),
     organism: z.string(),
-    avoidRepeatLength: z.int().min(0),
+    avoidRepeatLength: z.int(REQUIRED_MESSAGE).min(0),
     enableUridineDepletion: z.boolean(),
     avoidRibosomeSlip: z.boolean(),
     gcContentMin: z.number().min(0).max(1),
     gcContentMax: z.number().min(0).max(1),
-    gcContentWindow: z.int().min(1),
+    gcContentWindow: z.int(REQUIRED_MESSAGE).min(1),
     avoidRestrictionSites: z.array(z.string()),
     avoidSequences: z.array(
       z.string().regex(/[ACGTU]/gim, "Sequences must be nucleic acids."),
     ),
-    avoidPolyT: z.int().min(0),
-    avoidPolyA: z.int().min(0),
-    avoidPolyC: z.int().min(0),
-    avoidPolyG: z.int().min(0),
-    hairpinStemSize: z.int().min(0),
-    hairpinWindow: z.int().min(0),
+    avoidPolyT: z.int(REQUIRED_MESSAGE).min(0),
+    avoidPolyA: z.int(REQUIRED_MESSAGE).min(0),
+    avoidPolyC: z.int(REQUIRED_MESSAGE).min(0),
+    avoidPolyG: z.int(REQUIRED_MESSAGE).min(0),
+    hairpinStemSize: z.int(REQUIRED_MESSAGE).min(0),
+    hairpinWindow: z.int(REQUIRED_MESSAGE).min(0),
   })
   .check((ctx) => {
-    if (
-      ctx.value.startCoordinate !== null &&
-      ctx.value.endCoordinate !== null
-    ) {
-      if (ctx.value.startCoordinate > ctx.value.endCoordinate) {
+    const { startCoordinate, endCoordinate } = ctx.value;
+    if (startCoordinate !== null && endCoordinate !== null) {
+      if (startCoordinate > endCoordinate) {
         ctx.issues.push({
           code: "custom",
           message:
@@ -36,7 +36,7 @@ export const OptimizationParameter = z
           path: ["startCoordinate"],
         });
       }
-      if ((ctx.value.startCoordinate - 1) % 3 !== 0) {
+      if ((startCoordinate - 1) % 3 !== 0) {
         ctx.issues.push({
           code: "custom",
           message:
@@ -45,7 +45,7 @@ export const OptimizationParameter = z
           path: ["startCoordinate"],
         });
       }
-      if (ctx.value.endCoordinate % 3 !== 0) {
+      if (endCoordinate % 3 !== 0) {
         ctx.issues.push({
           code: "custom",
           message:
@@ -54,6 +54,20 @@ export const OptimizationParameter = z
           path: ["endCoordinate"],
         });
       }
+    } else if (startCoordinate === null && endCoordinate !== null) {
+      ctx.issues.push({
+        code: "custom",
+        message: "Start coordinate must be set.",
+        input: ctx.value,
+        path: ["startCoordinate"],
+      });
+    } else if (startCoordinate !== null && endCoordinate === null) {
+      ctx.issues.push({
+        code: "custom",
+        message: "End coordinate must be set.",
+        input: ctx.value,
+        path: ["endCoordinate"],
+      });
     }
   });
 

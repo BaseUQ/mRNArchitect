@@ -2,12 +2,14 @@ import {
   Accordion,
   type AccordionControlProps,
   ActionIcon,
+  Box,
   Button,
   Center,
   Divider,
   Fieldset,
   LoadingOverlay,
   NumberInput,
+  SegmentedControl,
   Stack,
   Tooltip,
 } from "@mantine/core";
@@ -15,6 +17,8 @@ import { useForm } from "@mantine/form";
 import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import type { OptimizationParameter } from "~/types/optimize";
+import type { Sequence } from "~/types/sequence";
+import { nucleotideCDSLength } from "~/utils/sequence";
 import { ParameterInput } from "./inputs/ParameterInput";
 import { SequenceInput } from "./inputs/SequenceInput";
 import { ProgressLoader } from "./ProgressLoader";
@@ -43,13 +47,13 @@ const createDefaultParameter = (
   hairpinWindow: 60,
 });
 
-const parameterTitle = (parameter: OptimizationParameter) => {
-  const start = parameter.startCoordinate;
-  const end = parameter.endCoordinate;
-  if (start !== null && end !== null) {
-    return `Sub-region [${start}-${end}]`;
-  }
-  return `Sub-region [full sequence]`;
+const parameterTitle = (
+  sequence: Sequence,
+  parameter: OptimizationParameter,
+) => {
+  const start = parameter.startCoordinate ?? 1;
+  const end = parameter.endCoordinate ?? nucleotideCDSLength(sequence);
+  return `Sub-region [${start}-${end}]`;
 };
 
 const AccordionControl = ({
@@ -77,6 +81,7 @@ interface InputFormProps {
 }
 
 export const InputForm = ({ onSubmit }: InputFormProps) => {
+  const [optimisationMode, setOptimisationMode] = useState<string>("simple");
   const [accordionValue, setAccordionValue] = useState<string | null>("0");
   const [numberOfSequences, setNumberOfSequences] = useState<number>(3);
 
@@ -105,21 +110,33 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
     },
   });
 
+  const handleOptimisationModeOnChange = (v: string) => {
+    setOptimisationMode(v);
+    if (v === "simple") {
+      form.setFieldValue("parameters", [createDefaultParameter()]);
+    } else {
+      form.setFieldValue("parameters", [
+        createDefaultParameter(
+          1,
+          nucleotideCDSLength(form.getValues().sequence) || 90,
+        ),
+      ]);
+      setAccordionValue("0");
+    }
+  };
+
   const handleOnAddParameter = () => {
-    const {
-      sequence: { codingSequence, codingSequenceType },
-      parameters,
-    } = form.getValues();
-    const nucleotideSequenceLength =
-      codingSequence.length * (codingSequenceType === "nucleic-acid" ? 1 : 3);
+    const { sequence, parameters } = form.getValues();
     const numParameters = parameters.length;
     const startCoordinate = numParameters ? 1 : null;
-    const endCoordinate = numParameters ? nucleotideSequenceLength || 90 : null;
+    const endCoordinate = numParameters
+      ? nucleotideCDSLength(sequence) || 90
+      : null;
     form.insertListItem(
       "parameters",
       createDefaultParameter(startCoordinate, endCoordinate),
     );
-    setAccordionValue((numParameters - 1).toString());
+    setAccordionValue(numParameters.toString());
   };
 
   const handleOnDeleteParameter = (index: number) => {
@@ -133,42 +150,56 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
           <SequenceInput form={form} />
         </Fieldset>
         <Fieldset legend="Sequence optimisation">
-          <ParameterInput index={0} form={form} hideCoordinates />
+          <SegmentedControl
+            fullWidth
+            data={[
+              { label: "Simple (optimise full sequence)", value: "simple" },
+              { label: "Advanced (optimise by sub-region)", value: "advanced" },
+            ]}
+            value={optimisationMode}
+            onChange={handleOptimisationModeOnChange}
+          />
           <Divider my="sm" />
-          <Accordion
-            chevronPosition="left"
-            value={accordionValue}
-            onChange={setAccordionValue}
-          >
-            {form
-              .getValues()
-              .parameters.slice(1)
-              .map((p, index) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: No other suitable key
-                <Accordion.Item key={`${index}`} value={index.toString()}>
-                  <AccordionControl
-                    showDelete
-                    onClickDelete={() => handleOnDeleteParameter(index)}
-                  >
-                    {parameterTitle(p)}
-                  </AccordionControl>
-                  <Accordion.Panel>
-                    <ParameterInput index={index} form={form} />
-                  </Accordion.Panel>
-                </Accordion.Item>
-              ))}
-          </Accordion>
-          <Center mt="md">
-            <Button
-              onClick={handleOnAddParameter}
-              variant="outline"
-              color="green"
-              fullWidth
-              leftSection={<PlusIcon size={14} />}
-            >
-              Add sub-region for regional optimisation
-            </Button>
-          </Center>
+          {optimisationMode === "simple" && (
+            <Box mx="md">
+              <ParameterInput index={0} form={form} hideCoordinates />
+            </Box>
+          )}
+          {optimisationMode === "advanced" && (
+            <>
+              <Accordion
+                chevronPosition="left"
+                value={accordionValue}
+                onChange={setAccordionValue}
+              >
+                {form.getValues().parameters.map((p, index) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: No other suitable key
+                  <Accordion.Item key={`${index}`} value={index.toString()}>
+                    <AccordionControl
+                      showDelete={form.getValues().parameters.length > 1}
+                      onClickDelete={() => handleOnDeleteParameter(index)}
+                    >
+                      {parameterTitle(form.getValues().sequence, p)}
+                    </AccordionControl>
+                    <Accordion.Panel>
+                      <ParameterInput index={index} form={form} />
+                    </Accordion.Panel>
+                  </Accordion.Item>
+                ))}
+              </Accordion>
+              <Center mt="md">
+                <Button
+                  onClick={handleOnAddParameter}
+                  variant="outline"
+                  color="green"
+                  fullWidth
+                  leftSection={<PlusIcon size={14} />}
+                >
+                  Add sub-region for regional optimisation
+                </Button>
+              </Center>
+            </>
+          )}
         </Fieldset>
         <Fieldset legend="Number of optimised sequences">
           <NumberInput

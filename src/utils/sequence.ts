@@ -1,6 +1,6 @@
 import z from "zod/v4";
-import { Sequence } from "~/types/sequence";
 import { convertSequenceToNucleicAcid } from "~/server/optimize";
+import { Sequence } from "~/types/sequence";
 
 const NucleicAcidSequence = Sequence.extend({
   codingSequenceType: z.literal("nucleic-acid"),
@@ -8,9 +8,13 @@ const NucleicAcidSequence = Sequence.extend({
 
 type NucleicAcidSequence = z.infer<typeof NucleicAcidSequence>;
 
+export const nucleotideCDSLength = (sequence: Sequence) =>
+  sequence.codingSequence.length *
+  (sequence.codingSequenceType === "nucleic-acid" ? 1 : 3);
+
 export const asNucleicAcid = async (
   sequence: Sequence,
-  organism: string = "human",
+  organism = "human",
 ): Promise<NucleicAcidSequence> => {
   if (sequence.codingSequenceType === "nucleic-acid") {
     return NucleicAcidSequence.parse(sequence);

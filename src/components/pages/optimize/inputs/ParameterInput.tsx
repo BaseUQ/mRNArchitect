@@ -26,10 +26,10 @@ export const ParameterInput = ({
   index: number;
 }) => {
   const coordinateType =
-    !Number.isInteger(form.getValues().parameters[index].startCoordinate) ||
-    !Number.isInteger(form.getValues().parameters[index].endCoordinate)
-      ? "full-sequence"
-      : "sub-region";
+    Number.isInteger(form.getValues().parameters[index].startCoordinate) ||
+    Number.isInteger(form.getValues().parameters[index].endCoordinate)
+      ? "sub-region"
+      : "full-sequence";
 
   const handleOnChangeCoordinateType = (value: string) => {
     const {
@@ -62,7 +62,7 @@ export const ParameterInput = ({
               onChange={handleOnChangeCoordinateType}
             />
             {coordinateType === "sub-region" && (
-              <Group>
+              <Group align="start">
                 <NumberInput
                   label="Start coordinate"
                   min={1}
@@ -117,6 +117,7 @@ export const ParameterInput = ({
         <Flex
           direction={{ base: "column", sm: "row" }}
           justify="flex-start"
+          align="start"
           gap="lg"
           pl="sm"
         >
@@ -176,6 +177,7 @@ export const ParameterInput = ({
         <Flex
           direction={{ base: "column", sm: "row" }}
           justify="space-between"
+          align="start"
           gap="lg"
           pl="sm"
         >
@@ -213,6 +215,7 @@ export const ParameterInput = ({
         <Flex
           direction={{ base: "column", sm: "row" }}
           justify="flex-start"
+          align="start"
           gap="lg"
           pl="sm"
         >
