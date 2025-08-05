@@ -81,7 +81,7 @@ export const Help = () => {
             body: [
               [
                 "Nucleotide coordinates",
-                'The coordinates within the coding region to which the constraints will be applied. Note that the coordinates are 1-based, and are inclusive of the end coordinate. Selecting "Full sequence" will apply constraints to the whole sequence.',
+                'The coordinates within the coding region to optimise. Note that the coordinates are 1-based, and are inclusive of the end coordinate. Selecting "Full sequence" will optimise the whole sequence.',
               ],
               [
                 "Enable uridine depletion",
