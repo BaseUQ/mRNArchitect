@@ -1,5 +1,6 @@
 import { Button, Card, Group, Stack, Text } from "@mantine/core";
 import { DownloadSimpleIcon } from "@phosphor-icons/react";
+import { format } from "date-fns";
 import { Fragment } from "react/jsx-runtime";
 import type { OptimizationParameter } from "~/types/optimize";
 import type { Sequence } from "~/types/sequence";
@@ -23,10 +24,12 @@ export const Output = ({
   input: { sequence, parameters },
   output,
 }: OutputProps) => {
+  const date = new Date();
   const inputReport = [
     "---mRNArchitect",
     "Version\t0.3",
-    `Date\t${new Date().toISOString()}`,
+    `Date\t${format(date, "do MMM yyyy")}`,
+    `Time\t${format(date, "HH:mm:ss x")}`,
     "",
     "---Input Sequence",
     `CDS\t\t${sequence.codingSequence}`,

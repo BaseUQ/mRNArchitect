@@ -1,5 +1,10 @@
 import { Alert, Box, Modal, Stack, Tabs, Text } from "@mantine/core";
-import { DnaIcon, FileIcon, QuestionIcon } from "@phosphor-icons/react";
+import {
+  ClipboardTextIcon,
+  DnaIcon,
+  FileIcon,
+  QuestionIcon,
+} from "@phosphor-icons/react";
 import { useState } from "react";
 import {
   analyzeSequence,
@@ -18,6 +23,19 @@ export const OptimizePage = () => {
   const [optimizationError, setOptimizationError] = useState<
     OptimizationError | string
   >();
+
+  const handleTabsOnChange = (tab: string | null) => {
+    if (tab === "paper") {
+      window
+        ?.open(
+          "https://www.biorxiv.org/content/10.1101/2024.12.03.626696v3",
+          "_blank",
+        )
+        ?.focus();
+    } else {
+      setActiveTab(tab);
+    }
+  };
 
   const handleOnSubmit = async (values: OptimizationInput) => {
     const parseInput = async (
@@ -137,14 +155,14 @@ export const OptimizePage = () => {
   };
 
   return (
-    <Tabs value={activeTab} onChange={setActiveTab}>
+    <Tabs value={activeTab} onChange={handleTabsOnChange}>
       <Tabs.List>
         <Tabs.Tab value="input" leftSection={<DnaIcon size={16} />}>
           Input
         </Tabs.Tab>
         <Tabs.Tab
           value="output"
-          leftSection={<FileIcon size={16} />}
+          leftSection={<ClipboardTextIcon size={16} />}
           disabled={!outputProps}
         >
           Output
@@ -155,6 +173,9 @@ export const OptimizePage = () => {
           ml="auto"
         >
           Help
+        </Tabs.Tab>
+        <Tabs.Tab value="paper" leftSection={<FileIcon size={16} />}>
+          Paper
         </Tabs.Tab>
       </Tabs.List>
       <Box pt="md">
