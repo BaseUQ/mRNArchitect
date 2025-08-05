@@ -53,7 +53,7 @@ const parameterTitle = (
 ) => {
   const start = parameter.startCoordinate ?? 1;
   const end = parameter.endCoordinate ?? nucleotideCDSLength(sequence);
-  return `Sub-region [${start}-${end}]`;
+  return `Region [${start}-${end}]`;
 };
 
 const AccordionControl = ({

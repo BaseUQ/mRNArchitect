@@ -52,7 +52,7 @@ export const ParameterInput = ({
     <Stack>
       {!hideCoordinates && (
         <InputWrapper label="Nucleotide coordinates">
-          <Stack justify="start">
+          <Stack justify="start" pl="sm">
             <SegmentedControl
               data={[
                 { label: "Full sequence", value: "full-sequence" },
