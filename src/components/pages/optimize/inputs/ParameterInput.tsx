@@ -1,6 +1,5 @@
 import {
   Flex,
-  Group,
   InputWrapper,
   MultiSelect,
   NativeSelect,

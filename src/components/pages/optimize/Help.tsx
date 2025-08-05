@@ -98,6 +98,7 @@ export const Help = () => {
                         <a
                           href="https://www.liebertpub.com/doi/full/10.1089/ten.tea.2017.0485"
                           target="_blank"
+                          rel="noopener"
                         >
                           https://www.liebertpub.com/doi/full/10.1089/ten.tea.2017.0485
                         </a>
@@ -106,13 +107,14 @@ export const Help = () => {
                         <a
                           href="https://www.nature.com/articles/s41598-024-70792-x"
                           target="_blank"
+                          rel="noopener"
                         >
                           https://www.nature.com/articles/s41598-024-70792-x
                         </a>
                       </li>
                     </ul>
                   </Stack>
-                  <Image miw="250px" src="/images/five_prime_utrs_graph.png" />
+                  <Image src="/images/five_prime_utrs_graph.png" />
                 </Flex>,
               ],
               [
