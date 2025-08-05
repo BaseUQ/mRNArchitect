@@ -1,4 +1,4 @@
-import { Stack, Table, Text, Title } from "@mantine/core";
+import { Flex, Image, Stack, Table, Text, Title } from "@mantine/core";
 import { Fragment } from "react/jsx-runtime";
 
 export const Help = () => {
@@ -60,7 +60,18 @@ export const Help = () => {
               ],
               [
                 "5' UTR",
-                "Paste your 5' untranslated sequence here. The 5' untranslated region (UTR) is bound and scanned by the ribosome and is needed for translation. We provide a well-validated option, the human alpha-globin (HBA1; Gene ID 3039) 5' UTR sequence that has been validated in different cell types and applications. By default, no 5' UTR will be added.",
+                <Flex key="five_prime_utr">
+                  <Text size="sm">
+                    Paste your 5' untranslated sequence here. The 5'
+                    untranslated region (UTR) is bound and scanned by the
+                    ribosome and is needed for translation. We provide a
+                    well-validated option, the human alpha-globin (HBA1; Gene ID
+                    3039) 5' UTR sequence that has been validated in different
+                    cell types and applications. By default, no 5' UTR will be
+                    added.
+                  </Text>
+                  <Image src="/images/five_prime_utrs_graph.png" />
+                </Flex>,
               ],
               [
                 "3' UTR",
