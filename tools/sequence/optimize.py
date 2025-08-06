@@ -34,10 +34,15 @@ def _load_microrna_seed_sites() -> list[str]:
 
     >>> all(len(it) == 7 for it in _load_microrna_seed_sites())
     True
+
+    >>> all("U" not in it for it in _load_microrna_seed_sites())
+    True
     """
     with open(pathlib.Path(__file__).parent / "microRNAs.txt", "r") as f:
         lines = f.readlines()
-        return [line.strip().split()[2] for line in lines[1:]]  # ignore header
+        return [
+            line.strip().split()[2].replace("U", "T") for line in lines[1:]
+        ]  # ignore header
 
 
 class Location(msgspec.Struct, frozen=True, kw_only=True, rename="camel"):
