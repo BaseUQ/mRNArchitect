@@ -34,6 +34,7 @@ const createDefaultParameter = (
   avoidRepeatLength: 10,
   enableUridineDepletion: false,
   avoidRibosomeSlip: false,
+  avoidMicroRNASeedSites: false,
   gcContentMin: 0.4,
   gcContentMax: 0.7,
   gcContentWindow: 100,

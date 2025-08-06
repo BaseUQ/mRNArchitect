@@ -47,6 +47,7 @@ export const Output = ({
       `Avoid repeat length\t\t${c.avoidRepeatLength}`,
       `Enable uridine depletion\t${c.enableUridineDepletion}`,
       `Avoid ribosome slip\t\t${c.avoidRibosomeSlip}`,
+      `Avoid microRNA seed sites\t${c.avoidMicroRNASeedSites}`,
       `GC content minimum\t\t${c.gcContentMin}`,
       `GC content maximum\t\t${c.gcContentMax}`,
       `GC content window\t\t${c.gcContentWindow}`,

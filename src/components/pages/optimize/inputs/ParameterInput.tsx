@@ -95,24 +95,51 @@ export const ParameterInput = ({
         key={form.key(`parameters.${index}.avoidRepeatLength`)}
         {...form.getInputProps(`parameters.${index}.avoidRepeatLength`)}
       />
-      <Switch
-        label="Enable uridine depletion"
-        onLabel="ON"
-        offLabel="OFF"
-        key={form.key(`parameters.${index}.enableUridineDepletion`)}
-        {...form.getInputProps(`parameters.${index}.enableUridineDepletion`, {
-          type: "checkbox",
-        })}
-      />
-      <Switch
-        label="Avoid ribosome slip"
-        onLabel="ON"
-        offLabel="OFF"
-        key={form.key(`parameters.${index}.avoidRibosomeSlip`)}
-        {...form.getInputProps(`parameters.${index}.avoidRibosomeSlip`, {
-          type: "checkbox",
-        })}
-      />
+      <Flex
+        direction={{ base: "column", sm: "row" }}
+        justify="flex-start"
+        align="start"
+        gap="xl"
+        pl="sm"
+      >
+        <Stack justify="flex-start">
+          <Switch
+            label="Enable uridine depletion"
+            onLabel="ON"
+            offLabel="OFF"
+            key={form.key(`parameters.${index}.enableUridineDepletion`)}
+            {...form.getInputProps(
+              `parameters.${index}.enableUridineDepletion`,
+              {
+                type: "checkbox",
+              },
+            )}
+          />
+          <Switch
+            label="Avoid ribosome slip"
+            onLabel="ON"
+            offLabel="OFF"
+            key={form.key(`parameters.${index}.avoidRibosomeSlip`)}
+            {...form.getInputProps(`parameters.${index}.avoidRibosomeSlip`, {
+              type: "checkbox",
+            })}
+          />
+        </Stack>
+        <Stack justify="flex-start">
+          <Switch
+            label="Avoid microRNA seed sites"
+            onLabel="ON"
+            offLabel="OFF"
+            key={form.key(`parameters.${index}.avoidMicroRNASeedSites`)}
+            {...form.getInputProps(
+              `parameters.${index}.avoidMicroRNASeedSites`,
+              {
+                type: "checkbox",
+              },
+            )}
+          />
+        </Stack>
+      </Flex>
       <InputWrapper label="GC content">
         <Flex
           direction={{ base: "column", sm: "row" }}

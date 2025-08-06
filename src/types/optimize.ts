@@ -10,6 +10,7 @@ export const OptimizationParameter = z
     avoidRepeatLength: z.int(REQUIRED_MESSAGE).min(0),
     enableUridineDepletion: z.boolean(),
     avoidRibosomeSlip: z.boolean(),
+    avoidMicroRNASeedSites: z.boolean(),
     gcContentMin: z.number().min(0).max(1),
     gcContentMax: z.number().min(0).max(1),
     gcContentWindow: z.int(REQUIRED_MESSAGE).min(1),
