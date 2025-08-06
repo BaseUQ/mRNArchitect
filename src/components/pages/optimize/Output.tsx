@@ -1,6 +1,7 @@
 import { Button, Card, Group, Stack, Text } from "@mantine/core";
 import { DownloadSimpleIcon } from "@phosphor-icons/react";
 import { format } from "date-fns";
+import { useMemo } from "react";
 import { Fragment } from "react/jsx-runtime";
 import type { OptimizationParameter } from "~/types/optimize";
 import type { Sequence } from "~/types/sequence";
@@ -15,15 +16,10 @@ const parameterTitle = (
   return `Parameter region [${start}-${end}]`;
 };
 
-export interface OutputProps {
-  input: OptimizationInput;
-  output: OptimizationOutput;
-}
-
-export const Output = ({
+const generateReport = ({
   input: { sequence, parameters },
   output,
-}: OutputProps) => {
+}: OutputProps): string => {
   const date = new Date();
   const inputReport = [
     "---mRNArchitect",
@@ -100,6 +96,20 @@ export const Output = ({
     "",
   ];
 
+  return reportText.join("\n");
+};
+
+export interface OutputProps {
+  input: OptimizationInput;
+  output: OptimizationOutput;
+}
+
+export const Output = ({ input, output }: OutputProps) => {
+  const report = useMemo(
+    () => generateReport({ input, output }),
+    [input, output],
+  );
+
   return (
     <Stack>
       <Group justify="end">
@@ -107,7 +117,7 @@ export const Output = ({
           <Button
             component="a"
             href={URL.createObjectURL(
-              new Blob([reportText.join("\n")], { type: "text/plain" }),
+              new Blob([report], { type: "text/plain" }),
             )}
             download={`mRNAchitect-report-${new Date().toISOString()}.txt`}
             leftSection={<DownloadSimpleIcon />}
@@ -120,7 +130,7 @@ export const Output = ({
       <Card withBorder>
         <Text ff="monospace" style={{ overflowWrap: "break-word" }}>
           <pre style={{ whiteSpace: "pre-wrap" }}>
-            {reportText.map((line) => (
+            {report.split("\n").map((line) => (
               <Fragment key={line}>
                 {line}
                 <br />
