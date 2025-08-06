@@ -1,3 +1,5 @@
+import functools
+import pathlib
 import typing
 
 import msgspec
@@ -21,6 +23,26 @@ from ..organism import (
 
 
 OptimizationError = NoSolutionError
+
+
+@functools.cache
+def _load_microrna_seed_sites() -> list[str]:
+    """Load microRNA seed sites from file.
+
+    >>> len(_load_microrna_seed_sites())
+    50
+
+    >>> all(len(it) == 7 for it in _load_microrna_seed_sites())
+    True
+
+    >>> all("U" not in it for it in _load_microrna_seed_sites())
+    True
+    """
+    with open(pathlib.Path(__file__).parent / "microRNAs.txt", "r") as f:
+        lines = f.readlines()
+        return [
+            line.strip().split()[2].replace("U", "T") for line in lines[1:]
+        ]  # ignore header
 
 
 class Location(msgspec.Struct, frozen=True, kw_only=True, rename="camel"):
@@ -54,11 +76,14 @@ class Location(msgspec.Struct, frozen=True, kw_only=True, rename="camel"):
         return DnaChiselLocation(self.start_coordinate - 1, self.end_coordinate)
 
 
-class OptimizationParameter(Location, frozen=True, kw_only=True, rename="camel"):
+class OptimizationParameter(
+    Location, frozen=True, kw_only=True, rename="camel", forbid_unknown_fields=True
+):
     organism: Organism | str | None = None
     avoid_repeat_length: int | None = None
     enable_uridine_depletion: bool = False
     avoid_ribosome_slip: bool = False
+    avoid_micro_rna_seed_sites: bool = False
     gc_content_min: float | None = None
     gc_content_max: float | None = None
     gc_content_window: int | None = None
@@ -146,6 +171,11 @@ class OptimizationParameter(Location, frozen=True, kw_only=True, rename="camel")
 
         if self.avoid_ribosome_slip:
             constraints.append(AvoidPattern("3xT", location=self.dnachisel_location))
+
+        if self.avoid_micro_rna_seed_sites:
+            sites = _load_microrna_seed_sites()
+            for site in sites:
+                constraints.append(AvoidPattern(site, location=self.dnachisel_location))
 
         cut_site_constraints = [
             AvoidPattern(f"{site}_site", location=self.dnachisel_location)

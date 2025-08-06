@@ -1,4 +1,5 @@
 import z from "zod/v4";
+import { normalizeNucleicAcidSequence } from "./util";
 
 const REQUIRED_MESSAGE = "Field cannot be empty.";
 
@@ -10,12 +11,18 @@ export const OptimizationParameter = z
     avoidRepeatLength: z.int(REQUIRED_MESSAGE).min(0),
     enableUridineDepletion: z.boolean(),
     avoidRibosomeSlip: z.boolean(),
+    avoidMicroRnaSeedSites: z.boolean(),
     gcContentMin: z.number().min(0).max(1),
     gcContentMax: z.number().min(0).max(1),
     gcContentWindow: z.int(REQUIRED_MESSAGE).min(1),
-    avoidRestrictionSites: z.array(z.string()),
+    avoidRestrictionSites: z.array(
+      z.string().transform(normalizeNucleicAcidSequence),
+    ),
     avoidSequences: z.array(
-      z.string().regex(/[ACGTU]/gim, "Sequences must be nucleic acids."),
+      z
+        .string()
+        .regex(/[ACGTU]/gim, "Sequences must be nucleic acids.")
+        .transform(normalizeNucleicAcidSequence),
     ),
     avoidPolyT: z.int(REQUIRED_MESSAGE).min(0),
     avoidPolyA: z.int(REQUIRED_MESSAGE).min(0),

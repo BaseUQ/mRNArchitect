@@ -34,6 +34,7 @@ const createDefaultParameter = (
   avoidRepeatLength: 10,
   enableUridineDepletion: false,
   avoidRibosomeSlip: false,
+  avoidMicroRnaSeedSites: false,
   gcContentMin: 0.4,
   gcContentMax: 0.7,
   gcContentWindow: 100,
@@ -90,13 +91,14 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
       sequence: {
         codingSequenceType: "nucleic-acid",
         codingSequence: "",
-        fivePrimeUTR: "",
-        threePrimeUTR: "",
+        fivePrimeUtr: "",
+        threePrimeUtr: "",
         polyATail: "",
       },
       parameters: [createDefaultParameter()],
       numberOfSequences,
     },
+    transformValues: (values) => OptimizationInput.parse(values),
     validate: (values) => {
       const result = OptimizationInput.safeParse(values);
       if (result.success) {

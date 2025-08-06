@@ -92,6 +92,10 @@ export const Help = () => {
                 "Avoid more than 3 consecutive Us in the open-reading frame, where ribosomes can +1 frameshift at consecutive N1-methylpseudouridines (2).",
               ],
               [
+                "Avoid microRNA seed sites",
+                "--- HELP TEXT HERE ---", // TODO: Help text for microRNA seed sites
+              ],
+              [
                 "GC content",
                 "Avoid more than 3 consecutive Us in the open-reading frame, where ribosomes can +1 frameshift at consecutive N1-methylpseudouridines (2).",
               ],
