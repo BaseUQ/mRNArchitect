@@ -1,8 +1,8 @@
 import { Button, Card, Group, Stack, Text } from "@mantine/core";
 import { DownloadSimpleIcon } from "@phosphor-icons/react";
 import { format } from "date-fns";
-import { Fragment } from "react/jsx-runtime";
 import { useMemo } from "react";
+import { Fragment } from "react/jsx-runtime";
 import type { OptimizationParameter } from "~/types/optimize";
 import type { Sequence } from "~/types/sequence";
 import type { OptimizationInput, OptimizationOutput } from "./types";
