@@ -1,9 +1,22 @@
-import { Button, Card, Group, Stack, Text } from "@mantine/core";
+import {
+  Button,
+  Card,
+  Group,
+  Modal,
+  type ModalProps,
+  Stack,
+  Tabs,
+  Text,
+  Title,
+} from "@mantine/core";
 import { DownloadSimpleIcon } from "@phosphor-icons/react";
 import { format } from "date-fns";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Fragment } from "react/jsx-runtime";
-import type { OptimizationParameter } from "~/types/optimize";
+import type {
+  OptimizationParameter,
+  OptimizationResult,
+} from "~/types/optimize";
 import type { Sequence } from "~/types/sequence";
 import type { OptimizationInput, OptimizationOutput } from "./types";
 
@@ -100,12 +113,66 @@ const generateReport = ({
   return reportText.join("\n");
 };
 
+const DebugModal = ({
+  optimizationResults,
+  ...props
+}: {
+  optimizationResults: OptimizationResult[];
+} & ModalProps) => {
+  return (
+    <Modal title="Debug" size="auto" {...props}>
+      <Tabs defaultValue={"0"}>
+        <Tabs.List>
+          {optimizationResults.map((_, index) => (
+            <Tabs.Tab
+              // biome-ignore lint/suspicious/noArrayIndexKey: No other suitable key
+              key={index}
+              value={`${index}`}
+            >{`Output ${index + 1}`}</Tabs.Tab>
+          ))}
+        </Tabs.List>
+        {optimizationResults.map((r, index) => (
+          <Tabs.Panel
+            // biome-ignore lint/suspicious/noArrayIndexKey: No other suitable noArrayIndexKey
+            key={index}
+            value={`${index}`}
+            my="sm"
+          >
+            <Title order={4}>Constraints</Title>
+            <pre style={{ whiteSpace: "pre-wrap" }}>
+              {r.result.constraints.split("\n").map((v) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: No other suitable key
+                <Fragment key={index}>
+                  {v}
+                  <br />
+                </Fragment>
+              ))}
+            </pre>
+            <Title order={4}>Objectives</Title>
+            <pre style={{ whiteSpace: "pre-wrap" }}>
+              {r.result.objectives.split("\n").map((v) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: No other suitable key
+                <Fragment key={index}>
+                  {v}
+                  <br />
+                </Fragment>
+              ))}
+            </pre>
+          </Tabs.Panel>
+        ))}
+      </Tabs>
+    </Modal>
+  );
+};
+
 export interface OutputProps {
   input: OptimizationInput;
   output: OptimizationOutput;
 }
 
 export const Output = ({ input, output }: OutputProps) => {
+  const [showDebugModal, setShowDebugModal] = useState<boolean>(false);
+
   const report = useMemo(
     () => generateReport({ input, output }),
     [input, output],
@@ -140,6 +207,21 @@ export const Output = ({ input, output }: OutputProps) => {
           </pre>
         </Text>
       </Card>
+      <Group justify="flex-end">
+        <Button
+          size="xs"
+          variant="transparent"
+          onClick={() => setShowDebugModal(true)}
+        >
+          Debug
+        </Button>
+      </Group>
+      <DebugModal
+        opened={showDebugModal}
+        size="auto"
+        onClose={() => setShowDebugModal(false)}
+        optimizationResults={output.outputs.map((v) => v.optimization)}
+      />
     </Stack>
   );
 };
