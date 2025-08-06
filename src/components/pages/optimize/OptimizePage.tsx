@@ -175,7 +175,7 @@ export const OptimizePage = () => {
           Help
         </Tabs.Tab>
         <Tabs.Tab value="paper" leftSection={<FileIcon size={16} />}>
-          mRNArchitect manuscript
+          Paper
         </Tabs.Tab>
       </Tabs.List>
       <Box pt="md">
