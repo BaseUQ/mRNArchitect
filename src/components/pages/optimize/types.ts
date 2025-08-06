@@ -17,8 +17,8 @@ export type OptimizationInput = z.infer<typeof OptimizationInput>;
 export interface OptimizationOutput {
   input: {
     cdsAnalysis: Analysis;
-    fivePrimeUTRAnalysis: Analysis | null;
-    threePrimeUTRAnalysis: Analysis | null;
+    fivePrimeUtrAnalysis: Analysis | null;
+    threePrimeUtrAnalysis: Analysis | null;
     fullSequenceAnalysis: Analysis;
   };
   outputs: {

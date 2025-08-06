@@ -41,6 +41,7 @@ def _optimize(args):
                 avoid_repeat_length=args.avoid_repeat_length,
                 enable_uridine_depletion=args.enable_uridine_depletion,
                 avoid_ribosome_slip=args.avoid_ribosome_slip,
+                avoid_micro_rna_seed_sites=args.avoid_microrna_seed_sites,
                 gc_content_min=args.gc_content_min,
                 gc_content_max=args.gc_content_max,
                 gc_content_window=args.gc_content_window,
@@ -112,6 +113,11 @@ def cli():
         "--avoid-ribosome-slip",
         action=argparse.BooleanOptionalAction,
         help="If set, will avoid sequences that may cause ribosome slippage.",
+    )
+    optimize.add_argument(
+        "--avoid-micro-rna-seed-sites",
+        action=argparse.BooleanOptionalAction,
+        help="If set, will avoid common microRNA seed sites.",
     )
     optimize.add_argument(
         "--gc-content-min",

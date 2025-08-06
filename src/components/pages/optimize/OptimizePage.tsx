@@ -87,7 +87,7 @@ export const OptimizePage = () => {
 
       const fullSequenceAnalysis = await analyzeSequence({
         data: {
-          sequence: `${sequence.fivePrimeUTR}${optimization.result.sequence.nucleicAcidSequence}${sequence.threePrimeUTR}${sequence.polyATail}`,
+          sequence: `${sequence.fivePrimeUtr}${optimization.result.sequence.nucleicAcidSequence}${sequence.threePrimeUtr}${sequence.polyATail}`,
           organism: parameters[0].organism,
         },
       });
@@ -104,8 +104,8 @@ export const OptimizePage = () => {
 
       const [
         cdsAnalysis,
-        fivePrimeUTRAnalysis,
-        threePrimeUTRAnalysis,
+        fivePrimeUtrAnalysis,
+        threePrimeUtrAnalysis,
         fullSequenceAnalysis,
         ...outputs
       ] = await Promise.all([
@@ -115,11 +115,11 @@ export const OptimizePage = () => {
             organism,
           },
         }),
-        analyze(sequence.fivePrimeUTR, organism),
-        analyze(sequence.threePrimeUTR, organism),
+        analyze(sequence.fivePrimeUtr, organism),
+        analyze(sequence.threePrimeUtr, organism),
         analyzeSequence({
           data: {
-            sequence: `${sequence.fivePrimeUTR}${sequence.codingSequence}${sequence.threePrimeUTR}${sequence.polyATail}`,
+            sequence: `${sequence.fivePrimeUtr}${sequence.codingSequence}${sequence.threePrimeUtr}${sequence.polyATail}`,
             organism: organism,
           },
         }),
@@ -133,8 +133,8 @@ export const OptimizePage = () => {
         output: {
           input: {
             cdsAnalysis,
-            fivePrimeUTRAnalysis,
-            threePrimeUTRAnalysis,
+            fivePrimeUtrAnalysis,
+            threePrimeUtrAnalysis,
             fullSequenceAnalysis,
           },
           outputs,

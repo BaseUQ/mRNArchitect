@@ -10,8 +10,8 @@ export const Sequence = z
       .string()
       .nonempty("Coding sequence must not be empty.")
       .transform((v) => v.replaceAll(/\s/gim, "")),
-    fivePrimeUTR: z.string(),
-    threePrimeUTR: z.string(),
+    fivePrimeUtr: z.string(),
+    threePrimeUtr: z.string(),
     polyATail: z.string(),
   })
   .check((ctx) => {

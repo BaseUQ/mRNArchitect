@@ -132,7 +132,7 @@ export const ParameterInput = ({
             offLabel="OFF"
             key={form.key(`parameters.${index}.avoidMicroRNASeedSites`)}
             {...form.getInputProps(
-              `parameters.${index}.avoidMicroRNASeedSites`,
+              `parameters.${index}.avoidMicroRnaSeedSites`,
               {
                 type: "checkbox",
               },
