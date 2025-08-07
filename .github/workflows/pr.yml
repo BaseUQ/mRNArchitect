@@ -16,6 +16,19 @@ jobs:
     with:
       image-tag: pr-${{ github.sha }}
       lambda-function-alias: pr-${{ github.event.pull_request.number }}
+  comment-function-url:
+    needs: [build-push-and-deploy]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "AWS Lambda URL: ${{ jobs.build-push-and-deploy.outputs.lambda-function-url }}"
+            })
   prune-lambda-versions:
     runs-on: ubuntu-latest
     steps:

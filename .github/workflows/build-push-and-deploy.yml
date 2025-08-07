@@ -36,6 +36,7 @@ jobs:
       lambda-version: ${{ steps.deploy-lambda.outputs.lambda-version }}
       lambda-function-url: ${{ steps.deploy-lambda.outputs.lambda-function-url }}
     steps:
+      - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ap-southeast-2
