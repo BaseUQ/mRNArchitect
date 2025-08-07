@@ -37,14 +37,14 @@ const generateReport = ({
   const date = new Date();
   const inputReport = [
     "---mRNArchitect",
-    "Version\t0.3",
+    "Version\t0.3.1",
     `Date\t${format(date, "do MMM yyyy")}`,
     `Time\t${format(date, "HH:mm:ss x")}`,
     "",
     "---Input Sequence",
     `CDS\t\t${sequence.codingSequence}`,
-    `5' UTR\t\t${sequence.fivePrimeUTR}`,
-    `3' UTR\t\t${sequence.threePrimeUTR}`,
+    `5' UTR\t\t${sequence.fivePrimeUtr}`,
+    `3' UTR\t\t${sequence.threePrimeUtr}`,
     `Poly(A) tail\t${sequence.polyATail}`,
   ];
 
@@ -57,6 +57,7 @@ const generateReport = ({
       `Avoid repeat length\t\t${c.avoidRepeatLength}`,
       `Enable uridine depletion\t${c.enableUridineDepletion}`,
       `Avoid ribosome slip\t\t${c.avoidRibosomeSlip}`,
+      `Avoid microRNA seed sites\t${c.avoidMicroRnaSeedSites}`,
       `GC content minimum\t\t${c.gcContentMin}`,
       `GC content maximum\t\t${c.gcContentMax}`,
       `GC content window\t\t${c.gcContentWindow}`,
@@ -77,7 +78,7 @@ const generateReport = ({
       "",
       `CDS:\t\t\t${optimization.result.sequence.nucleicAcidSequence}`,
       "",
-      `Full-length mRNA:\t${sequence.fivePrimeUTR + optimization.result.sequence.nucleicAcidSequence + sequence.threePrimeUTR + sequence.polyATail}`,
+      `Full-length mRNA:\t${sequence.fivePrimeUtr + optimization.result.sequence.nucleicAcidSequence + sequence.threePrimeUtr + sequence.polyATail}`,
       "",
       "---Results",
       "Metric\t\t\tInput\tOptimised",
@@ -91,8 +92,8 @@ const generateReport = ({
       `Uridine depletion\t${output.input.cdsAnalysis.uridineDepletion?.toFixed(2) ?? "-"}\t${cdsAnalysis.uridineDepletion?.toFixed(2) ?? "-"}`,
       `CAI\t\t\t${output.input.cdsAnalysis.codonAdaptationIndex?.toFixed(2) ?? "-"}\t${cdsAnalysis.codonAdaptationIndex?.toFixed(2) ?? "-"}`,
       `CDS MFE (kcal/mol)\t${output.input.cdsAnalysis.minimumFreeEnergy.energy.toFixed(2)}\t${cdsAnalysis.minimumFreeEnergy.energy.toFixed(2)}`,
-      `5' UTR MFE (kcal/mol)\t${output.input.fivePrimeUTRAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}\t${output.input.fivePrimeUTRAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}`,
-      `3' UTR MFE (kcal/mol)\t${output.input.threePrimeUTRAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}\t${output.input.threePrimeUTRAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}`,
+      `5' UTR MFE (kcal/mol)\t${output.input.fivePrimeUtrAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}\t${output.input.fivePrimeUtrAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}`,
+      `3' UTR MFE (kcal/mol)\t${output.input.threePrimeUtrAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}\t${output.input.threePrimeUtrAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}`,
       `Total MFE (kcal/mol)\t${output.input.fullSequenceAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}\t${fullSequenceAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}`,
     ],
   );

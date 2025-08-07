@@ -35,14 +35,14 @@ export const SequenceInput = ({
     120,
   );
 
-  const handleOnChangeFivePrimeUTRSequenceType = (v: string) => {
+  const handleOnChangeFivePrimeUtrSequenceType = (v: string) => {
     setFivePrimeUTRSequenceType(v);
-    form.setFieldValue("sequence.fivePrimeUTR", v);
+    form.setFieldValue("sequence.fivePrimeUtr", v);
   };
 
-  const handleOnChangeThreePrimeUTRSequenceType = (v: string) => {
+  const handleOnChangeThreePrimeUtrSequenceType = (v: string) => {
     setThreePrimeUTRSequenceType(v);
-    form.setFieldValue("sequence.threePrimeUTR", v);
+    form.setFieldValue("sequence.threePrimeUtr", v);
   };
 
   const handleOnChangePolyATailType = (v: string) => {
@@ -102,7 +102,7 @@ export const SequenceInput = ({
             data={[...FIVE_PRIME_UTRS, { label: "Custom", value: "" }]}
             value={fivePrimeUTRSequenceType}
             onChange={(e) =>
-              handleOnChangeFivePrimeUTRSequenceType(e.currentTarget.value)
+              handleOnChangeFivePrimeUtrSequenceType(e.currentTarget.value)
             }
           />
           <Textarea
@@ -112,8 +112,8 @@ export const SequenceInput = ({
             autosize
             minRows={2}
             resize="vertical"
-            key={form.key("sequence.fivePrimeUTR")}
-            {...form.getInputProps("sequence.fivePrimeUTR")}
+            key={form.key("sequence.fivePrimeUtr")}
+            {...form.getInputProps("sequence.fivePrimeUtr")}
           />
         </Stack>
       </InputWrapper>
@@ -123,7 +123,7 @@ export const SequenceInput = ({
             data={[...THREE_PRIME_UTRS, { label: "Custom", value: "" }]}
             value={threePrimeUTRSequenceType}
             onChange={(e) =>
-              handleOnChangeThreePrimeUTRSequenceType(e.currentTarget.value)
+              handleOnChangeThreePrimeUtrSequenceType(e.currentTarget.value)
             }
           />
 
@@ -134,8 +134,8 @@ export const SequenceInput = ({
             autosize
             minRows={2}
             resize="vertical"
-            key={form.key("sequence.threePrimeUTR")}
-            {...form.getInputProps("sequence.threePrimeUTR")}
+            key={form.key("sequence.threePrimeUtr")}
+            {...form.getInputProps("sequence.threePrimeUtr")}
           />
         </Stack>
       </InputWrapper>

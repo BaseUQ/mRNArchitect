@@ -11,8 +11,8 @@ export const Sequence = z
       .string()
       .nonempty("Coding sequence must not be empty.")
       .transform(sanitizeSequence),
-    fivePrimeUTR: z.string().transform(sanitizeNucleicAcidSequence),
-    threePrimeUTR: z.string().transform(sanitizeNucleicAcidSequence),
+    fivePrimeUtr: z.string().transform(sanitizeNucleicAcidSequence),
+    threePrimeUtr: z.string().transform(sanitizeNucleicAcidSequence),
     polyATail: z.string().transform(sanitizeNucleicAcidSequence),
   })
   .check((ctx) => {
