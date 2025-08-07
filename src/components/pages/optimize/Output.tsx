@@ -18,6 +18,7 @@ import type {
   OptimizationResult,
 } from "~/types/optimize";
 import type { Sequence } from "~/types/sequence";
+import { nucleotideCDSLength } from "~/utils/sequence";
 import type { OptimizationInput, OptimizationOutput } from "./types";
 
 const parameterTitle = (
@@ -25,7 +26,7 @@ const parameterTitle = (
   parameter: OptimizationParameter,
 ): string => {
   const start = parameter.startCoordinate ?? 1;
-  const end = parameter.endCoordinate ?? sequence.codingSequence.length;
+  const end = parameter.endCoordinate ?? nucleotideCDSLength(sequence);
   return `Parameter region [${start}-${end}]`;
 };
 
