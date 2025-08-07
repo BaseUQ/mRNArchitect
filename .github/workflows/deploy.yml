@@ -16,7 +16,7 @@ jobs:
     uses: ./.github/workflows/build-push-and-deploy.yml
     with:
       image-tag: production-${{ github.sha }}
-      lambda-function-alias: pr-${{ github.event.pull_request.number }}
+      lambda-function-alias: TEST
 
   e2e-test:
     needs: [build-push-and-deploy]
