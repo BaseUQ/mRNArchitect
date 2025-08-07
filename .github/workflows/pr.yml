@@ -23,6 +23,8 @@ jobs:
       pull-requests: write
     steps:
       - id: comment-function-url
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh pr comment ${{ github.event.pull_request.number }} --edit-last --create-if-none --body "AWS Lambda URL: ${{ needs.build-push-and-deploy.outputs.lambda-function-url }}"
   prune-lambda-versions:
