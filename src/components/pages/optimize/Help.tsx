@@ -1,4 +1,4 @@
-import { Flex, Image, Stack, Table, Text, Title } from "@mantine/core";
+import { Stack, Table, Text, Title } from "@mantine/core";
 import { Fragment } from "react/jsx-runtime";
 
 export const Help = () => {
