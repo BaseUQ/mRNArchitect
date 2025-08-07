@@ -119,8 +119,23 @@ export const Help = () => {
               ],
               [
                 "Avoid ribosome slip",
-                "Avoid more than 3 consecutive Us in the open-reading frame, where ribosomes can +1 frameshift at consecutive N1-methylpseudouridines (2).",
+                <Fragment key="avoid-ribosome-slip">
+                  Avoid more than 3 consecutive Us in the open-reading frame,
+                  where ribosomes can +1 frameshift at consecutive
+                  N1-methylpseudouridines<sup>3</sup>.
+                </Fragment>,
               ],
+              //[
+              //  "Avoid microRNA seed sites",
+              //  <Fragment key="avoid-micro-rna-seed-sites">
+              //    To mitigate mRNA degradation and translational repression by
+              //    miRNAs, mRNArchitect includes an option to avoid introducing
+              //    sequences that match the top 50 known miRNA binding sites
+              //    (source). This feature helps reduce the likelihood of
+              //    unintended miRNA interactions and improves transcript
+              //    stability in cellular systems.
+              //  </Fragment>,
+              //],
               [
                 "GC content",
                 "Avoid more than 3 consecutive Us in the open-reading frame, where ribosomes can +1 frameshift at consecutive N1-methylpseudouridines (2).",
