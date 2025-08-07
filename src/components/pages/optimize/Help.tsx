@@ -69,7 +69,8 @@ export const Help = () => {
               ],
               [
                 "5' UTR",
-                <Fragment key="five-prime-utr">
+                "Paste your 5' untranslated sequence here. The 5' untranslated region (UTR) is bound and scanned by the ribosome and is needed for translation. We provide a well-validated option, the human alpha-globin (HBA1; Gene ID 3039) 5' UTR sequence that has been validated in different cell types and applications. By default, no 5' UTR will be added.",
+                /*<Fragment key="five-prime-utr">
                   Paste your 5' untranslated sequence here. The 5' untranslated
                   region (UTR) is bound and scanned by the ribosome and is
                   needed for translation. We provide well-validated 5' UTRs from
@@ -78,7 +79,7 @@ export const Help = () => {
                   ID ENSG00000075624) and albumin (ALB; Gene ID
                   ENSG00000163631), and a minimal 5' UTR<sup>2</sup>. By
                   default, no 5' UTR will be added.
-                </Fragment>,
+                </Fragment>,*/
               ],
               [
                 "3' UTR",
