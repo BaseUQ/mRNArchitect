@@ -27,7 +27,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: "AWS Lambda URL: ${{ jobs.build-push-and-deploy.outputs.lambda-function-url }}"
+              body: "AWS Lambda URL: ${{ needs.build-push-and-deploy.outputs.lambda-function-url }}"
             })
   prune-lambda-versions:
     runs-on: ubuntu-latest
