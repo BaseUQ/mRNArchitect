@@ -37,7 +37,7 @@ const generateReport = ({
   const date = new Date();
   const inputReport = [
     "---mRNArchitect",
-    "Version\t0.3",
+    "Version\t0.3.1",
     `Date\t${format(date, "do MMM yyyy")}`,
     `Time\t${format(date, "HH:mm:ss x")}`,
     "",
