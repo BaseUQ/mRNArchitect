@@ -6,7 +6,6 @@ import {
   type ModalProps,
   Stack,
   Tabs,
-  Text,
   Title,
 } from "@mantine/core";
 import { DownloadSimpleIcon } from "@phosphor-icons/react";

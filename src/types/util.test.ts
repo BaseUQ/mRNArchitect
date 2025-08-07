@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { sanitizeSequence, sanitizeNucleicAcidSequence } from "./util";
+import { sanitizeNucleicAcidSequence, sanitizeSequence } from "./util";
 
 test.each([
   ["aaaccc", "AAACCC"],
