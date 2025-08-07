@@ -1,7 +1,7 @@
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import viteReact from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import tsConfigPaths from "vite-tsconfig-paths";
-import viteReact from "@vitejs/plugin-react";
 
 export default defineConfig({
   server: {
@@ -15,9 +15,9 @@ export default defineConfig({
     noExternal: ["@phosphor-icons/react"], // fixes "too many open files" error
   },
   plugins: [
-    viteReact(),
     tsConfigPaths(),
     tanstackStart({ customViteReactPlugin: true }),
+    viteReact(),
   ],
   test: {
     include: ["src/**/*.test.{ts,tsx}"],
