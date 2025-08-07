@@ -5,6 +5,7 @@
 # ///
 
 import argparse
+import json
 import logging
 
 import boto3
@@ -25,23 +26,23 @@ if __name__ == "__main__":
     lambda_client = boto3.client("lambda")
 
     LOG.info("Updating function code.")
-    new_version = lambda_client.update_function_code(
+    version = lambda_client.update_function_code(
         FunctionName=FUNCTION_NAME, ImageUri=image_uri, Publish=True
     )["Version"]
 
-    LOG.info(f"Waiting for published version: {new_version}")
+    LOG.info(f"Waiting for published version: {version}")
     waiter = lambda_client.get_waiter("published_version_active")
-    waiter.wait(FunctionName=FUNCTION_NAME, Qualifier=new_version)
+    waiter.wait(FunctionName=FUNCTION_NAME, Qualifier=version)
 
     try:
         LOG.info(f"Attempting to update existing alias: {function_alias}")
         lambda_client.update_alias(
-            FunctionName=FUNCTION_NAME, Name=function_alias, FunctionVersion=new_version
+            FunctionName=FUNCTION_NAME, Name=function_alias, FunctionVersion=version
         )
     except lambda_client.exceptions.ResourceNotFoundException:
         LOG.info(f"Alias not found, creating new alias: {function_alias}")
         lambda_client.create_alias(
-            FunctionName=FUNCTION_NAME, Name=function_alias, FunctionVersion=new_version
+            FunctionName=FUNCTION_NAME, Name=function_alias, FunctionVersion=version
         )
         lambda_client.create_function_url_config(
             FunctionName=FUNCTION_NAME,
@@ -57,8 +58,8 @@ if __name__ == "__main__":
             FunctionUrlAuthType="NONE",
         )
 
-    print(
-        lambda_client.get_function_url_config(
-            FunctionName=FUNCTION_NAME, Qualifier=function_alias
-        )["FunctionUrl"]
-    )
+    function_url = lambda_client.get_function_url_config(
+        FunctionName=FUNCTION_NAME, Qualifier=function_alias
+    )["FunctionUrl"]
+
+    print(json.dumps({"version": version, "function_url": function_url}), end="")
