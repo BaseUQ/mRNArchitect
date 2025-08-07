@@ -9,35 +9,28 @@ permissions:
 jobs:
   test:
     uses: ./.github/workflows/test.yml
+
   e2e:
     uses: ./.github/workflows/e2e.yml
-  build-and-push:
-    uses: ./.github/workflows/build-and-push.yml
+
+  build-push-and-deploy:
+    uses: ./.github/workflows/build-push-and-deploy.yml
     with:
-      tag: pr-${{ github.sha }}
-  deploy-lambda-pr-version:
+      image-tag: pr-${{ github.sha }}
+      lambda-function-alias: pr-${{ github.event.pull_request.number }}
+
+  comment-function-url:
+    needs: [build-push-and-deploy]
     runs-on: ubuntu-latest
-    needs: [build-and-push]
+    permissions:
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ap-southeast-2
-          role-to-assume: arn:aws:iam::340752831962:role/deploy
-      - name: deploy lambda
-        id: deploy-lambda
-        env:
-          IMAGE_URI: ${{ needs.build-and-push.outputs.image-uri }}
-          FUNCTION_ALIAS: pr-${{ github.event.pull_request.number }}
-        shell: bash
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          FUNCTION_URL=$( \
-            uv run .github/scripts/deploy-lambda-version.py \
-              --image-uri "$IMAGE_URI" \
-              --function-alias "$FUNCTION_ALIAS" \
-          )
-          echo "function-url=$FUNCTION_URL" >> "$GITHUB_OUTPUT"
+          gh pr comment ${{ github.event.pull_request.number }} --edit-last --create-if-none --body "AWS Lambda URL: ${{ needs.build-push-and-deploy.outputs.lambda-function-url }}"
+
   prune-lambda-versions:
     runs-on: ubuntu-latest
     steps:

@@ -11,22 +11,22 @@ export const FIVE_PRIME_UTRS = [
     label: "Human alpha-globin",
     value: "ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC",
   },
-  //{
-  //  label: "Human beta-globin",
-  //  value: "TACATTTGCTTCTGACACAACTGTGTTCACTAGCAACCTCAAACAGACACC",
-  //},
-  //{
-  //  label: "Beta-actin",
-  //  value: "CCCGCGAGCACAGAGCCTCGCCTTTGCCGATCCGCCGCCCGTCCACACCCGCCGCCAGCTCACC",
-  //},
-  //{
-  //  label: "Albumin",
-  //  value: "CTAGCTTTTCTCTTCTGTCAACCCCACACGCCTTTGGCACA",
-  //},
-  //{
-  //  label: "Minimal",
-  //  value: "GAGACT",
-  //},
+  {
+    label: "Human beta-globin",
+    value: "TACATTTGCTTCTGACACAACTGTGTTCACTAGCAACCTCAAACAGACACC",
+  },
+  {
+    label: "Beta-actin",
+    value: "CCCGCGAGCACAGAGCCTCGCCTTTGCCGATCCGCCGCCCGTCCACACCCGCCGCCAGCTCACC",
+  },
+  {
+    label: "Albumin",
+    value: "CTAGCTTTTCTCTTCTGTCAACCCCACACGCCTTTGGCACA",
+  },
+  {
+    label: "Minimal",
+    value: "GAGACT",
+  },
 ];
 
 export const THREE_PRIME_UTRS = [

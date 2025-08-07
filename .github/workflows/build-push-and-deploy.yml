@@ -1,0 +1,69 @@
+name: build-push-and-deploy
+
+on:
+  workflow_call:
+    inputs:
+      image-tag:
+        description: The image tag.
+        type: string
+        required: true
+      lambda-function-alias:
+        description: The function alias to deploy to. If not given, will not be deployed.
+        type: string
+        required: false
+        default: ""
+    outputs:
+      image-uri:
+        description: The URI of the newly pushed image.
+        value: ${{ jobs.build-push-and-deploy.outputs.image-uri }}
+      lambda-version:
+        description: The newly created lambda version (if deployed).
+        value: ${{ jobs.build-push-and-deploy.outputs.lambda-version }}
+      lambda-function-url:
+        description: The newly created lambda function URL (if deployed).
+        value: ${{ jobs.build-push-and-deploy.outputs.lambda-function-url }}
+
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+
+jobs:
+  build-push-and-deploy:
+    runs-on: ubuntu-latest
+    outputs:
+      image-uri: ${{ steps.ecr.outputs.registry }}/app:${{ inputs.image-tag }}
+      lambda-version: ${{ steps.deploy-lambda.outputs.lambda-version }}
+      lambda-function-url: ${{ steps.deploy-lambda.outputs.lambda-function-url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::340752831962:role/deploy
+      - uses: aws-actions/amazon-ecr-login@v2
+        id: ecr
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ steps.ecr.outputs.registry }}/app:${{ inputs.image-tag }}
+          provenance: false
+          cache-from: type=registry,ref=${{ steps.ecr.outputs.registry }}/app:buildcache
+          cache-to: type=registry,ref=${{ steps.ecr.outputs.registry }}/app:buildcache,mode=max
+      - uses: astral-sh/setup-uv@v6
+      - id: deploy-lambda
+        if: ${{ inputs.lambda-function-alias }}
+        shell: bash
+        run: |
+          OUTPUT=$( \
+            uv run .github/scripts/deploy-lambda-version.py \
+              --image-uri "${{ steps.ecr.outputs.registry }}/app:${{ inputs.image-tag }}" \
+              --function-alias "${{ inputs.lambda-function-alias }}" \
+          )
+          VERSION=$(echo -n $OUTPUT | jq .version )
+          FUNCTION_URL=$(echo -n $OUTPUT | jq .function_url )
+          echo "lambda-version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "lambda-function-url=$FUNCTION_URL" >> "$GITHUB_OUTPUT"
+
+
