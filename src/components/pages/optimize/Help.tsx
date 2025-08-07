@@ -125,20 +125,16 @@ export const Help = () => {
                   N1-methylpseudouridines<sup>3</sup>.
                 </Fragment>,
               ],
-              //[
-              //  "Avoid microRNA seed sites",
-              //  <Fragment key="avoid-micro-rna-seed-sites">
-              //    To mitigate mRNA degradation and translational repression by
-              //    miRNAs, mRNArchitect includes an option to avoid introducing
-              //    sequences that match the top 50 known miRNA binding sites
-              //    (source). This feature helps reduce the likelihood of
-              //    unintended miRNA interactions and improves transcript
-              //    stability in cellular systems.
-              //  </Fragment>,
-              //],
               [
                 "Avoid microRNA seed sites",
-                "--- HELP TEXT HERE ---", // TODO: Help text for microRNA seed sites
+                <Fragment key="avoid-micro-rna-seed-sites">
+                  To mitigate mRNA degradation and translational repression by
+                  miRNAs, mRNArchitect includes an option to avoid introducing
+                  sequences that match the top 50 known miRNA binding sites.
+                  This feature helps reduce the likelihood of unintended miRNA
+                  interactions and improves transcript stability in cellular
+                  systems.
+                </Fragment>,
               ],
               [
                 "GC content",
