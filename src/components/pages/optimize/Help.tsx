@@ -137,7 +137,11 @@ export const Help = () => {
               //],
               [
                 "GC content",
-                "Avoid more than 3 consecutive Us in the open-reading frame, where ribosomes can +1 frameshift at consecutive N1-methylpseudouridines (2).",
+                <Fragment key="gc-content">
+                  Avoid more than 3 consecutive Us in the open-reading frame,
+                  where ribosomes can +1 frameshift at consecutive
+                  N1-methylpseudouridines<sup>3</sup>.
+                </Fragment>,
               ],
               [
                 "Avoid cut sites",
