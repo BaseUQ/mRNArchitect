@@ -25,10 +25,8 @@ jobs:
       playwright-base-url: ${{ needs.build-push-and-deploy.outputs.lambda-function-url }}
 
   deploy-production:
-    needs: [build-and-deploy, e2e-test]
+    needs: [build-push-and-deploy, e2e-test]
     runs-on: ubuntu-latest
-    env:
-      LAMBDA_VERSION: ${{ needs.build-and-deploy.outputs.lambda-version }}
     steps:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -39,7 +37,7 @@ jobs:
           aws lambda update-alias \
             --function-name app \
             --name PRODUCTION \
-            --function-version $LAMBDA_VERSION
+            --function-version ${{ needs.build-push-and-deploy.outputs.lambda-version }}
 
   e2e-production:
     needs: [deploy-production]

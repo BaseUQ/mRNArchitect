@@ -21,7 +21,7 @@ on:
         value: ${{ jobs.build-push-and-deploy.outputs.lambda-version }}
       lambda-function-url:
         description: The newly created lambda function URL (if deployed).
-        value: ${{ jobs.build-push-and-deploy.ouputs.lambda-function-url }}
+        value: ${{ jobs.build-push-and-deploy.outputs.lambda-function-url }}
 
 
 permissions:
