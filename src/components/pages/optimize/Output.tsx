@@ -25,7 +25,7 @@ const parameterTitle = (
   parameter: OptimizationParameter,
 ): string => {
   const start = parameter.startCoordinate ?? 1;
-  const end = parameter.endCoordinate ?? sequence.codingSequence.length - 1;
+  const end = parameter.endCoordinate ?? sequence.codingSequence.length;
   return `Parameter region [${start}-${end}]`;
 };
 
@@ -51,7 +51,7 @@ const generateReport = ({
     .map((c) => [
       `---${parameterTitle(sequence, c)}`,
       `Start coordinate\t\t${c.startCoordinate || "1"}`,
-      `End coordinate\t\t\t${c.endCoordinate || output.outputs[0].optimization.result.sequence.nucleicAcidSequence.length - 1}`,
+      `End coordinate\t\t\t${c.endCoordinate || output.outputs[0].optimization.result.sequence.nucleicAcidSequence.length}`,
       `Organism\t\t\t${c.organism}`,
       `Avoid repeat length\t\t${c.avoidRepeatLength}`,
       `Enable uridine depletion\t${c.enableUridineDepletion}`,

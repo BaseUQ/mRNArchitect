@@ -1,4 +1,5 @@
 import z from "zod/v4";
+import { sanitizeNucleicAcidSequence } from "./util";
 
 const REQUIRED_MESSAGE = "Field cannot be empty.";
 
@@ -16,7 +17,10 @@ export const OptimizationParameter = z
     gcContentWindow: z.int(REQUIRED_MESSAGE).min(1),
     avoidRestrictionSites: z.array(z.string()),
     avoidSequences: z.array(
-      z.string().regex(/[ACGTU]/gim, "Sequences must be nucleic acids."),
+      z
+        .string()
+        .regex(/[ACGTU]/gim, "Sequences must be nucleic acids.")
+        .transform(sanitizeNucleicAcidSequence),
     ),
     avoidPolyT: z.int(REQUIRED_MESSAGE).min(0),
     avoidPolyA: z.int(REQUIRED_MESSAGE).min(0),

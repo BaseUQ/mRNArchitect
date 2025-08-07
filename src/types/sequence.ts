@@ -1,4 +1,5 @@
 import z from "zod/v4";
+import { sanitizeNucleicAcidSequence, sanitizeSequence } from "./util";
 
 export const Sequence = z
   .object({
@@ -9,10 +10,10 @@ export const Sequence = z
     codingSequence: z
       .string()
       .nonempty("Coding sequence must not be empty.")
-      .transform((v) => v.replaceAll(/\s/gim, "")),
-    fivePrimeUtr: z.string(),
-    threePrimeUtr: z.string(),
-    polyATail: z.string(),
+      .transform(sanitizeSequence),
+    fivePrimeUtr: z.string().transform(sanitizeNucleicAcidSequence),
+    threePrimeUtr: z.string().transform(sanitizeNucleicAcidSequence),
+    polyATail: z.string().transform(sanitizeNucleicAcidSequence),
   })
   .check((ctx) => {
     if (ctx.value.codingSequenceType === "nucleic-acid") {

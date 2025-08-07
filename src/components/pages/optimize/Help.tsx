@@ -56,15 +56,34 @@ export const Help = () => {
             body: [
               [
                 "Coding sequence",
-                "Add your coding sequence of interest here. You can paste either the amino acid, RNA or DNA sequence. You may also want to consider adding useful sequence elements such as nuclear localization signals, signal peptides, or other tags. Ensure your coding sequence starts with a MET codon and ends with a STOP codon. You may want to use two different stop codons for efficient termination (e.g., UAG/UGA).",
+                <Fragment key="coding-sequence">
+                  Add your coding sequence of interest here, for sequence
+                  optimisation<sup>1</sup>. You can paste either the amino acid,
+                  RNA or DNA sequence. You may also want to consider adding
+                  useful sequence elements such as nuclear localization signals,
+                  signal peptides, or other tags. Ensure your coding sequence
+                  starts with a MET codon and ends with a STOP codon. You may
+                  want to use two different stop codons for efficient
+                  termination (e.g., UAG/UGA).
+                </Fragment>,
               ],
               [
                 "5' UTR",
                 "Paste your 5' untranslated sequence here. The 5' untranslated region (UTR) is bound and scanned by the ribosome and is needed for translation. We provide a well-validated option, the human alpha-globin (HBA1; Gene ID 3039) 5' UTR sequence that has been validated in different cell types and applications. By default, no 5' UTR will be added.",
+                /*<Fragment key="five-prime-utr">
+                  Paste your 5' untranslated sequence here. The 5' untranslated
+                  region (UTR) is bound and scanned by the ribosome and is
+                  needed for translation. We provide well-validated 5' UTRs from
+                  human alpha-globin (HBA1; Gene ID ENSG00000206172), beta
+                  globin (HBB; Gene ID ENSG00000244734), beta actin (ACTB; Gene
+                  ID ENSG00000075624) and albumin (ALB; Gene ID
+                  ENSG00000163631), and a minimal 5' UTR<sup>2</sup>. By
+                  default, no 5' UTR will be added.
+                </Fragment>,*/
               ],
               [
                 "3' UTR",
-                "Paste your 3' untranslated sequence here. The 3' untranslated region (UTR) is regulated by microRNAs and RNA-binding proteins and plays a key role in cell-specific mRNA stability and expression. We provide a well-validated option, the human alpha-globin (HBA1; Gene ID 3039) 3' UTR sequence that has been validated in different cell types and applications. By default, no 3' UTR will be added.",
+                "Paste your 3' untranslated sequence here. The 3' untranslated region (UTR) is regulated by microRNAs and RNA-binding proteins and plays a key role in cell-specific mRNA stability and expression. We provide a well-validated option, the human alpha-globin (HBA1; Gene ID ENSG00000206172) 3' UTR sequence that has been validated in different cell types and applications. By default, no 3' UTR will be added.",
               ],
               [
                 "Poly(A) tail",
@@ -81,7 +100,18 @@ export const Help = () => {
             body: [
               [
                 "Nucleotide coordinates",
-                'The coordinates within the coding region to optimise. Note that the coordinates are 1-based, and are inclusive of the end coordinate. Selecting "Full sequence" will optimise the whole sequence.',
+                <Fragment key="nucleotide-coordinates">
+                  Define the nucleotide coordinates within the coding sequence
+                  (CDS) that will be optimised using your selected sequence
+                  optimisation criteria. You can choose from two modes.{" "}
+                  <strong>Simple mode</strong> applies a single set of
+                  optimisation criteria to the entire coding sequence.{" "}
+                  <strong>Advanced mode</strong> allows you to specify multiple
+                  sub-regions, each of which can be optimised using different
+                  criteria. Note: Coordinate values are 1-based and inclusive of
+                  the end position (i.e., both start and end bases are included
+                  in the optimisation).
+                </Fragment>,
               ],
               [
                 "Enable uridine depletion",
@@ -89,8 +119,23 @@ export const Help = () => {
               ],
               [
                 "Avoid ribosome slip",
-                "Avoid more than 3 consecutive Us in the open-reading frame, where ribosomes can +1 frameshift at consecutive N1-methylpseudouridines (2).",
+                <Fragment key="avoid-ribosome-slip">
+                  Avoid more than 3 consecutive Us in the open-reading frame,
+                  where ribosomes can +1 frameshift at consecutive
+                  N1-methylpseudouridines<sup>3</sup>.
+                </Fragment>,
               ],
+              //[
+              //  "Avoid microRNA seed sites",
+              //  <Fragment key="avoid-micro-rna-seed-sites">
+              //    To mitigate mRNA degradation and translational repression by
+              //    miRNAs, mRNArchitect includes an option to avoid introducing
+              //    sequences that match the top 50 known miRNA binding sites
+              //    (source). This feature helps reduce the likelihood of
+              //    unintended miRNA interactions and improves transcript
+              //    stability in cellular systems.
+              //  </Fragment>,
+              //],
               [
                 "Avoid microRNA seed sites",
                 "--- HELP TEXT HERE ---", // TODO: Help text for microRNA seed sites
@@ -134,7 +179,7 @@ export const Help = () => {
               ],
               [
                 "AT/GA/GC ratio",
-                "The dinucleotide composition of the input and output mRNA sequences. High GC content is associated with the formation of stable secondary structures.",
+                "The paired nucleotide composition of the input and output mRNA sequences. High GC content is associated with the formation of stable secondary structures.",
               ],
               [
                 "Uridine depletion",
@@ -142,11 +187,24 @@ export const Help = () => {
               ],
               [
                 "CAI",
-                "The Codon Adaptation Index (CAI) is a measure of deviation between the codon usage of an mRNA sequence from the preferred codon usage of the organism (3). The CAI score ranges from 0 (totally dissimilar) to 1 (all mRNA codons match the organism's codon usage reference table).",
+                <Fragment key="cai">
+                  The Codon Adaptation Index (CAI) is a measure of deviation
+                  between the codon usage of an mRNA sequence from the preferred
+                  codon usage of the organism<sup>4</sup>. The CAI score ranges
+                  from 0 (totally dissimilar) to 1 (all mRNA codons match the
+                  organism's codon usage reference table).
+                </Fragment>,
               ],
               [
                 "CDS MFE",
-                "The Minimum Free Energy (MFE) is the lowest Gibbs free energy change associated with the formation of secondary structures in RNA molecules due to intramolecular base pairing (4). Lower values of MFE are associated with the formation of stable secondary structures and hairpins that can occlude protein expression.",
+                <Fragment key="cds-mfe">
+                  The Minimum Free Energy (MFE) is the lowest Gibbs free energy
+                  change associated with the formation of secondary structures
+                  in RNA molecules due to intramolecular base pairing
+                  <sup>5</sup>. Lower values of MFE are associated with the
+                  formation of stable secondary structures and hairpins that can
+                  occlude protein expression.
+                </Fragment>,
               ],
               [
                 "5' UTR MFE",
@@ -168,23 +226,30 @@ export const Help = () => {
         <Title order={4}>References</Title>
         <Text component="ol" size="sm" pl="xl">
           <li>
-            Zulkower, V., & Rosser, S. (2020). DNA Chisel, a versatile sequence
-            optimizer. Bioinformatics, 36(16), 4508-4509.
+            Zulkower, V. & Rosser, S. DNA Chisel, a versatile sequence
+            optimizer. <i>Bioinformatics</i> <strong>36</strong>, 4508-4509
+            (2020).
           </li>
           <li>
-            Mulroney, T.E., Pöyry, T., Yam-Puc, J.C. et al. (2024).
-            N1-methylpseudouridylation of mRNA causes +1 ribosomal
-            frameshifting. Nature 625, 189–194.
+            Trepotec, Z. et al. Maximizing the translational yield of mRNA
+            therapeutics by minimizing 5′-UTRs. <i>Tissue Engineering Part A</i>{" "}
+            <strong>25</strong>, 69-79 (2019).
           </li>
           <li>
-            Sharp, P. M., & Li, W. H. (1987). The Codon Adaptation Index—a
-            measure of directional synonymous codon usage bias, and its
-            potential applications. Nucleic Acids Research 15(3), 1281-1295.
+            Mulroney, T. E. et al. N 1-methylpseudouridylation of mRNA causes+ 1
+            ribosomal frameshifting. <i>Nature</i> <strong>625</strong>, 189-194
+            (2024).
           </li>
           <li>
-            Lorenz, R., Bernhart, S. H., Höner Zu Siederdissen, C., Tafer, H.,
-            Flamm, C., Stadler, P. F., & Hofacker, I. L. (2011). ViennaRNA
-            Package 2.0. Algorithms for Molecular Biology, 6:26.
+            Sharp, P. M. & Li, W.-H. The codon adaptation index-a measure of
+            directional synonymous codon usage bias, and its potential
+            applications. <i>Nucleic acids research</i> <strong>15</strong>,
+            1281-1295 (1987).
+          </li>
+          <li>
+            Lorenz, R. et al. ViennaRNA Package 2.0.{" "}
+            <i>Algorithms for molecular biology</i> <strong>6</strong>, 26
+            (2011).
           </li>
         </Text>
       </Stack>

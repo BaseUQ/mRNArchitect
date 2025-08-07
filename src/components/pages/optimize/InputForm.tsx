@@ -98,6 +98,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
       parameters: [createDefaultParameter()],
       numberOfSequences,
     },
+    transformValues: (values) => OptimizationInput.parse(values),
     validate: (values) => {
       const result = OptimizationInput.safeParse(values);
       if (result.success) {
