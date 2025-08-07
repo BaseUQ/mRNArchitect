@@ -25,7 +25,7 @@ const parameterTitle = (
   parameter: OptimizationParameter,
 ): string => {
   const start = parameter.startCoordinate ?? 1;
-  const end = parameter.endCoordinate ?? sequence.codingSequence.length - 1;
+  const end = parameter.endCoordinate ?? sequence.codingSequence.length;
   return `Parameter region [${start}-${end}]`;
 };
 
