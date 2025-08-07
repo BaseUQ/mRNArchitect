@@ -114,14 +114,14 @@ const generateReport = ({
   return reportText.join("\n");
 };
 
-const DebugModal = ({
+const LogsModal = ({
   optimizationResults,
   ...props
 }: {
   optimizationResults: OptimizationResult[];
 } & ModalProps) => {
   return (
-    <Modal title="Debug" size="auto" {...props}>
+    <Modal title="Logs" size="auto" {...props}>
       <Tabs defaultValue={"0"}>
         <Tabs.List>
           {optimizationResults.map((_, index) => (
@@ -172,7 +172,7 @@ export interface OutputProps {
 }
 
 export const Output = ({ input, output }: OutputProps) => {
-  const [showDebugModal, setShowDebugModal] = useState<boolean>(false);
+  const [showLogsModal, setShowLogsModal] = useState<boolean>(false);
 
   const report = useMemo(
     () => generateReport({ input, output }),
@@ -193,6 +193,21 @@ export const Output = ({ input, output }: OutputProps) => {
           >
             Download (.txt format)
           </Button>
+          <Group justify="flex-end">
+            <Button
+              size="sm"
+              variant="transparent"
+              onClick={() => setShowLogsModal(true)}
+            >
+              Show logs
+            </Button>
+          </Group>
+          <LogsModal
+            opened={showLogsModal}
+            size="auto"
+            onClose={() => setShowLogsModal(false)}
+            optimizationResults={output.outputs.map((v) => v.optimization)}
+          />
         </Group>
       </Group>
 
@@ -208,21 +223,6 @@ export const Output = ({ input, output }: OutputProps) => {
           </pre>
         </Text>
       </Card>
-      <Group justify="flex-end">
-        <Button
-          size="xs"
-          variant="transparent"
-          onClick={() => setShowDebugModal(true)}
-        >
-          Debug
-        </Button>
-      </Group>
-      <DebugModal
-        opened={showDebugModal}
-        size="auto"
-        onClose={() => setShowDebugModal(false)}
-        optimizationResults={output.outputs.map((v) => v.optimization)}
-      />
     </Stack>
   );
 };
