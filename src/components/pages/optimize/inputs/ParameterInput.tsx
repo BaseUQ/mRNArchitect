@@ -132,6 +132,18 @@ export const ParameterInput = ({
         </Stack>
         <Stack justify="flex-start">
           <Switch
+            label="Avoid manufacture restriction sites"
+            onLabel="ON"
+            offLabel="OFF"
+            key={form.key(
+              `parameters.${index}.avoidManufactureRestrictionSites`,
+            )}
+            {...form.getInputProps(
+              `parameters.${index}.avoidManufactureRestrictionSites`,
+              { type: "checkbox" },
+            )}
+          />
+          <Switch
             label="Avoid microRNA seed sites"
             onLabel="ON"
             offLabel="OFF"

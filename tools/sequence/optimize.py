@@ -41,8 +41,27 @@ def _load_microrna_seed_sites() -> list[str]:
     with open(pathlib.Path(__file__).parent / "microRNAs.txt", "r") as f:
         lines = f.readlines()
         return [
-            line.strip().split()[2].replace("U", "T") for line in lines[1:]
-        ]  # ignore header
+            line.strip().split()[2].replace("U", "T")
+            for line in lines[1:]  # ignore header
+        ]
+
+
+@functools.cache
+def _load_manufacture_restriction_sites() -> list[str]:
+    """Load manufacture restriction sites.
+
+    >>> len(_load_manufacture_restriction_sites())
+    3
+
+    >>> all("U" not in it for it in _load_manufacture_restriction_sites())
+    True
+    """
+    with open(pathlib.Path(__file__).parent / "restriction-sites.txt", "r") as f:
+        lines = f.readlines()
+        return [
+            line.strip().split()[1].replace("U", "T")
+            for line in lines[1:]  # ignore header
+        ]
 
 
 class Location(msgspec.Struct, frozen=True, kw_only=True, rename="camel"):
@@ -83,6 +102,7 @@ class OptimizationParameter(
     avoid_repeat_length: int | None = None
     enable_uridine_depletion: bool = False
     avoid_ribosome_slip: bool = False
+    avoid_manufacture_restriction_sites: bool = False
     avoid_micro_rna_seed_sites: bool = False
     gc_content_min: float | None = None
     gc_content_max: float | None = None
@@ -173,8 +193,13 @@ class OptimizationParameter(
             constraints.append(AvoidPattern("3xT", location=self.dnachisel_location))
 
         if self.avoid_micro_rna_seed_sites:
-            sites = _load_microrna_seed_sites()
-            for site in sites:
+            micro_rna_sites = _load_microrna_seed_sites()
+            for site in micro_rna_sites:
+                constraints.append(AvoidPattern(site, location=self.dnachisel_location))
+
+        if self.avoid_manufacture_restriction_sites:
+            manufacture_restriction_sites = _load_manufacture_restriction_sites()
+            for site in manufacture_restriction_sites:
                 constraints.append(AvoidPattern(site, location=self.dnachisel_location))
 
         cut_site_constraints = [

@@ -1,0 +1,4 @@
+name  sequence
+BspQI GCTCTTC
+Bsal  GGTCTC
+PaqC  CACCTGC

@@ -125,6 +125,13 @@ export const Help = () => {
                 </Fragment>,
               ],
               [
+                "Avoid manufacture restriction sites",
+                <Fragment key="avoid-manufacture-restriction-sites">
+                  Avoid restricted sites that can interfere with the production
+                  of IVT-ready product from Elegen.
+                </Fragment>,
+              ],
+              [
                 "Avoid microRNA seed sites",
                 <Fragment key="avoid-micro-rna-seed-sites">
                   To mitigate mRNA degradation and translational repression by
