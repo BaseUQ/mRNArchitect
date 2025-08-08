@@ -56,7 +56,9 @@ def _load_manufacture_restriction_sites() -> list[str]:
     >>> all("U" not in it for it in _load_manufacture_restriction_sites())
     True
     """
-    with open(pathlib.Path(__file__).parent / "restriction-sites.txt", "r") as f:
+    with open(
+        pathlib.Path(__file__).parent / "manufacture-restriction-sites.txt", "r"
+    ) as f:
         lines = f.readlines()
         return [
             line.strip().split()[1].replace("U", "T")
