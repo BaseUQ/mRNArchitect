@@ -3,6 +3,7 @@ import {
   ClipboardTextIcon,
   DnaIcon,
   FileIcon,
+  InfoIcon,
   QuestionIcon,
 } from "@phosphor-icons/react";
 import { useState } from "react";
@@ -12,6 +13,7 @@ import {
   optimizeSequence,
 } from "~/server/optimize";
 import { OptimizationError } from "~/types/optimize";
+import { TermsAndConditionsModal } from "~/components/modals/TermsAndConditionsModal";
 import { Help } from "./Help";
 import { InputForm } from "./InputForm";
 import { Output, type OutputProps } from "./Output";
@@ -23,6 +25,8 @@ export const OptimizePage = () => {
   const [optimizationError, setOptimizationError] = useState<
     OptimizationError | string
   >();
+  const [showTermsAndConditions, setShowTermsAndConditions] =
+    useState<boolean>(false);
 
   const handleTabsOnChange = (tab: string | null) => {
     if (tab === "paper") {
@@ -32,6 +36,8 @@ export const OptimizePage = () => {
           "_blank",
         )
         ?.focus();
+    } else if (tab === "terms-and-conditions") {
+      setShowTermsAndConditions(true);
     } else {
       setActiveTab(tab);
     }
@@ -174,6 +180,12 @@ export const OptimizePage = () => {
         >
           Help
         </Tabs.Tab>
+        <Tabs.Tab
+          value="terms-and-conditions"
+          leftSection={<InfoIcon size={16} />}
+        >
+          Terms and Conditions
+        </Tabs.Tab>
         <Tabs.Tab value="paper" leftSection={<FileIcon size={16} />}>
           Paper
         </Tabs.Tab>
@@ -205,6 +217,10 @@ export const OptimizePage = () => {
           </Alert>
         </Modal>
       )}
+      <TermsAndConditionsModal
+        opened={showTermsAndConditions}
+        onClose={() => setShowTermsAndConditions(false)}
+      />
     </Tabs>
   );
 };
