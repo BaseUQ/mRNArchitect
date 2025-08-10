@@ -1,6 +1,6 @@
-Terms and Conditions for Use of mRNArchitect Software
+# Terms and Conditions for Use of mRNArchitect Software
 
-Last updated: 8 August 2025
+**Last updated: 8 August 2025**
 
 These Terms and Conditions (“Terms”) govern the use of the mRNArchitect software (the “Software”) made available by BASE Facility, The University of Queensland.
 
