@@ -98,6 +98,10 @@ export const Help = () => {
           data={{
             body: [
               [
+                "Simple/Advanced",
+                "Simple mode applies a single set of optimisation criteria to the entire coding sequence. Advanced mode allows you to specify sub-regions (using nucleotide coordinates, see below) within the coding sequence that can be optimised using different criteria.",
+              ],
+              [
                 "Nucleotide coordinates",
                 <Fragment key="nucleotide-coordinates">
                   Define the nucleotide coordinates within the coding sequence
@@ -127,19 +131,15 @@ export const Help = () => {
               [
                 "Avoid manufacture restriction sites",
                 <Fragment key="avoid-manufacture-restriction-sites">
-                  Avoid restricted sites that can interfere with the production
-                  of IVT-ready product from Elegen.
+                  Avoid restricted sites that can interfere with DNA template
+                  synthesis.
                 </Fragment>,
               ],
               [
                 "Avoid microRNA seed sites",
                 <Fragment key="avoid-micro-rna-seed-sites">
-                  To mitigate mRNA degradation and translational repression by
-                  miRNAs, mRNArchitect includes an option to avoid introducing
-                  sequences that match the top 50 known miRNA binding sites.
-                  This feature helps reduce the likelihood of unintended miRNA
-                  interactions and improves transcript stability in cellular
-                  systems.
+                  Avoid binding sites for microRNA seed sequences that can
+                  result in unwanted degradation.
                 </Fragment>,
               ],
               [
