@@ -184,7 +184,7 @@ export const OptimizePage = () => {
           value="terms-and-conditions"
           leftSection={<InfoIcon size={16} />}
         >
-          Terms and Conditions
+          Terms and conditions
         </Tabs.Tab>
         <Tabs.Tab value="paper" leftSection={<FileIcon size={16} />}>
           Paper
