@@ -10,7 +10,7 @@ COPY --from=ghcr.io/astral-sh/uv:0.7.8 /uv /uvx /bin/
 
 # Install pnpm
 # see: https://github.com/pnpm/pnpm/releases/
-RUN curl -o /usr/local/bin/pnpm https://github.com/pnpm/pnpm/releases/download/v10.14.0/pnpm-linux-x64 && \
+RUN curl -o /usr/local/bin/pnpm https://github.com/pnpm/pnpm/releases/download/v10.14.0/pnpm-linuxstatic-x64 && \
   chmod +x /usr/local/bin/pnpm
 
 # Install AWS Lambda Web Adapter
