@@ -104,16 +104,10 @@ export const Help = () => {
               [
                 "Nucleotide coordinates",
                 <Fragment key="nucleotide-coordinates">
-                  Define the nucleotide coordinates within the coding sequence
-                  (CDS) that will be optimised using your selected sequence
-                  optimisation criteria. You can choose from two modes.{" "}
-                  <strong>Simple mode</strong> applies a single set of
-                  optimisation criteria to the entire coding sequence.{" "}
-                  <strong>Advanced mode</strong> allows you to specify multiple
-                  sub-regions, each of which can be optimised using different
-                  criteria. Note: Coordinate values are 1-based and inclusive of
-                  the end position (i.e., both start and end bases are included
-                  in the optimisation).
+                  The coordinates within the coding region to optimise. Note
+                  that the coordinates are 1-based, and are inclusive of the end
+                  coordinate. Selecting "Full sequence" will optimise the whole
+                  sequence.
                 </Fragment>,
               ],
               [
