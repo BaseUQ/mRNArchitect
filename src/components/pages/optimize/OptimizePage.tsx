@@ -13,7 +13,7 @@ import {
   optimizeSequence,
 } from "~/server/optimize";
 import { OptimizationError } from "~/types/optimize";
-import { TermsAndConditionsModal } from "~/components/modals/TermsAndConditionsModal";
+import { TermsAndConditions } from "./TermsAndConditions";
 import { Help } from "./Help";
 import { InputForm } from "./InputForm";
 import { Output, type OutputProps } from "./Output";
@@ -25,8 +25,6 @@ export const OptimizePage = () => {
   const [optimizationError, setOptimizationError] = useState<
     OptimizationError | string
   >();
-  const [showTermsAndConditions, setShowTermsAndConditions] =
-    useState<boolean>(false);
 
   const handleTabsOnChange = (tab: string | null) => {
     if (tab === "paper") {
@@ -36,8 +34,6 @@ export const OptimizePage = () => {
           "_blank",
         )
         ?.focus();
-    } else if (tab === "terms-and-conditions") {
-      setShowTermsAndConditions(true);
     } else {
       setActiveTab(tab);
     }
@@ -200,6 +196,9 @@ export const OptimizePage = () => {
         <Tabs.Panel value="help">
           <Help />
         </Tabs.Panel>
+        <Tabs.Panel value="terms-and-conditions">
+          <TermsAndConditions />
+        </Tabs.Panel>
       </Box>
       {optimizationError && (
         <Modal opened={true} onClose={() => setOptimizationError(undefined)}>
@@ -217,10 +216,6 @@ export const OptimizePage = () => {
           </Alert>
         </Modal>
       )}
-      <TermsAndConditionsModal
-        opened={showTermsAndConditions}
-        onClose={() => setShowTermsAndConditions(false)}
-      />
     </Tabs>
   );
 };
