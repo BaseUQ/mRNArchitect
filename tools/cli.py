@@ -41,7 +41,7 @@ def _optimize(args):
                 avoid_repeat_length=args.avoid_repeat_length,
                 enable_uridine_depletion=args.enable_uridine_depletion,
                 avoid_ribosome_slip=args.avoid_ribosome_slip,
-                avoid_micro_rna_seed_sites=args.avoid_microrna_seed_sites,
+                avoid_micro_rna_seed_sites=args.avoid_micro_rna_seed_sites,
                 avoid_manufacture_restriction_sites=args.avoid_manufacture_restriction_sites,
                 gc_content_min=args.gc_content_min,
                 gc_content_max=args.gc_content_max,
@@ -76,7 +76,7 @@ def _convert(args):
     _print(result, args)
 
 
-def cli():
+def cli(args=None):
     parser = argparse.ArgumentParser(
         description="A toolkit to optimize mRNA sequences."
     )
@@ -196,8 +196,8 @@ def cli():
     convert.add_argument("--format", type=str, choices=["yaml", "json"], default="yaml")
     convert.set_defaults(func=_convert)
 
-    args = parser.parse_args()
-    args.func(args)
+    parsed_args = parser.parse_args(args)
+    parsed_args.func(parsed_args)
 
 
 if __name__ == "__main__":

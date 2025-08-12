@@ -11,6 +11,7 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
+      - /app/.venv
     develop:
       watch:
         - path: ./pnpm-lock.yaml
@@ -37,6 +38,7 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
+      - /app/.venv
     develop:
       watch:
         - path: ./pnpm-lock.yaml
