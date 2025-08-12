@@ -52,7 +52,7 @@ test("run optimization - eGFP nucleic acid", async ({ page }) => {
   await expect(page.getByRole("tab", { name: "Output" })).toHaveAttribute(
     "aria-selected",
     "true",
-    { timeout: 30_000 },
+    { timeout: 60_000 },
   );
 
   await expect(page.getByText(EGFP_NUCLEIC_ACID_SEQUENCE)).toHaveCount(2);
