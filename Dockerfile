@@ -1,16 +1,16 @@
-FROM node:lts-slim AS base
+FROM debian:12-slim AS base
 
 RUN apt-get update -qy && \
-  apt-get install -qy wget=1.21.3-1+deb12u1 && \
+  apt-get install -qy curl wget && \
   rm -rf /var/lib/apt/lists/*
 
 # Install uv
 # see: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
 COPY --from=ghcr.io/astral-sh/uv:0.7.8 /uv /uvx /bin/
 
-# Install pnpm 
+# Install pnpm
 # see: https://github.com/pnpm/pnpm/releases/
-RUN wget -qO /usr/local/bin/pnpm https://github.com/pnpm/pnpm/releases/download/v10.11.0/pnpm-linux-x64 && \
+RUN wget -qO /usr/local/bin/pnpm https://github.com/pnpm/pnpm/releases/download/v10.14.0/pnpm-linuxstatic-x64 && \
   chmod +x /usr/local/bin/pnpm
 
 # Install AWS Lambda Web Adapter
@@ -38,21 +38,26 @@ RUN wget -qO /blast/taxdb.tar.gz https://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar
 ENV BLASTDB="/blast/db/"
 
 # Setup the app and virtualenv directory
-ENV VIRTUAL_ENV=/venv
-RUN mkdir /app ${VIRTUAL_ENV} && chown node:node /app ${VIRTUAL_ENV}
-USER node
+RUN adduser app && mkdir /app && chown app:app /app
+USER app
 WORKDIR /app
 
-WORKDIR ${VIRTUAL_ENV}
+# Install python dependencies
+ENV UV_COMPILE_BYTECODE=1
 RUN --mount=type=bind,source=uv.lock,target=uv.lock \
   --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
   uv sync --locked --no-cache --no-install-project --all-groups
-ENV PATH="${VIRTUAL_ENV}/.venv/bin:$PATH"
+ENV PATH="/app/.venv/bin:$PATH"
 
-WORKDIR /app
+# Install node dependencies
 RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=bind,source=package.json,target=package.json \
   pnpm install --frozen-lockfile
+
+# Install app
+COPY --chown=node:node . .
+RUN --mount=type=cache,target=/root/.cache/uv \
+  uv sync --locked
 
 
 FROM base AS e2e
@@ -61,23 +66,20 @@ USER root
 RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=bind,source=package.json,target=package.json \
   pnpm playwright install-deps
-USER node
+USER app
 RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=bind,source=package.json,target=package.json \
   pnpm playwright install chromium --no-shell
-COPY --chown=node:node . .
 CMD ["pnpm", "playwright", "test"]
 
 
 FROM base AS dev
 
-COPY --chown=node:node . .
 CMD ["pnpm", "dev"]
 
 
 FROM base
 
-COPY --chown=node:node . .
 RUN pnpm build
 CMD ["pnpm", "start"]
 

@@ -76,7 +76,7 @@ def _convert(args):
     _print(result, args)
 
 
-def cli():
+def cli(args=None):
     parser = argparse.ArgumentParser(
         description="A toolkit to optimize mRNA sequences."
     )
@@ -196,8 +196,8 @@ def cli():
     convert.add_argument("--format", type=str, choices=["yaml", "json"], default="yaml")
     convert.set_defaults(func=_convert)
 
-    args = parser.parse_args()
-    args.func(args)
+    parsed_args = parser.parse_args(args)
+    parsed_args.func(parsed_args)
 
 
 if __name__ == "__main__":
