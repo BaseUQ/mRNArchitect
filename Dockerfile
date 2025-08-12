@@ -1,20 +1,16 @@
-FROM debian:12-slim AS base
+FROM node:lts-slim AS base
 
 RUN apt-get update -qy && \
-  apt-get install -qy wget && \
+  apt-get install -qy wget=1.21.3-1+deb12u1 && \
   rm -rf /var/lib/apt/lists/*
 
 # Install uv
 # see: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
 COPY --from=ghcr.io/astral-sh/uv:0.7.8 /uv /uvx /bin/
 
-# Install Node.js
-RUN wget -qO- https://deb.nodesource.com/setup_lts.x | bash - && \
-  apt-get install -qy nodejs
-
-# Install pnpm
+# Install pnpm 
 # see: https://github.com/pnpm/pnpm/releases/
-RUN wget -qO /usr/local/bin/pnpm https://github.com/pnpm/pnpm/releases/download/v10.14.0/pnpm-linuxstatic-x64 && \
+RUN wget -qO /usr/local/bin/pnpm https://github.com/pnpm/pnpm/releases/download/v10.11.0/pnpm-linux-x64 && \
   chmod +x /usr/local/bin/pnpm
 
 # Install AWS Lambda Web Adapter
@@ -30,38 +26,30 @@ RUN wget -qO viennarna.deb https://www.tbi.univie.ac.at/RNA/download/debian/debi
 
 # Install BLAST+
 # see: https://blast.ncbi.nlm.nih.gov/doc/blast-help/downloadblastdata.html
-#ARG BLAST_VERSION=2.17.0
-#RUN mkdir -p /blast/db && \
-#  wget -qO /blast/ncbi-blast.tar.gz https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/${BLAST_VERSION}/ncbi-blast-${BLAST_VERSION}+-x64-linux.tar.gz && \
-#  tar -xvf /blast/ncbi-blast.tar.gz --strip-components 1 -C /blast && \
-#  rm /blast/ncbi-blast.tar.gz
-#ENV PATH="/blast/bin/:$PATH"
-#RUN wget -qO /blast/taxdb.tar.gz https://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar.gz && \
-#  tar -xvf /blast/taxdb.tar.gz -C /blast/db && \
-#  rm /blast/taxdb.tar.gz
-#ENV BLASTDB="/blast/db/"
+ARG BLAST_VERSION=2.17.0
+RUN mkdir -p /blast/db && \
+  wget -qO /blast/ncbi-blast.tar.gz https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/${BLAST_VERSION}/ncbi-blast-${BLAST_VERSION}+-x64-linux.tar.gz && \
+  tar -xvf /blast/ncbi-blast.tar.gz --strip-components 1 -C /blast && \
+  rm /blast/ncbi-blast.tar.gz
+ENV PATH="/blast/bin/:$PATH"
+RUN wget -qO /blast/taxdb.tar.gz https://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar.gz && \
+  tar -xvf /blast/taxdb.tar.gz -C /blast/db && \
+  rm /blast/taxdb.tar.gz
+ENV BLASTDB="/blast/db/"
 
 # Setup the app and virtualenv directory
-RUN adduser app && mkdir /app && chown app:app /app
-USER app
+RUN mkdir /app && chown node:node /app
+USER node
 WORKDIR /app
 
-# Install python dependencies
-#ENV UV_COMPILE_BYTECODE=1
 RUN --mount=type=bind,source=uv.lock,target=uv.lock \
   --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
   uv sync --locked --no-cache --no-install-project --all-groups
 ENV PATH="/app/.venv/bin:$PATH"
 
-# Install node dependencies
 RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=bind,source=package.json,target=package.json \
   pnpm install --frozen-lockfile
-
-# Install app
-COPY --chown=app:app . .
-RUN --mount=type=cache,target=/root/.cache/uv \
-  uv sync --locked
 
 
 FROM base AS e2e
@@ -70,20 +58,22 @@ USER root
 RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=bind,source=package.json,target=package.json \
   pnpm playwright install-deps
-USER app
+USER node
 RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=bind,source=package.json,target=package.json \
   pnpm playwright install chromium --no-shell
+COPY --chown=node:node . .
 CMD ["pnpm", "playwright", "test"]
 
 
 FROM base AS dev
 
+COPY --chown=node:node . .
 CMD ["pnpm", "dev"]
 
 
 FROM base
 
+COPY --chown=node:node . .
 RUN pnpm build
 CMD ["pnpm", "start"]
-
