@@ -1,7 +1,7 @@
 FROM debian:12-slim AS base
 
 RUN apt-get update -qy && \
-  apt-get install -qy curl wget && \
+  apt-get install -qy wget && \
   rm -rf /var/lib/apt/lists/*
 
 # Install uv
@@ -26,16 +26,16 @@ RUN wget -qO viennarna.deb https://www.tbi.univie.ac.at/RNA/download/debian/debi
 
 # Install BLAST+
 # see: https://blast.ncbi.nlm.nih.gov/doc/blast-help/downloadblastdata.html
-ARG BLAST_VERSION=2.17.0
-RUN mkdir -p /blast/db && \
-  wget -qO /blast/ncbi-blast.tar.gz https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/${BLAST_VERSION}/ncbi-blast-${BLAST_VERSION}+-x64-linux.tar.gz && \
-  tar -xvf /blast/ncbi-blast.tar.gz --strip-components 1 -C /blast && \
-  rm /blast/ncbi-blast.tar.gz
-ENV PATH="/blast/bin/:$PATH"
-RUN wget -qO /blast/taxdb.tar.gz https://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar.gz && \
-  tar -xvf /blast/taxdb.tar.gz -C /blast/db && \
-  rm /blast/taxdb.tar.gz
-ENV BLASTDB="/blast/db/"
+#ARG BLAST_VERSION=2.17.0
+#RUN mkdir -p /blast/db && \
+#  wget -qO /blast/ncbi-blast.tar.gz https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/${BLAST_VERSION}/ncbi-blast-${BLAST_VERSION}+-x64-linux.tar.gz && \
+#  tar -xvf /blast/ncbi-blast.tar.gz --strip-components 1 -C /blast && \
+#  rm /blast/ncbi-blast.tar.gz
+#ENV PATH="/blast/bin/:$PATH"
+#RUN wget -qO /blast/taxdb.tar.gz https://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar.gz && \
+#  tar -xvf /blast/taxdb.tar.gz -C /blast/db && \
+#  rm /blast/taxdb.tar.gz
+#ENV BLASTDB="/blast/db/"
 
 # Setup the app and virtualenv directory
 RUN adduser app && mkdir /app && chown app:app /app

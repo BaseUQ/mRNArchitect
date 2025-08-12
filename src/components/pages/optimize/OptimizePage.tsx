@@ -3,6 +3,7 @@ import {
   ClipboardTextIcon,
   DnaIcon,
   FileIcon,
+  InfoIcon,
   QuestionIcon,
 } from "@phosphor-icons/react";
 import { useState } from "react";
@@ -15,6 +16,7 @@ import { OptimizationError } from "~/types/optimize";
 import { Help } from "./Help";
 import { InputForm } from "./InputForm";
 import { Output, type OutputProps } from "./Output";
+import { TermsAndConditions } from "./TermsAndConditions";
 import type { OptimizationInput, OptimizationOutput } from "./types";
 
 export const OptimizePage = () => {
@@ -174,6 +176,14 @@ export const OptimizePage = () => {
         >
           Help
         </Tabs.Tab>
+        {false && ( // TODO: disabled for now
+          <Tabs.Tab
+            value="terms-and-conditions"
+            leftSection={<InfoIcon size={16} />}
+          >
+            Terms and conditions
+          </Tabs.Tab>
+        )}
         <Tabs.Tab value="paper" leftSection={<FileIcon size={16} />}>
           Paper
         </Tabs.Tab>
@@ -187,6 +197,9 @@ export const OptimizePage = () => {
         </Tabs.Panel>
         <Tabs.Panel value="help">
           <Help />
+        </Tabs.Panel>
+        <Tabs.Panel value="terms-and-conditions">
+          <TermsAndConditions />
         </Tabs.Panel>
       </Box>
       {optimizationError && (
