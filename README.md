@@ -27,22 +27,28 @@ To use the web interface, you may build and run the provided docker image.
 
 Then browse to [http://localhost:8080] to start optimizing.
 
-The CLI interface may be run directly. First, install the [uv](https://docs.astral.sh/uv/getting-started/installation/) package manager to setup a python environment. You can then run an optimization like this:
+The CLI may tool may also be run via docker.
 
 ```sh
-> uv run mRNArchitect optimize ACGACG
+> docker compose run app mRNArchitect optimize ACGACG
 ```
 
 Or for an amino acid sequence:
 
 ```sh
-> uv run mRNArchitect optimize MILK --sequence-type amino-acid
+> docker compose run app mRNArchitect optimize MILK --sequence-type amino-acid
 ```
 
 Use the `--help` option to see the full list of options:
 
 ```sh
-> uv run mRNArchitect optimize --help
+> docker compose run app mRNArchitect optimize --help
+```
+
+To run the CLI directly, first install the [uv](https://docs.astral.sh/uv/getting-started/installation/) package manager to setup a python environment. You can then run the above commands through `uv` rather than docker.
+
+```sh
+> uv run mRNArchitect optimize ACGACG
 ```
 
 ## Design of mRNA Sequence
