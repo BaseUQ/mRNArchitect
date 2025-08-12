@@ -8,6 +8,7 @@ from tools.cli import cli
     (
         [["-h"], "A toolkit to optimize mRNA sequences."],
         [["optimize", "ACGACG"], "ACCACC"],
+        [["analyze", "ACGACG"], "codonAdaptationIndex"],
     ),
 )
 def test_cli(capsys, args, output):
