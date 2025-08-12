@@ -1,4 +1,4 @@
-FROM debian:12-slim AS base
+FROM node:lts-slim AS base
 
 RUN apt-get update -qy && \
   apt-get install -qy wget && \
