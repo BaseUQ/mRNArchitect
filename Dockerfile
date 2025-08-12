@@ -37,11 +37,12 @@ RUN wget -qO viennarna.deb https://www.tbi.univie.ac.at/RNA/download/debian/debi
 #  rm /blast/taxdb.tar.gz
 #ENV BLASTDB="/blast/db/"
 
-# Setup the app and virtualenv directory
+# Setup the app directory
 RUN mkdir /app && chown node:node /app
 USER node
 WORKDIR /app
 
+ENV UV_COMPILE_BYTECODE=1
 RUN --mount=type=bind,source=uv.lock,target=uv.lock \
   --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
   uv sync --locked --no-cache --no-install-project --all-groups
