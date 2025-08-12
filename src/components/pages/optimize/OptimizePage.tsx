@@ -13,10 +13,10 @@ import {
   optimizeSequence,
 } from "~/server/optimize";
 import { OptimizationError } from "~/types/optimize";
-import { TermsAndConditions } from "./TermsAndConditions";
 import { Help } from "./Help";
 import { InputForm } from "./InputForm";
 import { Output, type OutputProps } from "./Output";
+import { TermsAndConditions } from "./TermsAndConditions";
 import type { OptimizationInput, OptimizationOutput } from "./types";
 
 export const OptimizePage = () => {
