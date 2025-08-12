@@ -8,6 +8,10 @@ RUN apt-get update -qy && \
 # see: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
 COPY --from=ghcr.io/astral-sh/uv:0.7.8 /uv /uvx /bin/
 
+# Install Node.js
+RUN wget -qO- https://deb.nodesource.com/setup_lts.x | bash - && \
+  apt-get install -qy nodejs
+
 # Install pnpm
 # see: https://github.com/pnpm/pnpm/releases/
 RUN wget -qO /usr/local/bin/pnpm https://github.com/pnpm/pnpm/releases/download/v10.14.0/pnpm-linuxstatic-x64 && \

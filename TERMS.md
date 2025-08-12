@@ -71,3 +71,4 @@ By downloading, installing, or using the Software, you agree to be bound by thes
     9.1 These Terms are governed by and construed in accordance with the laws of the State of Queensland, Australia, without regard to conflict of law principles.
 
     9.2 Any disputes will be subject to the exclusive jurisdiction of the courts of Queensland, Australia.
+
