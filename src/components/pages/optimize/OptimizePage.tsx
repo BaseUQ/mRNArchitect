@@ -176,12 +176,14 @@ export const OptimizePage = () => {
         >
           Help
         </Tabs.Tab>
-        {/*<Tabs.Tab
-          value="terms-and-conditions"
-          leftSection={<InfoIcon size={16} />}
-        >
-          Terms and conditions
-        </Tabs.Tab>*/}
+        {false && ( // TODO: disabled for now
+          <Tabs.Tab
+            value="terms-and-conditions"
+            leftSection={<InfoIcon size={16} />}
+          >
+            Terms and conditions
+          </Tabs.Tab>
+        )}
         <Tabs.Tab value="paper" leftSection={<FileIcon size={16} />}>
           Paper
         </Tabs.Tab>
