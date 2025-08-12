@@ -1,4 +1,4 @@
-FROM node:lts-slim AS base
+FROM debian:12-slim AS base
 
 RUN apt-get update -qy && \
   apt-get install -qy wget && \
@@ -47,7 +47,7 @@ USER app
 WORKDIR /app
 
 # Install python dependencies
-ENV UV_COMPILE_BYTECODE=1
+#ENV UV_COMPILE_BYTECODE=1
 RUN --mount=type=bind,source=uv.lock,target=uv.lock \
   --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
   uv sync --locked --no-cache --no-install-project --all-groups
@@ -59,7 +59,7 @@ RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   pnpm install --frozen-lockfile
 
 # Install app
-COPY --chown=node:node . .
+COPY --chown=app:app . .
 RUN --mount=type=cache,target=/root/.cache/uv \
   uv sync --locked
 
