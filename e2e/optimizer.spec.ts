@@ -47,6 +47,8 @@ test("run optimization - eGFP nucleic acid", async ({ page }) => {
   await page
     .getByRole("textbox", { name: "Coding sequence textarea" })
     .fill(EGFP_NUCLEIC_ACID_SEQUENCE);
+  await page.getByLabel("Number of optimised sequences").fill("1");
+
   await page.getByRole("button", { name: "Optimise sequence" }).click();
 
   await expect(page.getByRole("tab", { name: "Output" })).toHaveAttribute(
