@@ -65,7 +65,7 @@ export const TermsAndConditions = () => (
       servers.
       <br />
       4.2 BASE Facility will handle personal data in accordance with the{" "}
-      <a href="https://policies.uq.edu.au/" target="_blank">
+      <a href="https://policies.uq.edu.au/" target="_blank" rel="noopener">
         UQ Privacy Policy
       </a>
       .
