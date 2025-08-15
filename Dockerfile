@@ -31,7 +31,7 @@ COPY --from=docker.io/ncbi/blast:2.17.0 /blast /blast
 ENV PATH="/blast/bin:$PATH"
 ENV BLASTDB="/blast/blastdb/"
 WORKDIR ${BLASTDB}
-RUN update_blastdb.pl --decompress --verbose --verbose taxdb
+RUN update_blastdb.pl --decompress --verbose taxdb
 
 # Setup the app directory
 RUN mkdir /app && chown node:node /app
