@@ -1,7 +1,7 @@
 FROM node:lts-slim AS base
 
 RUN apt-get update -qy && \
-  apt-get install -qy curl perl wget && \
+  apt-get install -qy wget && \
   rm -rf /var/lib/apt/lists/*
 
 # Install uv
@@ -28,6 +28,9 @@ RUN wget -qO viennarna.deb https://www.tbi.univie.ac.at/RNA/download/debian/debi
 # see: https://blast.ncbi.nlm.nih.gov/doc/blast-help/downloadblastdata.html
 # see: https://hub.docker.com/r/ncbi/blast
 COPY --from=docker.io/ncbi/blast:2.17.0 /blast /blast
+RUN apt-get update -qy && \
+  apt-get install -qy curl libidn12 libnet-perl perl-doc liblmdb-dev wget libsqlite3-dev perl && \
+  rm -rf /var/lib/apt/lists/*
 ENV PATH="/blast/bin:$PATH"
 ENV BLASTDB="/blast/blastdb/"
 WORKDIR ${BLASTDB}
