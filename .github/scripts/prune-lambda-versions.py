@@ -28,7 +28,7 @@ if __name__ == "__main__":
             "Github token not available. Ensure the the GH_TOKEN env var is set."
         )
 
-    github_client = github.Github(auth=github.Auth(github_token))
+    github_client = github.Github(auth=github.Auth.Token(github_token))
     repo = github_client.get_repo(args.repo)
     open_pull_requests = repo.get_pulls(state="open")
     open_pull_request_numbers = [str(pr.number) for pr in open_pull_requests]
