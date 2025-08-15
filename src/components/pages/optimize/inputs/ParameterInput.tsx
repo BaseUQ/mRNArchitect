@@ -84,201 +84,217 @@ export const ParameterInput = ({
                 />
               </Flex>
             )}
+            <Switch
+              label="Enforce sequence"
+              onLabel="ON"
+              offLabel="OFF"
+              key={form.key(`parameters.${index}.enforceSequence`)}
+              {...form.getInputProps(`parameters.${index}.enforceSequence`, {
+                type: "checkbox",
+              })}
+            />
           </Stack>
         </InputWrapper>
       )}
-      <NativeSelect
-        label="Organism"
-        data={ORGANISMS}
-        key={form.key(`parameters.${index}.organism`)}
-        {...form.getInputProps(`parameters.${index}.organism`)}
-      />
-      <NumberInput
-        label="Avoid repeat length"
-        min={6}
-        step={1}
-        key={form.key(`parameters.${index}.avoidRepeatLength`)}
-        {...form.getInputProps(`parameters.${index}.avoidRepeatLength`)}
-      />
-      <Flex
-        direction={{ base: "column", sm: "row" }}
-        justify="flex-start"
-        align="start"
-        gap="xl"
-        pl="sm"
-      >
-        <Stack justify="flex-start">
-          <Switch
-            label="Enable uridine depletion"
-            onLabel="ON"
-            offLabel="OFF"
-            key={form.key(`parameters.${index}.enableUridineDepletion`)}
-            {...form.getInputProps(
-              `parameters.${index}.enableUridineDepletion`,
-              {
-                type: "checkbox",
-              },
-            )}
+      {!form.getValues().parameters[index].enforceSequence && (
+        <>
+          <NativeSelect
+            label="Organism"
+            data={ORGANISMS}
+            key={form.key(`parameters.${index}.organism`)}
+            {...form.getInputProps(`parameters.${index}.organism`)}
           />
-          <Switch
-            label="Avoid ribosome slip"
-            onLabel="ON"
-            offLabel="OFF"
-            key={form.key(`parameters.${index}.avoidRibosomeSlip`)}
-            {...form.getInputProps(`parameters.${index}.avoidRibosomeSlip`, {
-              type: "checkbox",
-            })}
+          <NumberInput
+            label="Avoid repeat length"
+            min={6}
+            step={1}
+            key={form.key(`parameters.${index}.avoidRepeatLength`)}
+            {...form.getInputProps(`parameters.${index}.avoidRepeatLength`)}
           />
-        </Stack>
-        <Stack justify="flex-start">
-          <Switch
-            label="Avoid manufacture restriction sites"
-            onLabel="ON"
-            offLabel="OFF"
-            key={form.key(
-              `parameters.${index}.avoidManufactureRestrictionSites`,
-            )}
-            {...form.getInputProps(
-              `parameters.${index}.avoidManufactureRestrictionSites`,
-              { type: "checkbox" },
-            )}
-          />
-          <Switch
-            label="Avoid microRNA seed sites"
-            onLabel="ON"
-            offLabel="OFF"
-            key={form.key(`parameters.${index}.avoidMicroRNASeedSites`)}
-            {...form.getInputProps(
-              `parameters.${index}.avoidMicroRnaSeedSites`,
-              {
-                type: "checkbox",
-              },
-            )}
-          />
-        </Stack>
-      </Flex>
-      <InputWrapper label="GC content">
-        <Flex
-          direction={{ base: "column", sm: "row" }}
-          justify="flex-start"
-          align="start"
-          gap="lg"
-          pl="sm"
-        >
-          <InputWrapper label="Minimum/maximum GC content" flex="1">
-            <RangeSlider
-              min={0}
-              max={1}
-              step={0.05}
-              minRange={0}
-              marks={[
-                { value: 0, label: "0" },
-                { value: 0.25, label: "0.25" },
-                { value: 0.5, label: "0.5" },
-                { value: 0.75, label: "0.75" },
-                { value: 1, label: "1" },
-              ]}
-              key={form.key(`parameters.${index}.minMaxGCContent`)}
-              value={[
-                form.getValues().parameters[index].gcContentMin,
-                form.getValues().parameters[index].gcContentMax,
-              ]}
-              onChange={([min, max]) => {
-                form.setFieldValue(`parameters.${index}.gcContentMin`, min);
-                form.setFieldValue(`parameters.${index}.gcContentMax`, max);
-              }}
-            />
+          <Flex
+            direction={{ base: "column", sm: "row" }}
+            justify="flex-start"
+            align="start"
+            gap="xl"
+            pl="sm"
+          >
+            <Stack justify="flex-start">
+              <Switch
+                label="Enable uridine depletion"
+                onLabel="ON"
+                offLabel="OFF"
+                key={form.key(`parameters.${index}.enableUridineDepletion`)}
+                {...form.getInputProps(
+                  `parameters.${index}.enableUridineDepletion`,
+                  {
+                    type: "checkbox",
+                  },
+                )}
+              />
+              <Switch
+                label="Avoid ribosome slip"
+                onLabel="ON"
+                offLabel="OFF"
+                key={form.key(`parameters.${index}.avoidRibosomeSlip`)}
+                {...form.getInputProps(
+                  `parameters.${index}.avoidRibosomeSlip`,
+                  {
+                    type: "checkbox",
+                  },
+                )}
+              />
+            </Stack>
+            <Stack justify="flex-start">
+              <Switch
+                label="Avoid manufacture restriction sites"
+                onLabel="ON"
+                offLabel="OFF"
+                key={form.key(
+                  `parameters.${index}.avoidManufactureRestrictionSites`,
+                )}
+                {...form.getInputProps(
+                  `parameters.${index}.avoidManufactureRestrictionSites`,
+                  { type: "checkbox" },
+                )}
+              />
+              <Switch
+                label="Avoid microRNA seed sites"
+                onLabel="ON"
+                offLabel="OFF"
+                key={form.key(`parameters.${index}.avoidMicroRNASeedSites`)}
+                {...form.getInputProps(
+                  `parameters.${index}.avoidMicroRnaSeedSites`,
+                  {
+                    type: "checkbox",
+                  },
+                )}
+              />
+            </Stack>
+          </Flex>
+          <InputWrapper label="GC content">
+            <Flex
+              direction={{ base: "column", sm: "row" }}
+              justify="flex-start"
+              align="start"
+              gap="lg"
+              pl="sm"
+            >
+              <InputWrapper label="Minimum/maximum GC content" flex="1">
+                <RangeSlider
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  minRange={0}
+                  marks={[
+                    { value: 0, label: "0" },
+                    { value: 0.25, label: "0.25" },
+                    { value: 0.5, label: "0.5" },
+                    { value: 0.75, label: "0.75" },
+                    { value: 1, label: "1" },
+                  ]}
+                  key={form.key(`parameters.${index}.minMaxGCContent`)}
+                  value={[
+                    form.getValues().parameters[index].gcContentMin,
+                    form.getValues().parameters[index].gcContentMax,
+                  ]}
+                  onChange={([min, max]) => {
+                    form.setFieldValue(`parameters.${index}.gcContentMin`, min);
+                    form.setFieldValue(`parameters.${index}.gcContentMax`, max);
+                  }}
+                />
+              </InputWrapper>
+              <NumberInput
+                label="GC content window"
+                min={1}
+                step={1}
+                key={form.key(`parameters.${index}.gcContentWindow`)}
+                {...form.getInputProps(`parameters.${index}.gcContentWindow`)}
+              />
+            </Flex>
           </InputWrapper>
-          <NumberInput
-            label="GC content window"
-            min={1}
-            step={1}
-            key={form.key(`parameters.${index}.gcContentWindow`)}
-            {...form.getInputProps(`parameters.${index}.gcContentWindow`)}
+          <MultiSelect
+            label="Avoid cut sites"
+            placeholder="Choose sites..."
+            searchable
+            data={Object.keys(RESTRICTION_SITES)
+              .sort()
+              .map((v) => ({
+                label: v,
+                value: v,
+              }))}
+            key={form.key(`parameters.${index}.avoidRestrictionSites`)}
+            {...form.getInputProps(`parameters.${index}.avoidRestrictionSites`)}
           />
-        </Flex>
-      </InputWrapper>
-      <MultiSelect
-        label="Avoid cut sites"
-        placeholder="Choose sites..."
-        searchable
-        data={Object.keys(RESTRICTION_SITES)
-          .sort()
-          .map((v) => ({
-            label: v,
-            value: v,
-          }))}
-        key={form.key(`parameters.${index}.avoidRestrictionSites`)}
-        {...form.getInputProps(`parameters.${index}.avoidRestrictionSites`)}
-      />
-      <TagsInput
-        label="Avoid sequences"
-        placeholder="Press Enter to add sequence"
-        key={form.key(`parameters.${index}.avoidSequences`)}
-        {...form.getInputProps(`parameters.${index}.avoidSequences`)}
-      />
-      <InputWrapper label="Avoid homopolymer tracts">
-        <Flex
-          direction={{ base: "column", sm: "row" }}
-          justify="space-between"
-          align="start"
-          gap="lg"
-          pl="sm"
-        >
-          <NumberInput
-            label="Poly(U)"
-            min={0}
-            step={1}
-            key={form.key(`parameters.${index}.avoidPolyT`)}
-            {...form.getInputProps(`parameters.${index}.avoidPolyT`)}
+          <TagsInput
+            label="Avoid sequences"
+            placeholder="Press Enter to add sequence"
+            key={form.key(`parameters.${index}.avoidSequences`)}
+            {...form.getInputProps(`parameters.${index}.avoidSequences`)}
           />
-          <NumberInput
-            label="Poly(A)"
-            min={0}
-            step={1}
-            key={form.key(`parameters.${index}.avoidPolyA`)}
-            {...form.getInputProps(`parameters.${index}.avoidPolyA`)}
-          />
-          <NumberInput
-            label="Poly(C)"
-            min={0}
-            step={1}
-            key={form.key(`parameters.${index}.avoidPolyC`)}
-            {...form.getInputProps(`parameters.${index}.avoidPolyC`)}
-          />
-          <NumberInput
-            label="Poly(G)"
-            min={0}
-            step={1}
-            key={form.key(`parameters.${index}.avoidPolyG`)}
-            {...form.getInputProps(`parameters.${index}.avoidPolyG`)}
-          />
-        </Flex>
-      </InputWrapper>
-      <InputWrapper label="Avoid hairpins">
-        <Flex
-          direction={{ base: "column", sm: "row" }}
-          justify="flex-start"
-          align="start"
-          gap="lg"
-          pl="sm"
-        >
-          <NumberInput
-            label="Hairpin stem size"
-            min={0}
-            step={1}
-            key={form.key(`parameters.${index}.hairpinStemSize`)}
-            {...form.getInputProps(`parameters.${index}.hairpinStemSize`)}
-          />
-          <NumberInput
-            label="Hairpin window"
-            min={0}
-            step={1}
-            key={form.key(`parameters.${index}.hairpinWindow`)}
-            {...form.getInputProps(`parameters.${index}.hairpinWindow`)}
-          />
-        </Flex>
-      </InputWrapper>
+          <InputWrapper label="Avoid homopolymer tracts">
+            <Flex
+              direction={{ base: "column", sm: "row" }}
+              justify="space-between"
+              align="start"
+              gap="lg"
+              pl="sm"
+            >
+              <NumberInput
+                label="Poly(U)"
+                min={0}
+                step={1}
+                key={form.key(`parameters.${index}.avoidPolyT`)}
+                {...form.getInputProps(`parameters.${index}.avoidPolyT`)}
+              />
+              <NumberInput
+                label="Poly(A)"
+                min={0}
+                step={1}
+                key={form.key(`parameters.${index}.avoidPolyA`)}
+                {...form.getInputProps(`parameters.${index}.avoidPolyA`)}
+              />
+              <NumberInput
+                label="Poly(C)"
+                min={0}
+                step={1}
+                key={form.key(`parameters.${index}.avoidPolyC`)}
+                {...form.getInputProps(`parameters.${index}.avoidPolyC`)}
+              />
+              <NumberInput
+                label="Poly(G)"
+                min={0}
+                step={1}
+                key={form.key(`parameters.${index}.avoidPolyG`)}
+                {...form.getInputProps(`parameters.${index}.avoidPolyG`)}
+              />
+            </Flex>
+          </InputWrapper>
+          <InputWrapper label="Avoid hairpins">
+            <Flex
+              direction={{ base: "column", sm: "row" }}
+              justify="flex-start"
+              align="start"
+              gap="lg"
+              pl="sm"
+            >
+              <NumberInput
+                label="Hairpin stem size"
+                min={0}
+                step={1}
+                key={form.key(`parameters.${index}.hairpinStemSize`)}
+                {...form.getInputProps(`parameters.${index}.hairpinStemSize`)}
+              />
+              <NumberInput
+                label="Hairpin window"
+                min={0}
+                step={1}
+                key={form.key(`parameters.${index}.hairpinWindow`)}
+                {...form.getInputProps(`parameters.${index}.hairpinWindow`)}
+              />
+            </Flex>
+          </InputWrapper>
+        </>
+      )}
     </Stack>
   );
 };

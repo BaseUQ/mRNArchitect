@@ -30,6 +30,7 @@ const createDefaultParameter = (
 ): OptimizationParameter => ({
   startCoordinate,
   endCoordinate,
+  enforceSequence: false,
   organism: "human",
   avoidRepeatLength: 10,
   enableUridineDepletion: false,

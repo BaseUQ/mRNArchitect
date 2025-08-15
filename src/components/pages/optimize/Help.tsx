@@ -111,6 +111,10 @@ export const Help = () => {
                 </Fragment>,
               ],
               [
+                "Enforce sequence",
+                "If set, the given sub-region is not optimised. That is, the input and output sequences will be exactly the same at these nucleotide coordinates.",
+              ],
+              [
                 "Enable uridine depletion",
                 "If selected, this minimizes the use of uridine nucleosides in the mRNA sequence. This is achieved by avoiding codons that encode uridine at the third wobble position and can impact the reactogenicity of the mRNA sequence.",
               ],
