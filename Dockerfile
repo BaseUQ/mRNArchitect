@@ -1,7 +1,7 @@
 FROM node:lts-slim AS base
 
 RUN apt-get update -qy && \
-  apt-get install -qy awscli curl perl wget && \
+  apt-get install -qy curl perl wget && \
   rm -rf /var/lib/apt/lists/*
 
 # Install uv
