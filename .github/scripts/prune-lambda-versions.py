@@ -6,7 +6,6 @@
 # ///
 
 import argparse
-import datetime
 import os
 
 import boto3
@@ -15,8 +14,6 @@ import github
 FUNCTION_NAME = "app"
 
 ALIASES_TO_KEEP = ["PRODUCTION", "TEST"]
-
-# KEEP_IF_WITHIN = datetime.timedelta(weeks=2)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
