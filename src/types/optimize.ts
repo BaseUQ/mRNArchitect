@@ -7,6 +7,7 @@ export const OptimizationParameter = z
   .object({
     startCoordinate: z.int(REQUIRED_MESSAGE).min(1).nullable(),
     endCoordinate: z.int(REQUIRED_MESSAGE).min(1).nullable(),
+    enforceSequence: z.boolean(),
     organism: z.string(),
     avoidRepeatLength: z.int(REQUIRED_MESSAGE).min(0),
     enableUridineDepletion: z.boolean(),

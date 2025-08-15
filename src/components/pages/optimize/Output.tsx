@@ -49,28 +49,38 @@ const generateReport = ({
   ];
 
   const parameterReports = parameters
-    .map((c) => [
-      `---${parameterTitle(sequence, c)}`,
-      `Start coordinate\t\t\t${c.startCoordinate || "1"}`,
-      `End coordinate\t\t\t\t${c.endCoordinate || output.outputs[0].optimization.result.sequence.nucleicAcidSequence.length}`,
-      `Organism\t\t\t\t${c.organism}`,
-      `Avoid repeat length\t\t\t${c.avoidRepeatLength}`,
-      `Enable uridine depletion\t\t${c.enableUridineDepletion}`,
-      `Avoid ribosome slip\t\t\t${c.avoidRibosomeSlip}`,
-      `Avoid manufacture restriction sites\t${c.avoidManufactureRestrictionSites}`,
-      `Avoid microRNA seed sites\t\t${c.avoidMicroRnaSeedSites}`,
-      `GC content minimum\t\t\t${c.gcContentMin}`,
-      `GC content maximum\t\t\t${c.gcContentMax}`,
-      `GC content window\t\t\t${c.gcContentWindow}`,
-      `Avoid cut sites\t\t\t\t${c.avoidRestrictionSites}`,
-      `Avoid sequences\t\t\t\t${c.avoidSequences}`,
-      `Avoid poly(U)\t\t\t\t${c.avoidPolyT}`,
-      `Avoid poly(A)\t\t\t\t${c.avoidPolyA}`,
-      `Avoid poly(C)\t\t\t\t${c.avoidPolyC}`,
-      `Avoid poly(G)\t\t\t\t${c.avoidPolyG}`,
-      `Hairpin stem size\t\t\t${c.hairpinStemSize}`,
-      `Hairpin window\t\t\t\t${c.hairpinWindow}`,
-    ])
+    .map((c) => {
+      const report: string[] = [
+        `---${parameterTitle(sequence, c)}`,
+        `Start coordinate\t\t\t${c.startCoordinate || "1"}`,
+        `End coordinate\t\t\t\t${c.endCoordinate || output.outputs[0].optimization.result.sequence.nucleicAcidSequence.length}`,
+        `Enforce sequence\t\t\t${c.enforceSequence}`,
+      ];
+      if (!c.enforceSequence) {
+        report.push(
+          ...[
+            `Organism\t\t\t\t${c.organism}`,
+            `Avoid repeat length\t\t\t${c.avoidRepeatLength}`,
+            `Enable uridine depletion\t\t${c.enableUridineDepletion}`,
+            `Avoid ribosome slip\t\t\t${c.avoidRibosomeSlip}`,
+            `Avoid manufacture restriction sites\t${c.avoidManufactureRestrictionSites}`,
+            `Avoid microRNA seed sites\t\t${c.avoidMicroRnaSeedSites}`,
+            `GC content minimum\t\t\t${c.gcContentMin}`,
+            `GC content maximum\t\t\t${c.gcContentMax}`,
+            `GC content window\t\t\t${c.gcContentWindow}`,
+            `Avoid cut sites\t\t\t\t${c.avoidRestrictionSites}`,
+            `Avoid sequences\t\t\t\t${c.avoidSequences}`,
+            `Avoid poly(U)\t\t\t\t${c.avoidPolyT}`,
+            `Avoid poly(A)\t\t\t\t${c.avoidPolyA}`,
+            `Avoid poly(C)\t\t\t\t${c.avoidPolyC}`,
+            `Avoid poly(G)\t\t\t\t${c.avoidPolyG}`,
+            `Hairpin stem size\t\t\t${c.hairpinStemSize}`,
+            `Hairpin window\t\t\t\t${c.hairpinWindow}`,
+          ],
+        );
+      }
+      return report;
+    })
     .reduce((prev, current) => prev.concat([""], current), []);
 
   const outputReports = output.outputs.map(
