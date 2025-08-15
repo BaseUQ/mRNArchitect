@@ -1,7 +1,7 @@
 FROM node:lts-slim AS base
 
 RUN apt-get update -qy && \
-  apt-get install -qy wget=1.21.3-1+deb12u1 && \
+  apt-get install -qy awscli curl perl wget && \
   rm -rf /var/lib/apt/lists/*
 
 # Install uv
@@ -10,7 +10,7 @@ COPY --from=ghcr.io/astral-sh/uv:0.7.8 /uv /uvx /bin/
 
 # Install pnpm 
 # see: https://github.com/pnpm/pnpm/releases/
-RUN wget -qO /usr/local/bin/pnpm https://github.com/pnpm/pnpm/releases/download/v10.11.0/pnpm-linux-x64 && \
+RUN wget -qO /usr/local/bin/pnpm https://github.com/pnpm/pnpm/releases/download/v10.14.0/pnpm-linux-x64 && \
   chmod +x /usr/local/bin/pnpm
 
 # Install AWS Lambda Web Adapter
@@ -26,16 +26,12 @@ RUN wget -qO viennarna.deb https://www.tbi.univie.ac.at/RNA/download/debian/debi
 
 # Install BLAST+
 # see: https://blast.ncbi.nlm.nih.gov/doc/blast-help/downloadblastdata.html
-#ARG BLAST_VERSION=2.17.0
-#RUN mkdir -p /blast/db && \
-#  wget -qO /blast/ncbi-blast.tar.gz https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/${BLAST_VERSION}/ncbi-blast-${BLAST_VERSION}+-x64-linux.tar.gz && \
-#  tar -xvf /blast/ncbi-blast.tar.gz --strip-components 1 -C /blast && \
-#  rm /blast/ncbi-blast.tar.gz
-#ENV PATH="/blast/bin/:$PATH"
-#RUN wget -qO /blast/taxdb.tar.gz https://ftp.ncbi.nlm.nih.gov/blast/db/taxdb.tar.gz && \
-#  tar -xvf /blast/taxdb.tar.gz -C /blast/db && \
-#  rm /blast/taxdb.tar.gz
-#ENV BLASTDB="/blast/db/"
+# see: https://hub.docker.com/r/ncbi/blast
+COPY --from=docker.io/ncbi/blast:2.17.0 /blast /blast
+ENV PATH="/blast/bin:$PATH"
+ENV BLASTDB="/blast/blastdb/"
+WORKDIR ${BLASTDB}
+RUN update_blastdb.pl --source aws --verbose --verbose taxdb
 
 # Setup the app directory
 RUN mkdir /app && chown node:node /app
@@ -60,7 +56,6 @@ RUN --mount=type=bind,source=uv.lock,target=uv.lock \
   --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
   --mount=type=cache,target=/home/app/.cache/uv \
   uv sync --locked
-
 
 
 FROM base AS e2e
