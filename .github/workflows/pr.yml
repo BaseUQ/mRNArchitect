@@ -33,6 +33,8 @@ jobs:
 
   prune-lambda-versions:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -40,7 +42,9 @@ jobs:
         with:
           aws-region: ap-southeast-2
           role-to-assume: arn:aws:iam::340752831962:role/deploy
-      - run: |
-          uv run .github/scripts/prune-lambda-versions.py
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          uv run .github/scripts/prune-lambda-versions.py ${{ github.event.repository }}
 
 
