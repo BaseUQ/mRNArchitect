@@ -6,6 +6,7 @@
 # ///
 
 import argparse
+import datetime
 import os
 
 import boto3
@@ -60,6 +61,15 @@ if __name__ == "__main__":
         ):
             print(
                 f"Keeping version {version['Version']} with aliases {[a['Name'] for a in version_aliases]}."
+            )
+            continue
+
+        version_last_modified = datetime.datetime.fromisoformat(version["LastModified"])
+        if version_last_modified + datetime.timedelta(hours=1) > datetime.datetime.now(
+            tz=datetime.UTC
+        ):
+            print(
+                f"Keeping version {version['Version']} with LastModified {version['LastModified']}."
             )
             continue
 
