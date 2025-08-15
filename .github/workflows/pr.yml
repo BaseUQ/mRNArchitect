@@ -31,6 +31,7 @@ jobs:
           gh pr comment ${{ github.event.pull_request.number }} --edit-last --create-if-none --body "AWS Lambda URL: ${{ needs.build-push-and-deploy.outputs.lambda-function-url }}"
 
   prune-lambda-versions:
+    needs: [build-push-and-deploy]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
