@@ -63,15 +63,6 @@ if __name__ == "__main__":
             )
             continue
 
-        # version_last_modified = datetime.datetime.fromisoformat(version["LastModified"])
-        # if version_last_modified + KEEP_IF_WITHIN > datetime.datetime.now(
-        #    tz=datetime.UTC
-        # ):
-        #    print(
-        #        f"Keeping version {version['Version']} with LastModified {version['LastModified']}."
-        #    )
-        #    continue
-
         print(
             f"Deleting version {version['Version']} and aliases {[a['Name'] for a in version_aliases]}."
         )
