@@ -112,7 +112,7 @@ export const Help = () => {
               ],
               [
                 "Enforce sequence",
-                "If set, the given sub-region is not optimised. That is, the input and output sequences will be exactly the same at these nucleotide coordinates.",
+                "If set, the given sub-region is not optimised. That is, the input and output sequences will be exactly between the specified nucleotide coordinates.",
               ],
               [
                 "Enable uridine depletion",
