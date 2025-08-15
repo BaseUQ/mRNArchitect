@@ -19,7 +19,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Prune lambda versions/aliases that are no longer in use."
     )
-    parser.add_argument("repo", type="str", help="The GitHub repository name.")
+    parser.add_argument("repo", type=str, help="The GitHub repository name.")
     args = parser.parse_args()
 
     github_token = os.getenv("GH_TOKEN")
