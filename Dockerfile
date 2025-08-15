@@ -45,12 +45,22 @@ WORKDIR /app
 ENV UV_COMPILE_BYTECODE=1
 RUN --mount=type=bind,source=uv.lock,target=uv.lock \
   --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-  uv sync --locked --no-cache --no-install-project --all-groups
+  --mount=type=cache,target=/home/app/.cache/uv \
+  uv sync --locked --no-install-project --all-groups
 ENV PATH="/app/.venv/bin:$PATH"
 
 RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=bind,source=package.json,target=package.json \
+  --mount=type=cache,target=/home/node/.pnpm-store \
   pnpm install --frozen-lockfile
+
+
+COPY --chown=node:node . .
+RUN --mount=type=bind,source=uv.lock,target=uv.lock \
+  --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+  --mount=type=cache,target=/home/app/.cache/uv \
+  uv sync --locked
+
 
 
 FROM base AS e2e
@@ -58,23 +68,22 @@ FROM base AS e2e
 USER root
 RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=bind,source=package.json,target=package.json \
+  --mount=type=cache,target=/home/node/.pnpm-store \
   pnpm playwright install-deps
 USER node
 RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=bind,source=package.json,target=package.json \
+  --mount=type=cache,target=/home/node/.pnpm-store \
   pnpm playwright install chromium --no-shell
-COPY --chown=node:node . .
 CMD ["pnpm", "playwright", "test"]
 
 
 FROM base AS dev
 
-COPY --chown=node:node . .
 CMD ["pnpm", "dev"]
 
 
 FROM base
 
-COPY --chown=node:node . .
 RUN pnpm build
 CMD ["pnpm", "start"]
