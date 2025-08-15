@@ -53,7 +53,9 @@ if __name__ == "__main__":
             a for a in aliases if a["FunctionVersion"] == version["Version"]
         ]
         if any(
-            a["Name"] in open_pull_request_numbers or a["Name"] in ALIASES_TO_KEEP
+            a["Name"][3:]
+            in open_pull_request_numbers  # pull request aliases are of the form "pr-<number>"
+            or a["Name"] in ALIASES_TO_KEEP
             for a in version_aliases
         ):
             print(
