@@ -5,6 +5,7 @@ on:
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: read # This is required for actions/checkout
+  pull-requests: write # This is required to interact with pull requests
 
 jobs:
   test:
@@ -22,8 +23,6 @@ jobs:
   comment-function-url:
     needs: [build-push-and-deploy]
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - env:
@@ -33,8 +32,6 @@ jobs:
 
   prune-lambda-versions:
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: read
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
