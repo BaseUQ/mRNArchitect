@@ -1,10 +1,10 @@
 import { Alert, Box, Modal, Stack, Tabs, Text } from "@mantine/core";
 import {
   ClipboardTextIcon,
-  DnaIcon,
   FileIcon,
   InfoIcon,
   QuestionIcon,
+  ScribbleIcon,
 } from "@phosphor-icons/react";
 import { useState } from "react";
 import {
@@ -159,7 +159,10 @@ export const OptimizePage = () => {
   return (
     <Tabs value={activeTab} onChange={handleTabsOnChange}>
       <Tabs.List>
-        <Tabs.Tab value="input" leftSection={<DnaIcon size={16} />}>
+        <Tabs.Tab
+          value="input"
+          leftSection={<ScribbleIcon size={16} transform="rotate(45)" />}
+        >
           Input
         </Tabs.Tab>
         <Tabs.Tab
