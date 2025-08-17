@@ -54,7 +54,7 @@ const generateReport = ({
         `---${parameterTitle(sequence, c)}`,
         `Start coordinate\t\t\t${c.startCoordinate || "1"}`,
         `End coordinate\t\t\t\t${c.endCoordinate || output.outputs[0].optimization.result.sequence.nucleicAcidSequence.length}`,
-        `Enforce sequence\t\t\t${c.enforceSequence}`,
+        `Don't optimise region\t\t\t${c.enforceSequence}`,
       ];
       if (!c.enforceSequence) {
         report.push(

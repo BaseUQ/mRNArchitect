@@ -111,8 +111,8 @@ export const Help = () => {
                 </Fragment>,
               ],
               [
-                "Enforce sequence",
-                "If set, the given sub-region is not optimised. That is, the input and output sequences will be exactly between the specified nucleotide coordinates.",
+                "Don't optimise region",
+                "If set, the given sub-region is not optimised. That is, the input and output sequences will be exactly the same between the specified nucleotide coordinates.",
               ],
               [
                 "Enable uridine depletion",

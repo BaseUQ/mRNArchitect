@@ -85,7 +85,7 @@ export const ParameterInput = ({
               </Flex>
             )}
             <Switch
-              label="Enforce sequence"
+              label="Don't optimise region"
               onLabel="ON"
               offLabel="OFF"
               key={form.key(`parameters.${index}.enforceSequence`)}
