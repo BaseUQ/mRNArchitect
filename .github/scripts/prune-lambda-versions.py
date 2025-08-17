@@ -1,22 +1,39 @@
 # /// script
 # dependencies = [
-#   "boto3"
+#   "boto3",
+#   "PyGithub"
 # ]
 # ///
 
-
+import argparse
 import datetime
+import os
 
 import boto3
+import github
 
 FUNCTION_NAME = "app"
 
 ALIASES_TO_KEEP = ["PRODUCTION", "TEST"]
 
-KEEP_IF_WITHIN = datetime.timedelta(weeks=2)
-
 if __name__ == "__main__":
-    """Prunes unused lambda versions/aliases."""
+    parser = argparse.ArgumentParser(
+        description="Prune lambda versions/aliases that are no longer in use."
+    )
+    parser.add_argument("repo", type=str, help="The GitHub repository name.")
+    args = parser.parse_args()
+
+    github_token = os.getenv("GH_TOKEN")
+    if not github_token:
+        raise RuntimeError(
+            "Github token not available. Ensure the the GH_TOKEN env var is set."
+        )
+
+    github_client = github.Github(auth=github.Auth.Token(github_token))
+    repo = github_client.get_repo(args.repo)
+    open_pull_requests = repo.get_pulls(state="open")
+    open_pull_request_numbers = [str(pr.number) for pr in open_pull_requests]
+
     lambda_client = boto3.client("lambda")
 
     versions = lambda_client.list_versions_by_function(FunctionName=FUNCTION_NAME)[
@@ -36,14 +53,19 @@ if __name__ == "__main__":
         version_aliases = [
             a for a in aliases if a["FunctionVersion"] == version["Version"]
         ]
-        if any(a["Name"] in ALIASES_TO_KEEP for a in version_aliases):
+        if any(
+            a["Name"][3:]
+            in open_pull_request_numbers  # pull request aliases are of the form "pr-<number>"
+            or a["Name"] in ALIASES_TO_KEEP
+            for a in version_aliases
+        ):
             print(
                 f"Keeping version {version['Version']} with aliases {[a['Name'] for a in version_aliases]}."
             )
             continue
 
         version_last_modified = datetime.datetime.fromisoformat(version["LastModified"])
-        if version_last_modified + KEEP_IF_WITHIN > datetime.datetime.now(
+        if version_last_modified + datetime.timedelta(hours=1) > datetime.datetime.now(
             tz=datetime.UTC
         ):
             print(

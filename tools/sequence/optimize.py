@@ -9,6 +9,7 @@ from dnachisel.builtin_specifications import (
     AvoidHairpins,
     AvoidRareCodons,
     EnforceGCContent,
+    EnforceSequence,
     EnforceTranslation,
     UniquifyAllKmers,
 )
@@ -100,6 +101,7 @@ class Location(msgspec.Struct, frozen=True, kw_only=True, rename="camel"):
 class OptimizationParameter(
     Location, frozen=True, kw_only=True, rename="camel", forbid_unknown_fields=True
 ):
+    enforce_sequence: bool = False
     organism: Organism | str | None = None
     avoid_repeat_length: int | None = None
     enable_uridine_depletion: bool = False
@@ -127,8 +129,18 @@ class OptimizationParameter(
         ):
             raise ValueError("GC content minimum must be less than maximum.")
 
-    @property
-    def dnachisel(self) -> tuple[list, list]:
+    def dnachisel(self, nucleic_acid_sequence: str) -> tuple[list, list]:
+        location = self.dnachisel_location
+        if self.enforce_sequence:
+            if not location:
+                raise RuntimeError("Cannot enforce sequence without a location.")
+            return [
+                EnforceSequence(
+                    nucleic_acid_sequence[location.start : location.end],
+                    location=location,
+                )
+            ], []
+
         constraints: list = [EnforceTranslation()]
         objectives: list = []
 
@@ -137,7 +149,7 @@ class OptimizationParameter(
                 EnforceGCContent(
                     mini=self.gc_content_min,  # type: ignore
                     maxi=self.gc_content_max,
-                    location=self.dnachisel_location,
+                    location=location,
                 )
             )
             if self.gc_content_window is not None:
@@ -146,7 +158,7 @@ class OptimizationParameter(
                         mini=self.gc_content_min,  # type: ignore
                         maxi=self.gc_content_max,
                         window=self.gc_content_window,
-                        location=self.dnachisel_location,
+                        location=location,
                     )
                 )
         if self.hairpin_stem_size is not None and self.hairpin_window is not None:
@@ -154,24 +166,24 @@ class OptimizationParameter(
                 AvoidHairpins(
                     stem_size=self.hairpin_stem_size,
                     hairpin_window=self.hairpin_window,
-                    location=self.dnachisel_location,
+                    location=location,
                 )
             )
         if self.avoid_poly_a is not None:
             constraints.append(
-                AvoidPattern(f"{self.avoid_poly_a}xA", location=self.dnachisel_location)
+                AvoidPattern(f"{self.avoid_poly_a}xA", location=location)
             )
         if self.avoid_poly_c is not None:
             constraints.append(
-                AvoidPattern(f"{self.avoid_poly_c}xC", location=self.dnachisel_location)
+                AvoidPattern(f"{self.avoid_poly_c}xC", location=location)
             )
         if self.avoid_poly_g is not None:
             constraints.append(
-                AvoidPattern(f"{self.avoid_poly_g}xG", location=self.dnachisel_location)
+                AvoidPattern(f"{self.avoid_poly_g}xG", location=location)
             )
         if self.avoid_poly_t is not None:
             constraints.append(
-                AvoidPattern(f"{self.avoid_poly_t}xT", location=self.dnachisel_location)
+                AvoidPattern(f"{self.avoid_poly_t}xT", location=location)
             )
 
         if self.enable_uridine_depletion:
@@ -187,34 +199,32 @@ class OptimizationParameter(
                 AvoidRareCodons(
                     0.5,
                     codon_usage_table=uridine_depletion_codon_usage_table,
-                    location=self.dnachisel_location,
+                    location=location,
                 )
             )
 
         if self.avoid_ribosome_slip:
-            constraints.append(AvoidPattern("3xT", location=self.dnachisel_location))
+            constraints.append(AvoidPattern("3xT", location=location))
 
         if self.avoid_micro_rna_seed_sites:
             micro_rna_sites = _load_microrna_seed_sites()
             for site in micro_rna_sites:
-                constraints.append(AvoidPattern(site, location=self.dnachisel_location))
+                constraints.append(AvoidPattern(site, location=location))
 
         if self.avoid_manufacture_restriction_sites:
             manufacture_restriction_sites = _load_manufacture_restriction_sites()
             for site in manufacture_restriction_sites:
-                constraints.append(AvoidPattern(site, location=self.dnachisel_location))
+                constraints.append(AvoidPattern(site, location=location))
 
         cut_site_constraints = [
-            AvoidPattern(f"{site}_site", location=self.dnachisel_location)
+            AvoidPattern(f"{site}_site", location=location)
             for site in self.avoid_restriction_sites
             if site
         ]
         constraints.extend(cut_site_constraints)
 
         custom_pattern_constraints = [
-            AvoidPattern(it, location=self.dnachisel_location)
-            for it in self.avoid_sequences
-            if it
+            AvoidPattern(it, location=location) for it in self.avoid_sequences if it
         ]
         constraints.extend(custom_pattern_constraints)
 
@@ -223,15 +233,13 @@ class OptimizationParameter(
                 CodonOptimize(
                     codon_usage_table=load_organism(self.organism).to_dnachisel_dict(),
                     method="use_best_codon",
-                    location=self.dnachisel_location,
+                    location=location,
                 )
             )
 
         if self.avoid_repeat_length is not None:
             objectives.append(
-                UniquifyAllKmers(
-                    k=self.avoid_repeat_length, location=self.dnachisel_location
-                )
+                UniquifyAllKmers(k=self.avoid_repeat_length, location=location)
             )
 
         return constraints, objectives
@@ -244,7 +252,7 @@ def optimize(
 ):
     constraints, objectives = [], []
     for p in parameters:
-        c, o = p.dnachisel
+        c, o = p.dnachisel(nucleic_acid_sequence)
         constraints.extend(c)
         objectives.extend(o)
 

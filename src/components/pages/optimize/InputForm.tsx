@@ -30,6 +30,7 @@ const createDefaultParameter = (
 ): OptimizationParameter => ({
   startCoordinate,
   endCoordinate,
+  enforceSequence: false,
   organism: "human",
   avoidRepeatLength: 10,
   enableUridineDepletion: false,
@@ -85,7 +86,6 @@ interface InputFormProps {
 export const InputForm = ({ onSubmit }: InputFormProps) => {
   const [optimisationMode, setOptimisationMode] = useState<string>("simple");
   const [accordionValue, setAccordionValue] = useState<string | null>("0");
-  const [numberOfSequences, setNumberOfSequences] = useState<number>(3);
 
   const form = useForm<OptimizationInput>({
     initialValues: {
@@ -97,7 +97,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
         polyATail: "",
       },
       parameters: [createDefaultParameter()],
-      numberOfSequences,
+      numberOfSequences: 3,
     },
     transformValues: (values) => OptimizationInput.parse(values),
     validate: (values) => {
@@ -209,12 +209,8 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
             label="Number of optimised sequences"
             min={1}
             max={10}
-            value={numberOfSequences}
-            onChange={(v) =>
-              setNumberOfSequences(
-                typeof v === "string" ? Number.parseInt(v) : v,
-              )
-            }
+            key={form.key("numberOfSequences")}
+            {...form.getInputProps("numberOfSequences")}
           />
         </Fieldset>
         <Button
@@ -233,7 +229,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
                 <ProgressLoader
                   estimatedTimeInSeconds={
                     (form.getValues().sequence.codingSequence.length ?? 100) /
-                      30 +
+                      15 +
                     60
                   }
                 />
