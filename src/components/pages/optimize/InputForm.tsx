@@ -11,6 +11,7 @@ import {
   NumberInput,
   SegmentedControl,
   Stack,
+  Text,
   Tooltip,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
@@ -149,7 +150,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
   return (
     <form onSubmit={form.onSubmit(onSubmit)}>
       <Stack pos="relative">
-        <Fieldset>
+        <Fieldset legend="Details">
           <NumberInput
             label="Number of optimised sequences"
             min={1}
@@ -191,7 +192,9 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
                       showDelete={form.getValues().parameters.length > 1}
                       onClickDelete={() => handleOnDeleteParameter(index)}
                     >
-                      {parameterTitle(form.getValues().sequence, p)}
+                      <Text size="sm">
+                        {parameterTitle(form.getValues().sequence, p)}
+                      </Text>
                     </AccordionControl>
                     <Accordion.Panel>
                       <ParameterInput index={index} form={form} />
