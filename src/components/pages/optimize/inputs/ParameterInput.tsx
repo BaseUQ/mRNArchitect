@@ -51,7 +51,7 @@ export const ParameterInput = ({
     <Stack>
       {!hideCoordinates && (
         <InputWrapper label="Nucleotide coordinates">
-          <Stack justify="start" pl="sm">
+          <Stack justify="start">
             <SegmentedControl
               data={[
                 { label: "Full sequence", value: "full-sequence" },
@@ -66,7 +66,6 @@ export const ParameterInput = ({
                 justify="flex-start"
                 align="start"
                 gap="lg"
-                pl="sm"
               >
                 <NumberInput
                   label="Start coordinate"
@@ -116,7 +115,6 @@ export const ParameterInput = ({
             justify="flex-start"
             align="start"
             gap="xl"
-            pl="sm"
           >
             <Stack justify="flex-start">
               <Switch

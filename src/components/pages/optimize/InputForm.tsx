@@ -149,6 +149,15 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
   return (
     <form onSubmit={form.onSubmit(onSubmit)}>
       <Stack pos="relative">
+        <Fieldset>
+          <NumberInput
+            label="Number of optimised sequences"
+            min={1}
+            max={10}
+            key={form.key("numberOfSequences")}
+            {...form.getInputProps("numberOfSequences")}
+          />
+        </Fieldset>
         <Fieldset legend="Input sequence">
           <SequenceInput form={form} />
         </Fieldset>
@@ -193,29 +202,22 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
               <Center mt="md">
                 <Button
                   onClick={handleOnAddParameter}
-                  variant="outline"
+                  variant="light"
                   color="green"
                   fullWidth
                   leftSection={<PlusIcon size={14} />}
                 >
-                  Add sub-region for regional optimisation
+                  Add sub-region for optimisation
                 </Button>
               </Center>
             </>
           )}
         </Fieldset>
-        <Fieldset>
-          <NumberInput
-            label="Number of optimised sequences"
-            min={1}
-            max={10}
-            key={form.key("numberOfSequences")}
-            {...form.getInputProps("numberOfSequences")}
-          />
-        </Fieldset>
         <Button
           type="submit"
           disabled={form.getValues().parameters.length === 0}
+          color="red"
+          variant="light"
         >
           Optimise sequence
         </Button>
