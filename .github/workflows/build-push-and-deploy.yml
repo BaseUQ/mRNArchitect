@@ -65,6 +65,8 @@ jobs:
           FUNCTION_URL=$(echo -n $OUTPUT | jq .function_url )
           echo "lambda-version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "lambda-function-url=$FUNCTION_URL" >> "$GITHUB_OUTPUT"
-          echo "# Lambda function deployed\n\nVersion: $VERSION\n\nURL: $FUNCTION_URL" >> $GITHUB_STEP_SUMMARY
+          echo "### Lambda function deployed" >> $GITHUB_STEP_SUMMARY
+          echo "Version: $VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "Function URL: ($FUNCTION_URL)" >> $GITHUB_STEP_SUMMARY
 
 
