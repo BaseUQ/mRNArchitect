@@ -72,7 +72,6 @@ export const SequenceInput = ({
               {...form.getInputProps("sequence.codingSequenceType")}
             />
             <Button
-              size="xs"
               variant="light"
               onClick={() => {
                 form.setFieldValue("sequence.codingSequenceType", "amino-acid");
