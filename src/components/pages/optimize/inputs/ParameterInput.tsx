@@ -226,6 +226,7 @@ export const ParameterInput = ({
           <TagsInput
             label="Avoid sequences"
             placeholder="Press Enter to add sequence"
+            styles={{ input: { fontFamily: "monospace" } }}
             key={form.key(`parameters.${index}.avoidSequences`)}
             {...form.getInputProps(`parameters.${index}.avoidSequences`)}
           />
