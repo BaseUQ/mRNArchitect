@@ -1,7 +1,7 @@
 import functools
 import math
 import re
-import time
+import timeit
 import typing
 
 import msgspec
@@ -63,7 +63,7 @@ class OptimizationResult(msgspec.Struct, kw_only=True, rename="camel"):
 
 
 class Sequence(msgspec.Struct, frozen=True, rename="camel"):
-    """A sequence.
+    """A nucleic acid sequence.
 
     >>> str(Sequence("ATT"))
     'ATT'
@@ -335,9 +335,9 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         mfe = RNA.fold_compound(str(self)).mfe()
         return MinimumFreeEnergy(structure=mfe[0], energy=mfe[1])
 
-    def analyze(self, organism: Organism | str | None = None) -> Analysis:
+    def analyze(self, organism: Organism | str = KAZUSA_HOMO_SAPIENS) -> Analysis:
         """Collect and return a set of statistics about the sequence."""
-        start = time.time()
+        start = timeit.default_timer()
         minimum_free_energy = self.minimum_free_energy
         return Analysis(
             a_ratio=self.a_ratio,
@@ -350,7 +350,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
             uridine_depletion=self.uridine_depletion,
             codon_adaptation_index=self.codon_adaptation_index(organism),
             minimum_free_energy=minimum_free_energy,
-            debug=Analysis.Debug(time_seconds=time.time() - start),
+            debug=Analysis.Debug(time_seconds=timeit.default_timer() - start),
         )
 
     def optimize(
@@ -361,7 +361,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         >>> Sequence("ACGACCATTAAA").optimize(parameters=[OptimizationParameter(organism="human")]).result.sequence
         Sequence(nucleic_acid_sequence='ACCACCATCAAG')
         """
-        start = time.time()
+        start = timeit.default_timer()
         try:
             result = optimize(self.nucleic_acid_sequence, parameters=parameters)
         except OptimizationError as e:
@@ -374,7 +374,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
                     location=str(e.location),
                     constraint=str(e.constraint),
                 ),
-                time_in_seconds=(time.time() - start),
+                time_in_seconds=(timeit.default_timer() - start),
             )
         return OptimizationResult(
             success=True,
@@ -384,5 +384,5 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
                 objectives=result.objectives_text_summary(),
             ),
             error=None,
-            time_in_seconds=(time.time() - start),
+            time_in_seconds=(timeit.default_timer() - start),
         )
