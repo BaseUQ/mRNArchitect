@@ -249,7 +249,7 @@ def optimize(
     nucleic_acid_sequence: str,
     parameters: typing.Sequence[OptimizationParameter],
     max_random_iters: int = 20_000,
-):
+) -> DnaOptimizationProblem:
     constraints, objectives = [], []
     for p in parameters:
         c, o = p.dnachisel(nucleic_acid_sequence)

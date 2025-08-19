@@ -7,9 +7,10 @@ import {
 import { Sequence } from "~/types/sequence";
 
 export const OptimizationInput = z.object({
+  name: z.string(),
+  numberOfSequences: z.int().positive().min(1).max(10),
   sequence: Sequence,
   parameters: z.array(OptimizationParameter).nonempty(),
-  numberOfSequences: z.int().positive().min(1).max(10),
 });
 
 export type OptimizationInput = z.infer<typeof OptimizationInput>;

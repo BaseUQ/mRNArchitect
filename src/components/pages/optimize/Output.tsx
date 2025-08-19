@@ -31,15 +31,16 @@ const parameterTitle = (
 };
 
 const generateReport = ({
-  input: { sequence, parameters },
+  input: { name, sequence, parameters },
   output,
 }: OutputProps): string => {
   const date = new Date();
   const inputReport = [
     "---mRNArchitect",
-    "Version\t0.3.2",
-    `Date\t${format(date, "do MMM yyyy")}`,
-    `Time\t${format(date, "HH:mm:ss x")}`,
+    "Version\t\t0.3.2",
+    `Date\t\t${format(date, "do MMM yyyy")}`,
+    `Time\t\t${format(date, "HH:mm:ss x")}`,
+    `Sequence name\t${name}`,
     "",
     "---Input Sequence",
     `CDS\t\t${sequence.codingSequence}`,

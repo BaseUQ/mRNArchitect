@@ -12,6 +12,7 @@ import {
   SegmentedControl,
   Stack,
   Text,
+  TextInput,
   Tooltip,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
@@ -90,6 +91,8 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
 
   const form = useForm<OptimizationInput>({
     initialValues: {
+      name: "",
+      numberOfSequences: 3,
       sequence: {
         codingSequenceType: "nucleic-acid",
         codingSequence: "",
@@ -98,7 +101,6 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
         polyATail: "",
       },
       parameters: [createDefaultParameter()],
-      numberOfSequences: 3,
     },
     transformValues: (values) => OptimizationInput.parse(values),
     validate: (values) => {
@@ -151,6 +153,11 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
     <form onSubmit={form.onSubmit(onSubmit)}>
       <Stack pos="relative">
         <Fieldset legend="Details">
+          <TextInput
+            label="Sequence name"
+            key={form.key("name")}
+            {...form.getInputProps("name")}
+          />
           <NumberInput
             label="Number of optimised sequences"
             min={1}
