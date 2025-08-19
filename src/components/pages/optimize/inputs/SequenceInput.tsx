@@ -11,7 +11,11 @@ import {
 import type { UseFormReturnType } from "@mantine/form";
 import { useState } from "react";
 import type { OptimizationInput } from "~/components/pages/optimize/types";
-import { EGFP, FIVE_PRIME_UTRS, THREE_PRIME_UTRS } from "~/constants";
+import {
+  EXAMPLE_SEQUENCES,
+  FIVE_PRIME_UTRS,
+  THREE_PRIME_UTRS,
+} from "~/constants";
 import type { Sequence } from "~/types/sequence";
 
 export interface SequenceFormProps {
@@ -74,11 +78,19 @@ export const SequenceInput = ({
             <Button
               variant="light"
               onClick={() => {
+                const index = Math.floor(
+                  Math.random() * EXAMPLE_SEQUENCES.length,
+                );
+                const example_sequence = EXAMPLE_SEQUENCES[index];
+                form.setFieldValue("name", example_sequence.name);
                 form.setFieldValue("sequence.codingSequenceType", "amino-acid");
-                form.setFieldValue("sequence.codingSequence", EGFP);
+                form.setFieldValue(
+                  "sequence.codingSequence",
+                  example_sequence.sequence,
+                );
               }}
             >
-              Pre-fill example sequence (eGFP)
+              Pre-fill random example
             </Button>
           </Group>
           <Textarea
@@ -90,6 +102,7 @@ export const SequenceInput = ({
             minRows={5}
             resize="vertical"
             withAsterisk
+            styles={{ input: { fontFamily: "monospace" } }}
             key={form.key("sequence.codingSequence")}
             {...form.getInputProps("sequence.codingSequence")}
           />
@@ -111,6 +124,7 @@ export const SequenceInput = ({
             autosize
             minRows={2}
             resize="vertical"
+            styles={{ input: { fontFamily: "monospace" } }}
             key={form.key("sequence.fivePrimeUtr")}
             {...form.getInputProps("sequence.fivePrimeUtr")}
           />
@@ -133,6 +147,7 @@ export const SequenceInput = ({
             autosize
             minRows={2}
             resize="vertical"
+            styles={{ input: { fontFamily: "monospace" } }}
             key={form.key("sequence.threePrimeUtr")}
             {...form.getInputProps("sequence.threePrimeUtr")}
           />
@@ -168,6 +183,7 @@ export const SequenceInput = ({
               autosize
               minRows={1}
               resize="vertical"
+              styles={{ input: { fontFamily: "monospace" } }}
               key={form.key("sequence.polyATail")}
               {...form.getInputProps("sequence.polyATail")}
             />
