@@ -1,22 +1,9 @@
-import {
-  Button,
-  Card,
-  Group,
-  Modal,
-  type ModalProps,
-  Stack,
-  Tabs,
-  Text,
-  Title,
-} from "@mantine/core";
+import { Button, Card, Group, Stack, Text } from "@mantine/core";
 import { DownloadSimpleIcon } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import { useMemo, useState } from "react";
 import { Fragment } from "react/jsx-runtime";
-import type {
-  OptimizationParameter,
-  OptimizationResult,
-} from "~/types/optimize";
+import type { OptimizationParameter } from "~/types/optimize";
 import type { Sequence } from "~/types/sequence";
 import { nucleotideCDSLength } from "~/utils/sequence";
 import type { OptimizationInput, OptimizationOutput } from "./types";
@@ -107,6 +94,10 @@ const generateReport = ({
       `5' UTR MFE (kcal/mol)\t${output.input.fivePrimeUtrAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}\t${output.input.fivePrimeUtrAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}`,
       `3' UTR MFE (kcal/mol)\t${output.input.threePrimeUtrAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}\t${output.input.threePrimeUtrAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}`,
       `Total MFE (kcal/mol)\t${output.input.fullSequenceAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}\t${fullSequenceAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}`,
+      "",
+      "---Logs",
+      ...optimization.result.constraints.trim().split("\n"),
+      ...optimization.result.objectives.trim().split("\n"),
     ],
   );
 
@@ -126,58 +117,6 @@ const generateReport = ({
   return reportText.join("\n");
 };
 
-const LogsModal = ({
-  optimizationResults,
-  ...props
-}: {
-  optimizationResults: OptimizationResult[];
-} & ModalProps) => {
-  return (
-    <Modal title="Logs" size="auto" {...props}>
-      <Tabs defaultValue={"0"}>
-        <Tabs.List>
-          {optimizationResults.map((_, index) => (
-            <Tabs.Tab
-              // biome-ignore lint/suspicious/noArrayIndexKey: No other suitable key
-              key={index}
-              value={`${index}`}
-            >{`Output ${index + 1}`}</Tabs.Tab>
-          ))}
-        </Tabs.List>
-        {optimizationResults.map((r, index) => (
-          <Tabs.Panel
-            // biome-ignore lint/suspicious/noArrayIndexKey: No other suitable noArrayIndexKey
-            key={index}
-            value={`${index}`}
-            my="sm"
-          >
-            <Title order={4}>Constraints</Title>
-            <pre style={{ whiteSpace: "pre-wrap" }}>
-              {r.result.constraints.split("\n").map((v) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: No other suitable key
-                <Fragment key={index}>
-                  {v}
-                  <br />
-                </Fragment>
-              ))}
-            </pre>
-            <Title order={4}>Objectives</Title>
-            <pre style={{ whiteSpace: "pre-wrap" }}>
-              {r.result.objectives.split("\n").map((v) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: No other suitable key
-                <Fragment key={index}>
-                  {v}
-                  <br />
-                </Fragment>
-              ))}
-            </pre>
-          </Tabs.Panel>
-        ))}
-      </Tabs>
-    </Modal>
-  );
-};
-
 export interface OutputProps {
   input: OptimizationInput;
   output: OptimizationOutput;
@@ -194,33 +133,14 @@ export const Output = ({ input, output }: OutputProps) => {
   return (
     <Stack>
       <Group justify="end">
-        <Group>
-          <Button
-            component="a"
-            href={URL.createObjectURL(
-              new Blob([report], { type: "text/plain" }),
-            )}
-            download={`mRNAchitect-report-${new Date().toISOString()}.txt`}
-            leftSection={<DownloadSimpleIcon />}
-          >
-            Download (.txt format)
-          </Button>
-          <Group justify="flex-end">
-            <Button
-              size="sm"
-              variant="transparent"
-              onClick={() => setShowLogsModal(true)}
-            >
-              Show logs
-            </Button>
-          </Group>
-          <LogsModal
-            opened={showLogsModal}
-            size="auto"
-            onClose={() => setShowLogsModal(false)}
-            optimizationResults={output.outputs.map((v) => v.optimization)}
-          />
-        </Group>
+        <Button
+          component="a"
+          href={URL.createObjectURL(new Blob([report], { type: "text/plain" }))}
+          download={`mRNAchitect-report-${new Date().toISOString()}.txt`}
+          leftSection={<DownloadSimpleIcon />}
+        >
+          Download (.txt format)
+        </Button>
       </Group>
 
       <Card withBorder>
