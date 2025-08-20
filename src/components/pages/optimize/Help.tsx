@@ -129,8 +129,8 @@ export const Help = () => {
               [
                 "Avoid manufacture restriction sites",
                 <Fragment key="avoid-manufacture-restriction-sites">
-                  Avoid restricted sites that can interfere with DNA template
-                  synthesis.
+                  Avoid restriction enzyme binding sites that can interfere with
+                  DNA template synthesis.
                 </Fragment>,
               ],
               [
