@@ -143,9 +143,9 @@ export const Help = () => {
               [
                 "GC content",
                 <Fragment key="gc-content">
-                  Avoid more than 3 consecutive Us in the open-reading frame,
-                  where ribosomes can +1 frameshift at consecutive
-                  N1-methylpseudouridines<sup>3</sup>.
+                  Defines the minimum or maximum fraction of the mRNA sequence
+                  comprising G/C nucleotides that is associated with stability
+                  and hairpins of the mRNA. We recommend 0.4 and 0.7.
                 </Fragment>,
               ],
               [
