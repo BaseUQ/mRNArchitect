@@ -82,7 +82,16 @@ export const Help = () => {
               ],
               [
                 "3' UTR",
-                "Paste your 3' untranslated sequence here. The 3' untranslated region (UTR) is regulated by microRNAs and RNA-binding proteins and plays a key role in cell-specific mRNA stability and expression. We provide a well-validated option, the human alpha-globin (HBA1; Gene ID ENSG00000206172) 3' UTR sequence that has been validated in different cell types and applications. By default, no 3' UTR will be added.",
+                <Fragment key="three-prime-utr">
+                  Paste your 3' untranslated sequence here. The 3' untranslated
+                  region (UTR) is regulated by microRNAs and RNA-binding
+                  proteins and plays a key role in cell-specific mRNA stability
+                  and expression. We provide a well-validated 3’ UTR from human
+                  alpha-globin (HBA1; Gene ID ENSG00000206172), and a human
+                  alpha-globin 3’ UTR with an added miR122 binding site,
+                  designed to reduce expression in the liver<sup>3</sup>. By
+                  default, no 3' UTR will be added.
+                </Fragment>,
               ],
               [
                 "Poly(A) tail",
@@ -123,7 +132,7 @@ export const Help = () => {
                 <Fragment key="avoid-ribosome-slip">
                   Avoid more than 3 consecutive Us in the open-reading frame,
                   where ribosomes can +1 frameshift at consecutive
-                  N1-methylpseudouridines<sup>3</sup>.
+                  N1-methylpseudouridines<sup>4</sup>.
                 </Fragment>,
               ],
               [
@@ -194,7 +203,7 @@ export const Help = () => {
                 <Fragment key="cai">
                   The Codon Adaptation Index (CAI) is a measure of deviation
                   between the codon usage of an mRNA sequence from the preferred
-                  codon usage of the organism<sup>4</sup>. The CAI score ranges
+                  codon usage of the organism<sup>5</sup>. The CAI score ranges
                   from 0 (totally dissimilar) to 1 (all mRNA codons match the
                   organism's codon usage reference table).
                 </Fragment>,
@@ -205,7 +214,7 @@ export const Help = () => {
                   The Minimum Free Energy (MFE) is the lowest Gibbs free energy
                   change associated with the formation of secondary structures
                   in RNA molecules due to intramolecular base pairing
-                  <sup>5</sup>. Lower values of MFE are associated with the
+                  <sup>6</sup>. Lower values of MFE are associated with the
                   formation of stable secondary structures and hairpins that can
                   occlude protein expression.
                 </Fragment>,
@@ -238,6 +247,11 @@ export const Help = () => {
             Trepotec, Z. et al. Maximizing the translational yield of mRNA
             therapeutics by minimizing 5′-UTRs. <i>Tissue Engineering Part A</i>{" "}
             <strong>25</strong>, 69-79 (2019).
+          </li>
+          <li>
+            Jain R. et al. MicroRNAs enable mRNA therapeutics to selectively
+            program cancer cells to self-destruct. <i>Nucleic Acid Therapies</i>{" "}
+            <strong>28</strong>, 285-296 (2018).
           </li>
           <li>
             Mulroney, T. E. et al. N 1-methylpseudouridylation of mRNA causes+ 1
