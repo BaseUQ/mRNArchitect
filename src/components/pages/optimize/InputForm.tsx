@@ -2,6 +2,7 @@ import {
   Accordion,
   type AccordionControlProps,
   ActionIcon,
+  Alert,
   Box,
   Button,
   Center,
@@ -59,6 +60,24 @@ const parameterTitle = (
   const start = parameter.startCoordinate ?? 1;
   const end = parameter.endCoordinate ?? nucleotideCDSLength(sequence);
   return `Region [${start}-${end}]`;
+};
+
+const checkSequence = (v: OptimizationInput) => {
+  const { codingSequence, codingSequenceType } = v.sequence;
+  const aaStopCodonMissing =
+    codingSequenceType === "amino-acid" && !codingSequence.endsWith("*");
+  const naStopCodonMissing =
+    codingSequenceType === "nucleic-acid" &&
+    codingSequence.search("(TGA|TAA|TAG)$") === -1;
+  if (aaStopCodonMissing || naStopCodonMissing) {
+    return (
+      <Alert color="orange">
+        The sequence does not end with a stop codon ('*' for amino acid
+        sequences, and 'TGA', 'TAA' or 'TAG' for nucleotide sequences).
+        Sequences that lack a stop codon may change the protein's function.
+      </Alert>
+    );
+  }
 };
 
 const AccordionControl = ({
@@ -244,7 +263,9 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
                       15 +
                     60
                   }
-                />
+                >
+                  {checkSequence(form.getTransformedValues())}
+                </ProgressLoader>
               ),
             }}
           />
