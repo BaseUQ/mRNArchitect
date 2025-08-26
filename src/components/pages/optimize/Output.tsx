@@ -24,7 +24,7 @@ const generateReport = ({
   const date = new Date();
   const inputReport = [
     "---mRNArchitect",
-    "Version\t\t0.3.2",
+    "Version\t\t0.4",
     `Date\t\t${format(date, "do MMM yyyy")}`,
     `Time\t\t${format(date, "HH:mm:ss x")}`,
     `Sequence name\t${name}`,
