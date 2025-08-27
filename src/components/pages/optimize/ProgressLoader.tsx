@@ -1,7 +1,7 @@
 import { Card, Center, Container, Loader, Stack, Text } from "@mantine/core";
 import { useInterval } from "@mantine/hooks";
 import { formatDuration, intervalToDuration } from "date-fns";
-import { PropsWithChildren, useState } from "react";
+import { type PropsWithChildren, useState } from "react";
 
 interface ProgressLoaderProps {
   estimatedTimeInSeconds: number;

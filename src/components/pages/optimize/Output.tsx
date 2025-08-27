@@ -1,7 +1,7 @@
 import { Button, Card, Group, Stack, Text } from "@mantine/core";
 import { DownloadSimpleIcon } from "@phosphor-icons/react";
 import { format } from "date-fns";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Fragment } from "react/jsx-runtime";
 import type { OptimizationParameter } from "~/types/optimize";
 import type { Sequence } from "~/types/sequence";
@@ -24,7 +24,7 @@ const generateReport = ({
   const date = new Date();
   const inputReport = [
     "---mRNArchitect",
-    "Version\t\t0.3.2",
+    "Version\t\t0.4",
     `Date\t\t${format(date, "do MMM yyyy")}`,
     `Time\t\t${format(date, "HH:mm:ss x")}`,
     `Sequence name\t${name}`,
@@ -123,8 +123,6 @@ export interface OutputProps {
 }
 
 export const Output = ({ input, output }: OutputProps) => {
-  const [showLogsModal, setShowLogsModal] = useState<boolean>(false);
-
   const report = useMemo(
     () => generateReport({ input, output }),
     [input, output],
