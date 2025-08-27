@@ -1,3 +1,4 @@
+from collections import defaultdict
 import functools
 import math
 import re
@@ -87,7 +88,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         return cls(nucleic_acid_sequence.upper().replace("U", "T"))
 
     @classmethod
-    def from_nn(cls, nucleic_acid_sequence: str) -> "Sequence":
+    def from_na(cls, nucleic_acid_sequence: str) -> "Sequence":
         """Alias of Sequence.from_nucleic_acid_sequence(...)"""
         return cls.from_nucleic_acid_sequence(nucleic_acid_sequence)
 
@@ -334,6 +335,31 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
 
         mfe = RNA.fold_compound(str(self)).mfe()
         return MinimumFreeEnergy(structure=mfe[0], energy=mfe[1])
+
+    @property
+    @functools.cache
+    def gini_coefficient(self) -> float:
+        """Calculate the Gini coefficient of the sequence.
+        see: https://en.wikipedia.org/wiki/Gini_coefficient
+
+        >>> Sequence("ACT").gini_coefficient
+        0.0
+
+        >>> Sequence("AAAT").gini_coefficient
+        0.125
+        """
+        counts = defaultdict(int)
+        for n in self:
+            counts[n] += 1
+
+        cumulative_absolute_difference = sum(
+            abs(a - b) for a in counts.values() for b in counts.values()
+        )
+        average = sum(count for count in counts.values()) / len(counts)
+        gini_coefficient = cumulative_absolute_difference / (
+            pow(2 * len(counts), 2) * average
+        )
+        return gini_coefficient
 
     def analyze(self, organism: Organism | str = KAZUSA_HOMO_SAPIENS) -> Analysis:
         """Collect and return a set of statistics about the sequence."""

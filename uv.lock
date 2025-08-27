@@ -2558,7 +2558,7 @@ requires-dist = [
     { name = "boto3", specifier = ">=1.38.33" },
     { name = "dnachisel", specifier = ">=3.2.16" },
     { name = "msgspec", specifier = ">=0.19.0" },
-    { name = "plotnine", specifier = ">=0.14.5" },
+    { name = "plotnine", specifier = ">=0.15.0" },
     { name = "polars", extras = ["all"], specifier = ">=1.30.0" },
     { name = "viennarna", specifier = ">=2.7.0" },
 ]
