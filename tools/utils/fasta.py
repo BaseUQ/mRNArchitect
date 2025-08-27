@@ -1,19 +1,19 @@
+import pathlib
 import typing
 
-from tools.sequence import Sequence
-
-SequenceType = typing.Literal["nucleic-acid", "amino-acid"]
+from tools.sequence.sequence import Sequence, SequenceType
 
 
 def parse_fasta_file(
-    input_file: str, sequence_type: SequenceType
-) -> typing.Generator[tuple[str, Sequence]]:
+    input_file: pathlib.Path | str, sequence_type: SequenceType = "auto-detect"
+) -> typing.Generator[tuple[str, Sequence | None]]:
     """Parse a fasta file into an iterator of (name, sequence) tuples."""
 
-    def _sequence(s: str) -> Sequence:
-        if sequence_type == "amino-acid":
-            return Sequence.from_amino_acid_sequence(s)
-        return Sequence.from_nucleic_acid_sequence(s)
+    def _parse_sequence(sequence: str, sequence_type: SequenceType):
+        try:
+            return Sequence.from_string(sequence, sequence_type)
+        except RuntimeError:
+            return None
 
     header = ""
     sequences = []
@@ -24,14 +24,13 @@ def parse_fasta_file(
                 continue
             if line.startswith(">"):
                 if sequences:
-                    if sequence_type == "amino-acid" or all(
-                        "N" not in s for s in sequences
-                    ):
-                        yield header, _sequence("".join(sequences))
+                    yield (
+                        header,
+                        _parse_sequence("".join(sequences), sequence_type),
+                    )
                 header = line.lstrip(">")
                 sequences = []
             else:
                 sequences.append(line)
     if header and sequences:
-        if sequence_type == "amino-acid" or all("N" not in s for s in sequences):
-            yield header, _sequence("".join(sequences))
+        yield header, _parse_sequence("".join(sequences), sequence_type)
