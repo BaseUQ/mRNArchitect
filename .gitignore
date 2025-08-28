@@ -9,5 +9,5 @@ __pycache__/
 .vscode/
 node_modules/
 *.egg-info/
-**/.ipynb_checkpoints
-
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
