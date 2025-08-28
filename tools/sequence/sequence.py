@@ -1,3 +1,4 @@
+from collections import defaultdict
 import functools
 import math
 import re
@@ -62,6 +63,9 @@ class OptimizationResult(msgspec.Struct, kw_only=True, rename="camel"):
     time_in_seconds: float
 
 
+SequenceType = typing.Literal["nucleic-acid", "amino-acid", "auto-detect"]
+
+
 class Sequence(msgspec.Struct, frozen=True, rename="camel"):
     """A nucleic acid sequence.
 
@@ -77,6 +81,47 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
             raise ValueError(f"`sequence` contains invalid character: {match.group(0)}")
 
     @classmethod
+    def from_string(
+        cls,
+        sequence: str,
+        sequence_type: SequenceType = "auto-detect",
+        organism: Organism | str = KAZUSA_HOMO_SAPIENS,
+    ) -> "Sequence":
+        """Create a Sequence from a raw string.
+
+        >>> str(Sequence.from_string("AuT"))
+        'ATT'
+
+        >>> str(Sequence.from_amino_acid_sequence("Ir"))
+        'ATCAGA'
+        """
+
+        _sequence_type = sequence_type
+        if sequence_type == "auto-detect":
+            match = re.search(r"[^ACGTUN]", sequence, re.IGNORECASE)
+            _sequence_type = "amino-acid" if match else "nucleic-acid"
+
+        if _sequence_type == "nucleic-acid":
+            # Interpret sequence and nucleic acid sequence
+            if re.search(r"[N]", sequence, re.IGNORECASE):
+                raise RuntimeError(
+                    "Cannot parse nucleic acid sequences with 'N' symbols."
+                )
+            return cls(sequence.upper().replace("U", "T"))
+
+        # Interpret string as amino acid sequence
+        if re.search(r"[X]", sequence, re.IGNORECASE):
+            raise RuntimeError("Cannot parse amino acid sequences with 'X' symbols.")
+
+        organism = load_organism(organism)
+        return cls(
+            "".join(
+                organism.max_codon(typing.cast(AminoAcid, amino_acid))
+                for amino_acid in sequence.upper()
+            ).upper()
+        )
+
+    @classmethod
     def from_nucleic_acid_sequence(cls, nucleic_acid_sequence: str) -> "Sequence":
         """Create a Sequence from a nucleic acid sequence.
         Ensures that the sequence will be upper cased and any `U` codons replaced with `T`.
@@ -84,10 +129,12 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         >>> str(Sequence.from_nucleic_acid_sequence("AuT"))
         'ATT'
         """
-        return cls(nucleic_acid_sequence.upper().replace("U", "T"))
+        return cls.from_string(
+            sequence=nucleic_acid_sequence, sequence_type="nucleic-acid"
+        )
 
     @classmethod
-    def from_nn(cls, nucleic_acid_sequence: str) -> "Sequence":
+    def from_na(cls, nucleic_acid_sequence: str) -> "Sequence":
         """Alias of Sequence.from_nucleic_acid_sequence(...)"""
         return cls.from_nucleic_acid_sequence(nucleic_acid_sequence)
 
@@ -103,12 +150,8 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         >>> str(Sequence.from_amino_acid_sequence("Ir"))
         'ATCAGA'
         """
-        organism = load_organism(organism)
-        return cls(
-            "".join(
-                organism.max_codon(typing.cast(AminoAcid, amino_acid))
-                for amino_acid in amino_acid_sequence.upper()
-            ).upper()
+        return cls.from_string(
+            sequence=amino_acid_sequence, sequence_type="amino-acid", organism=organism
         )
 
     @classmethod
@@ -334,6 +377,31 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
 
         mfe = RNA.fold_compound(str(self)).mfe()
         return MinimumFreeEnergy(structure=mfe[0], energy=mfe[1])
+
+    @property
+    @functools.cache
+    def gini_coefficient(self) -> float:
+        """Calculate the Gini coefficient of the sequence.
+        see: https://en.wikipedia.org/wiki/Gini_coefficient
+
+        >>> Sequence("ACT").gini_coefficient
+        0.0
+
+        >>> Sequence("AAAT").gini_coefficient
+        0.125
+        """
+        counts = defaultdict(int)
+        for n in self:
+            counts[n] += 1
+
+        cumulative_absolute_difference = sum(
+            abs(a - b) for a in counts.values() for b in counts.values()
+        )
+        average = sum(count for count in counts.values()) / len(counts)
+        gini_coefficient = cumulative_absolute_difference / (
+            pow(2 * len(counts), 2) * average
+        )
+        return gini_coefficient
 
     def analyze(self, organism: Organism | str = KAZUSA_HOMO_SAPIENS) -> Analysis:
         """Collect and return a set of statistics about the sequence."""

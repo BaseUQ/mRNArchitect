@@ -77,7 +77,7 @@ class Organism(msgspec.Struct, frozen=True):
 
 
 def load_organism_from_web(id: str) -> Organism:
-    kazusa_id = id.split(":")[1]
+    kazusa_id = id.split("-")[1]
     contents = (
         urllib.request.urlopen(
             f"https://www.kazusa.or.jp/codon/cgi-bin/showcodon.cgi?species={kazusa_id}&aa=1&style=GCG"
@@ -127,7 +127,7 @@ def load_organism_from_web(id: str) -> Organism:
 def load_organism(organism: Organism | str = KAZUSA_HOMO_SAPIENS) -> Organism:
     if isinstance(organism, Organism):
         return organism
-    path = pathlib.Path(f"data/organisms/{organism}.json")
+    path = pathlib.Path(__file__).parent / "data" / f"{organism}.json"
     if not path.exists():
         raise RuntimeError(f"Could not load organism, file does not exist: {path}")
     with open(path, "rb") as f:
