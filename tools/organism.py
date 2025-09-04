@@ -1,4 +1,5 @@
 import csv
+import functools
 import pathlib
 import re
 import typing
@@ -6,7 +7,12 @@ import urllib.request
 
 import msgspec
 
-from .constants import AMINO_ACIDS, CODON_TO_AMINO_ACID_MAP, CODONS
+from .constants import (
+    AMINO_ACID_TO_CODONS_MAP,
+    AMINO_ACIDS,
+    CODON_TO_AMINO_ACID_MAP,
+    CODONS,
+)
 from .types import Codon, AminoAcid
 
 
@@ -57,6 +63,17 @@ class Organism(msgspec.Struct, frozen=True):
             self.codon_usage_table[codon].number
             / self.max_codon_usage_table[amino_acid].number
         )
+
+    @functools.cache
+    def min_codon(self, amino_acid: AminoAcid) -> Codon:
+        return min(
+            [
+                usage
+                for usage in self.codon_usage_table.values()
+                if usage.amino_acid == amino_acid
+            ],
+            key=lambda x: x.number,
+        ).codon
 
     def max_codon(self, amino_acid: AminoAcid) -> Codon:
         return self.max_codon_usage_table[amino_acid].codon
@@ -132,3 +149,23 @@ def load_organism(organism: Organism | str = KAZUSA_HOMO_SAPIENS) -> Organism:
         raise RuntimeError(f"Could not load organism, file does not exist: {path}")
     with open(path, "rb") as f:
         return msgspec.json.decode(f.read(), type=Organism)
+
+
+def codon_usage_bias(f: CodonUsageTable, c: CodonUsageTable):
+    """Calculate the codon usage bias between two codon usage tables."""
+    number_f: dict[AminoAcid, int] = {
+        amino_acid: sum(
+            usage.number for usage in f.values() if usage.amino_acid == amino_acid
+        )
+        for amino_acid in AMINO_ACIDS
+    }
+    total_number_f = sum(usage.number for usage in f.values())
+    p_f: dict[AminoAcid, float] = {
+        amino_acid: number_f[amino_acid] / total_number_f for amino_acid in AMINO_ACIDS
+    }
+
+    return sum(
+        p_f[amino_acid]
+        * sum(abs(f[codon].frequency - c[codon].frequency) for codon in codons)
+        for amino_acid, codons in AMINO_ACID_TO_CODONS_MAP.items()
+    )

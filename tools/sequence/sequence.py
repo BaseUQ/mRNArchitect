@@ -12,11 +12,37 @@ from ..constants import (
 )
 from ..organism import (
     KAZUSA_HOMO_SAPIENS,
+    codon_usage_bias,
+    CodonUsage,
+    CodonUsageTable,
     load_organism,
     Organism,
 )
 from ..types import AminoAcid, Codon
 from .optimize import OptimizationParameter, OptimizationError, optimize
+
+_DEFAULT_OPTIMIZATION_PARAMETERS = [
+    OptimizationParameter(
+        enforce_sequence=False,
+        organism=KAZUSA_HOMO_SAPIENS,
+        avoid_repeat_length=10,
+        enable_uridine_depletion=False,
+        avoid_ribosome_slip=False,
+        avoid_manufacture_restriction_sites=False,
+        avoid_micro_rna_seed_sites=False,
+        gc_content_min=0.4,
+        gc_content_max=0.7,
+        gc_content_window=100,
+        avoid_restriction_sites=[],
+        avoid_sequences=[],
+        avoid_poly_a=9,
+        avoid_poly_c=6,
+        avoid_poly_g=6,
+        avoid_poly_t=9,
+        hairpin_stem_size=10,
+        hairpin_window=60,
+    )
+]
 
 
 class OptimizationException(Exception):
@@ -380,19 +406,22 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
 
     @property
     @functools.cache
-    def gini_coefficient(self) -> float:
+    def gini_coefficient(self) -> float | None:
         """Calculate the Gini coefficient of the sequence.
         see: https://en.wikipedia.org/wiki/Gini_coefficient
 
-        >>> Sequence("ACT").gini_coefficient
+        >>> Sequence("ACTTCA").gini_coefficient
         0.0
 
-        >>> Sequence("AAAT").gini_coefficient
-        0.125
+        >>> Sequence("AAAAAACCCTTT").gini_coefficient
+        0.08333333333333333
         """
+        if not self.is_amino_acid_sequence:
+            return None
+
         counts = defaultdict(int)
-        for n in self:
-            counts[n] += 1
+        for codon in self.codons:
+            counts[codon] += 1
 
         cumulative_absolute_difference = sum(
             abs(a - b) for a in counts.values() for b in counts.values()
@@ -402,6 +431,112 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
             pow(2 * len(counts), 2) * average
         )
         return gini_coefficient
+
+    @property
+    @functools.cache
+    def cpg_ratio(self):
+        """Calculate the CpG ratio.
+
+        >>> Sequence("ACG").cpg_ratio
+        0.3333333333333333
+
+        >>> Sequence("AGC").cpg_ratio
+        0.0
+        """
+        count = 0
+        for i in range(0, len(self) - 1):
+            if (
+                self.nucleic_acid_sequence[i] == "C"
+                and self.nucleic_acid_sequence[i + 1] == "G"
+            ):
+                count += 1
+        return count / len(self)
+
+    @property
+    @functools.cache
+    def slippery_site_ratio(self):
+        """Calculate the slippery site (TTT) ratio.
+
+        >>> Sequence("TTT").slippery_site_ratio
+        0.3333333333333333
+
+        >>> Sequence("AGC").slippery_site_ratio
+        0.0
+        """
+        count = 0
+        for i in range(0, len(self) - 2):
+            if (
+                self.nucleic_acid_sequence[i] == "T"
+                and self.nucleic_acid_sequence[i + 1] == "T"
+                and self.nucleic_acid_sequence[i + 2] == "T"
+            ):
+                count += 1
+        return count / len(self)
+
+    @functools.cache
+    def rare_codon_ratio(
+        self, organism: Organism | str = KAZUSA_HOMO_SAPIENS
+    ) -> float | None:
+        """Get the ratio of rare codons in the sequence.
+        A rare codon is defined as any codon that is NOT the most frequent codon
+        according to the codon usage table for the given organism.
+
+        >>> Sequence("AAA").rare_codon_ratio()
+        0.3333333333333333
+
+        >>> Sequence("CTG").rare_codon_ratio()
+        0.0
+        """
+        if not self.is_amino_acid_sequence:
+            return None
+        organism = load_organism(organism)
+        count = 0
+        for codon in self.codons:
+            amino_acid = CODON_TO_AMINO_ACID_MAP[codon]
+            min_codon = organism.min_codon(amino_acid)
+            max_codon = organism.max_codon(amino_acid)
+            if codon == min_codon and min_codon != max_codon:
+                count += 1
+        return count / len(self)
+
+    @property
+    @functools.cache
+    def codon_usage_table(self) -> CodonUsageTable | None:
+        """Generates a codon usage table from this sequence."""
+        if not self.is_amino_acid_sequence:
+            return None
+        counts: dict[AminoAcid, dict[Codon, int]] = defaultdict(
+            lambda: defaultdict(int)
+        )
+        for codon in self.codons:
+            amino_acid = CODON_TO_AMINO_ACID_MAP[codon]
+            counts[amino_acid][codon] += 1
+
+        codon_usage_table: CodonUsageTable = {
+            codon: CodonUsage(
+                codon=codon,
+                number=counts[amino_acid][codon],
+                frequency=(
+                    counts[amino_acid][codon]
+                    / (sum(counts[amino_acid].values() or [1]))
+                ),
+            )
+            for codon, amino_acid in CODON_TO_AMINO_ACID_MAP.items()
+        }
+        return codon_usage_table
+
+    @functools.cache
+    def codon_usage_bias(
+        self, organism: Organism | str = KAZUSA_HOMO_SAPIENS
+    ) -> float | None:
+        """Codon usage bias of this sequence with respect to the given organism.
+        see: https://onlinelibrary.wiley.com/doi/10.1046/j.1365-2958.1998.01008.x
+        """
+        if not self.is_amino_acid_sequence or not self.codon_usage_table:
+            return None
+        return codon_usage_bias(
+            self.codon_usage_table, load_organism(organism).codon_usage_table
+        )
 
     def analyze(self, organism: Organism | str = KAZUSA_HOMO_SAPIENS) -> Analysis:
         """Collect and return a set of statistics about the sequence."""
@@ -422,7 +557,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         )
 
     def optimize(
-        self, parameters: typing.Sequence[OptimizationParameter]
+        self, parameters: typing.Sequence[OptimizationParameter] | None = None
     ) -> OptimizationResult:
         """Optimize the sequence based on the configuration parameters.
 
@@ -431,7 +566,10 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         """
         start = timeit.default_timer()
         try:
-            result = optimize(self.nucleic_acid_sequence, parameters=parameters)
+            result = optimize(
+                self.nucleic_acid_sequence,
+                parameters=parameters or _DEFAULT_OPTIMIZATION_PARAMETERS,
+            )
         except OptimizationError as e:
             return OptimizationResult(
                 success=False,
