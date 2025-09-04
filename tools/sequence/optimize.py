@@ -3,7 +3,7 @@ import pathlib
 import typing
 
 import msgspec
-from dnachisel import HarmonizeRCA, Location as DnaChiselLocation
+from dnachisel import Location as DnaChiselLocation
 from dnachisel.builtin_specifications import (
     AvoidPattern,
     AvoidHairpins,
@@ -18,7 +18,6 @@ from dnachisel.DnaOptimizationProblem import DnaOptimizationProblem, NoSolutionE
 
 from ..organism import (
     CODON_TO_AMINO_ACID_MAP,
-    KAZUSA_HOMO_SAPIENS,
     load_organism,
     Organism,
 )
