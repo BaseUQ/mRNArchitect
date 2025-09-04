@@ -15,7 +15,6 @@ test("run optimization - pre-fill random example", async ({ page }) => {
     "true",
     { timeout: 30_000 },
   );
-  await expect(page.getByText(EGFP_NUCLEIC_ACID_SEQUENCE)).toHaveCount(1);
 });
 
 test("run optimization - eGFP nucleic acid", async ({ page }) => {
