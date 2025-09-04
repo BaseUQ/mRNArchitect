@@ -9,7 +9,6 @@ import msgspec
 
 from ..constants import (
     AMINO_ACID_TO_CODONS_MAP,
-    AMINO_ACIDS,
     CODON_TO_AMINO_ACID_MAP,
 )
 from ..organism import (
@@ -53,7 +52,11 @@ class OptimizationException(Exception):
 
 class MinimumFreeEnergy(msgspec.Struct, kw_only=True, rename="camel"):
     structure: str
+    """String representing the sequence structure."""
     energy: float
+    """Minimum free energy (MFE)."""
+    average_energy: float
+    """Normalied MFE (or AMFE)."""
 
 
 class Analysis(msgspec.Struct, kw_only=True, rename="camel"):
@@ -404,12 +407,14 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         """Calculate the minimum free energy of the sequence.
 
         >>> Sequence("ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC").minimum_free_energy
-        MinimumFreeEnergy(structure='.((((.((((((......))).)))))))........', energy=-10.199999809265137)
+        MinimumFreeEnergy(structure='.((((.((((((......))).)))))))........', energy=-10.199999809265137, average_energy=-0.2756756705206794)
         """
         import RNA
 
         mfe = RNA.fold_compound(str(self)).mfe()
-        return MinimumFreeEnergy(structure=mfe[0], energy=mfe[1])
+        return MinimumFreeEnergy(
+            structure=mfe[0], energy=mfe[1], average_energy=mfe[1] / len(self)
+        )
 
     @property
     @functools.cache
