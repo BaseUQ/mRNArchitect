@@ -8,6 +8,7 @@ import typing
 import msgspec
 
 from ..constants import (
+    AMINO_ACID_TO_CODONS_MAP,
     CODON_TO_AMINO_ACID_MAP,
 )
 from ..organism import (
@@ -51,7 +52,11 @@ class OptimizationException(Exception):
 
 class MinimumFreeEnergy(msgspec.Struct, kw_only=True, rename="camel"):
     structure: str
+    """String representing the sequence structure."""
     energy: float
+    """Minimum free energy (MFE)."""
+    average_energy: float
+    """Normalied MFE (or AMFE)."""
 
 
 class Analysis(msgspec.Struct, kw_only=True, rename="camel"):
@@ -196,7 +201,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         return len(self.nucleic_acid_sequence)
 
     def __iter__(self):
-        """Iterate over each codon triplet in the sequence."""
+        """Iterate over each nucleotide in the sequence."""
         return iter(self.nucleic_acid_sequence)
 
     def __str__(self) -> str:
@@ -242,6 +247,11 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
             )
         for i in range(0, len(self.nucleic_acid_sequence), 3):
             yield typing.cast(Codon, self.nucleic_acid_sequence[i : i + 3])
+
+    @property
+    def amino_acids(self) -> typing.Iterator[AminoAcid]:
+        for codon in self.codons:
+            yield CODON_TO_AMINO_ACID_MAP[codon]
 
     @property
     @functools.cache
@@ -397,12 +407,14 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         """Calculate the minimum free energy of the sequence.
 
         >>> Sequence("ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC").minimum_free_energy
-        MinimumFreeEnergy(structure='.((((.((((((......))).)))))))........', energy=-10.199999809265137)
+        MinimumFreeEnergy(structure='.((((.((((((......))).)))))))........', energy=-10.199999809265137, average_energy=-0.2756756705206794)
         """
         import RNA
 
         mfe = RNA.fold_compound(str(self)).mfe()
-        return MinimumFreeEnergy(structure=mfe[0], energy=mfe[1])
+        return MinimumFreeEnergy(
+            structure=mfe[0], energy=mfe[1], average_energy=mfe[1] / len(self)
+        )
 
     @property
     @functools.cache
@@ -537,6 +549,57 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         return codon_usage_bias(
             self.codon_usage_table, load_organism(organism).codon_usage_table
         )
+
+    @functools.cache
+    def codon_bias_index(
+        self,
+        organism: Organism | str = KAZUSA_HOMO_SAPIENS,
+    ) -> float | None:
+        """Codon usage index of this sequence with repect to the given organism.
+        Note that as per the link below, codons for "M" and "W" are not included
+        in the calculation.
+        see: https://www.genscript.com/gsfiles/tools/Index_Definition_of_GenScript_Rare_Codon_Analysis_Tool.pdf
+        """
+        if not self.is_amino_acid_sequence:
+            return None
+
+        IGNORED_AMINO_ACIDS: list[AminoAcid] = ["M", "W"]
+
+        organism = load_organism(organism)
+        preferred_codons: list[Codon] = [
+            it.codon
+            for it in organism.max_codon_usage_table.values()
+            if it.amino_acid not in IGNORED_AMINO_ACIDS
+        ]
+
+        # Nc - the number of occurences of codon c in the sequence
+        n_codon: dict[Codon, int] = defaultdict(int)
+        for codon in self.codons:
+            if CODON_TO_AMINO_ACID_MAP[codon] in IGNORED_AMINO_ACIDS:
+                continue
+            n_codon[codon] += 1
+
+        # Na - the number of ocurrences of amino acid a in the sequence
+        n_amino_acid: dict[AminoAcid, int] = {
+            amino_acid: self.amino_acid_sequence.count(amino_acid)
+            for amino_acid in self.amino_acids
+            if amino_acid not in IGNORED_AMINO_ACIDS
+        }
+
+        # Npfr - the total number of occurrences of preferred codons
+        n_pfr = sum(n_codon[codon] for codon in preferred_codons)
+
+        # Nrand - the expected number of preferred codons if all synonymous
+        # codons were used equally
+        n_rand = sum(
+            n_amino_acid[amino_acid] * (1 / len(AMINO_ACID_TO_CODONS_MAP[amino_acid]))
+            for amino_acid in n_amino_acid.keys()
+        )
+
+        # Ntot - the total number of codons in the sequence
+        n_tot = sum(n_codon.values())
+
+        return (n_pfr - n_rand) / (n_tot - n_rand)
 
     def analyze(self, organism: Organism | str = KAZUSA_HOMO_SAPIENS) -> Analysis:
         """Collect and return a set of statistics about the sequence."""
