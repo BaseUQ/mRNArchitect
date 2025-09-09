@@ -16,8 +16,12 @@ from .constants import (
 from .types import Codon, AminoAcid
 
 
-KAZUSA_HOMO_SAPIENS = "kazusa-9606"
-KAZUSA_MUS_MUSCULUS = "kazusa-10090"
+Organism = typing.Literal["homo-sapiens", "mus-musculus"]
+
+ORGANISM_TO_KAZUSA_ID_MAP: dict[Organism, int] = {
+    "homo-sapiens": 9606,
+    "mus-musculus": 10090,
+}
 
 
 class CodonUsage(msgspec.Struct, frozen=True):
@@ -42,47 +46,45 @@ class CodonUsage(msgspec.Struct, frozen=True):
         return CODON_TO_AMINO_ACID_MAP[self.codon]
 
 
-CodonUsageTable = dict[Codon, CodonUsage]
-"""Maps a codon to it's usage."""
-
-MaxCodonUsageTable = dict[AminoAcid, CodonUsage]
-"""Maps an amino acid to the maximum codon usage amongst all codons for that amino acid."""
-
-
-class Organism(msgspec.Struct, frozen=True):
+class CodonUsageTable(msgspec.Struct, frozen=True):
     id: str
-    codon_usage_table: CodonUsageTable
-    max_codon_usage_table: MaxCodonUsageTable
+    usage: dict[Codon, CodonUsage]
+    """Maps a codon to it's usage."""
 
     def __hash__(self):
         return hash(self.id)
 
-    def weight(self, codon: Codon) -> float:
-        amino_acid = CODON_TO_AMINO_ACID_MAP[codon]
-        return (
-            self.codon_usage_table[codon].number
-            / self.max_codon_usage_table[amino_acid].number
+    @functools.cache
+    def most_frequent(self, amino_acid: AminoAcid) -> CodonUsage:
+        return max(
+            [
+                usage
+                for codon, usage in self.usage.items()
+                if codon in AMINO_ACID_TO_CODONS_MAP[amino_acid]
+            ],
+            key=lambda x: x.number,
         )
 
     @functools.cache
-    def min_codon(self, amino_acid: AminoAcid) -> Codon:
+    def least_frequent(self, amino_acid: AminoAcid) -> CodonUsage:
         return min(
             [
                 usage
-                for usage in self.codon_usage_table.values()
-                if usage.amino_acid == amino_acid
+                for codon, usage in self.usage.items()
+                if codon in AMINO_ACID_TO_CODONS_MAP[amino_acid]
             ],
             key=lambda x: x.number,
-        ).codon
+        )
 
-    def max_codon(self, amino_acid: AminoAcid) -> Codon:
-        return self.max_codon_usage_table[amino_acid].codon
+    def weight(self, codon: Codon) -> float:
+        amino_acid = CODON_TO_AMINO_ACID_MAP[codon]
+        return self.usage[codon].number / self.most_frequent(amino_acid).number
 
     def to_dnachisel_dict(self) -> dict[str, dict[str, float]]:
         return {
             amino_acid: {
                 codon_usage.codon: codon_usage.frequency
-                for codon_usage in self.codon_usage_table.values()
+                for codon_usage in self.usage.values()
                 if codon_usage.amino_acid == amino_acid
             }
             for amino_acid in AMINO_ACIDS
@@ -93,8 +95,7 @@ class Organism(msgspec.Struct, frozen=True):
             f.write(msgspec.json.encode(self))
 
 
-def load_organism_from_web(id: str) -> Organism:
-    kazusa_id = id.split(":")[1]
+def load_codon_table_from_kazusa(kazusa_id: int) -> CodonUsageTable:
     contents = (
         urllib.request.urlopen(
             f"https://www.kazusa.or.jp/codon/cgi-bin/showcodon.cgi?species={kazusa_id}&aa=1&style=GCG"
@@ -124,26 +125,15 @@ def load_organism_from_web(id: str) -> Organism:
         )
         for row in table_rows
     ]
-    codon_usage_table: CodonUsageTable = {it.codon: it for it in codon_usages}
+    usage: dict[Codon, CodonUsage] = {it.codon: it for it in codon_usages}
 
-    max_codon_usage_table: MaxCodonUsageTable = {
-        amino_acid: sorted(
-            (it for it in codon_usages if it.amino_acid == amino_acid),
-            key=lambda x: x.number,
-        )[-1]
-        for amino_acid in AMINO_ACIDS
-    }
-
-    return Organism(
-        id=id,
-        codon_usage_table=codon_usage_table,
-        max_codon_usage_table=max_codon_usage_table,
+    return CodonUsageTable(
+        id=str(kazusa_id),
+        usage=usage,
     )
 
 
-def load_organism(organism: Organism | str = KAZUSA_HOMO_SAPIENS) -> Organism:
-    if isinstance(organism, Organism):
-        return organism
+def load_codon_usage_table(organism: Organism = "homo-sapiens") -> CodonUsageTable:
     path = pathlib.Path(f"data/organisms/{organism}.json")
     if not path.exists():
         raise RuntimeError(f"Could not load organism, file does not exist: {path}")
@@ -155,17 +145,19 @@ def codon_usage_bias(f: CodonUsageTable, c: CodonUsageTable):
     """Calculate the codon usage bias between two codon usage tables."""
     number_f: dict[AminoAcid, int] = {
         amino_acid: sum(
-            usage.number for usage in f.values() if usage.amino_acid == amino_acid
+            usage.number for usage in f.usage.values() if usage.amino_acid == amino_acid
         )
         for amino_acid in AMINO_ACIDS
     }
-    total_number_f = sum(usage.number for usage in f.values())
+    total_number_f = sum(usage.number for usage in f.usage.values())
     p_f: dict[AminoAcid, float] = {
         amino_acid: number_f[amino_acid] / total_number_f for amino_acid in AMINO_ACIDS
     }
 
     return sum(
         p_f[amino_acid]
-        * sum(abs(f[codon].frequency - c[codon].frequency) for codon in codons)
+        * sum(
+            abs(f.usage[codon].frequency - c.usage[codon].frequency) for codon in codons
+        )
         for amino_acid, codons in AMINO_ACID_TO_CODONS_MAP.items()
     )

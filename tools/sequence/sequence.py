@@ -9,14 +9,14 @@ import msgspec
 
 from ..constants import (
     AMINO_ACID_TO_CODONS_MAP,
+    AMINO_ACIDS,
     CODON_TO_AMINO_ACID_MAP,
 )
 from ..organism import (
-    KAZUSA_HOMO_SAPIENS,
     codon_usage_bias,
     CodonUsage,
     CodonUsageTable,
-    load_organism,
+    load_codon_usage_table,
     Organism,
 )
 from ..types import AminoAcid, Codon
@@ -25,7 +25,7 @@ from .optimize import OptimizationParameter, OptimizationError, optimize
 _DEFAULT_OPTIMIZATION_PARAMETERS = [
     OptimizationParameter(
         enforce_sequence=False,
-        organism=KAZUSA_HOMO_SAPIENS,
+        organism="homo-sapiens",
         avoid_repeat_length=10,
         enable_uridine_depletion=False,
         avoid_ribosome_slip=False,
@@ -116,7 +116,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         cls,
         sequence: str,
         sequence_type: SequenceType = "auto-detect",
-        organism: Organism | str = KAZUSA_HOMO_SAPIENS,
+        organism: Organism = "homo-sapiens",
     ) -> "Sequence":
         """Create a Sequence from a raw string.
 
@@ -144,10 +144,12 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         if re.search(r"[X]", sequence, re.IGNORECASE):
             raise RuntimeError("Cannot parse amino acid sequences with 'X' symbols.")
 
-        organism = load_organism(organism)
+        codon_usage_table = load_codon_usage_table(organism)
         return cls(
             "".join(
-                organism.max_codon(typing.cast(AminoAcid, amino_acid))
+                codon_usage_table.most_frequent(
+                    typing.cast(AminoAcid, amino_acid)
+                ).codon
                 for amino_acid in sequence.upper()
             ).upper()
         )
@@ -173,7 +175,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
     def from_amino_acid_sequence(
         cls,
         amino_acid_sequence: str,
-        organism: Organism | str = KAZUSA_HOMO_SAPIENS,
+        organism: Organism = "homo-sapiens",
     ) -> "Sequence":
         """Create a Sequence from an amino acid sequence.
         The nucleic acid sequence will be codon optimized for the given `organism`.
@@ -187,7 +189,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
 
     @classmethod
     def from_aa(
-        cls, amino_acid_sequence, organism: Organism | str = KAZUSA_HOMO_SAPIENS
+        cls, amino_acid_sequence, organism: Organism = "homo-sapiens"
     ) -> "Sequence":
         """Alias from Sequence.from_amino_acid_sequence(...)"""
         return cls.from_amino_acid_sequence(amino_acid_sequence, organism)
@@ -379,7 +381,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
 
     @functools.cache
     def codon_adaptation_index(
-        self, organism: Organism | str = KAZUSA_HOMO_SAPIENS
+        self, organism: Organism = "homo-sapiens"
     ) -> float | None:
         """Calculate the Codon Adaptation Index of the sequence using the provided codon table.
 
@@ -395,9 +397,9 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         if not self.nucleic_acid_sequence or not self.is_amino_acid_sequence:
             return None
 
-        organism = load_organism(organism)
+        codon_usage_table = load_codon_usage_table(organism)
 
-        weights = [organism.weight(codon) for codon in self.codons]
+        weights = [codon_usage_table.weight(codon) for codon in self.codons]
         cai = math.prod(weights) ** (1 / len(weights))
         return cai
 
@@ -486,9 +488,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         return count / len(self)
 
     @functools.cache
-    def rare_codon_ratio(
-        self, organism: Organism | str = KAZUSA_HOMO_SAPIENS
-    ) -> float | None:
+    def rare_codon_ratio(self, organism: Organism = "homo-sapiens") -> float | None:
         """Get the ratio of rare codons in the sequence.
         A rare codon is defined as any codon that is NOT the most frequent codon
         according to the codon usage table for the given organism.
@@ -501,12 +501,12 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         """
         if not self.is_amino_acid_sequence:
             return None
-        organism = load_organism(organism)
+        codon_usage_table = load_codon_usage_table(organism)
         count = 0
         for codon in self.codons:
             amino_acid = CODON_TO_AMINO_ACID_MAP[codon]
-            min_codon = organism.min_codon(amino_acid)
-            max_codon = organism.max_codon(amino_acid)
+            min_codon = codon_usage_table.least_frequent(amino_acid).codon
+            max_codon = codon_usage_table.most_frequent(amino_acid).codon
             if codon == min_codon and min_codon != max_codon:
                 count += 1
         return count / len(self)
@@ -524,36 +524,36 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
             amino_acid = CODON_TO_AMINO_ACID_MAP[codon]
             counts[amino_acid][codon] += 1
 
-        codon_usage_table: CodonUsageTable = {
-            codon: CodonUsage(
-                codon=codon,
-                number=counts[amino_acid][codon],
-                frequency=(
-                    counts[amino_acid][codon]
-                    / (sum(counts[amino_acid].values() or [1]))
-                ),
-            )
-            for codon, amino_acid in CODON_TO_AMINO_ACID_MAP.items()
-        }
-        return codon_usage_table
+        return CodonUsageTable(
+            id=str(hash(self)),
+            usage={
+                codon: CodonUsage(
+                    codon=codon,
+                    number=counts[amino_acid][codon],
+                    frequency=(
+                        counts[amino_acid][codon]
+                        / (sum(counts[amino_acid].values() or [1]))
+                    ),
+                )
+                for codon, amino_acid in CODON_TO_AMINO_ACID_MAP.items()
+            },
+        )
 
     @functools.cache
-    def codon_usage_bias(
-        self, organism: Organism | str = KAZUSA_HOMO_SAPIENS
-    ) -> float | None:
+    def codon_usage_bias(self, organism: Organism = "homo-sapiens") -> float | None:
         """Codon usage bias of this sequence with respect to the given organism.
         see: https://onlinelibrary.wiley.com/doi/10.1046/j.1365-2958.1998.01008.x
         """
         if not self.is_amino_acid_sequence or not self.codon_usage_table:
             return None
         return codon_usage_bias(
-            self.codon_usage_table, load_organism(organism).codon_usage_table
+            self.codon_usage_table, load_codon_usage_table(organism)
         )
 
     @functools.cache
     def codon_bias_index(
         self,
-        organism: Organism | str = KAZUSA_HOMO_SAPIENS,
+        organism: Organism = "homo-sapiens",
     ) -> float | None:
         """Codon usage index of this sequence with repect to the given organism.
         Note that as per the link below, codons for "M" and "W" are not included
@@ -565,11 +565,11 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
 
         IGNORED_AMINO_ACIDS: list[AminoAcid] = ["M", "W"]
 
-        organism = load_organism(organism)
+        codon_usage_table = load_codon_usage_table(organism)
         preferred_codons: list[Codon] = [
-            it.codon
-            for it in organism.max_codon_usage_table.values()
-            if it.amino_acid not in IGNORED_AMINO_ACIDS
+            codon_usage_table.most_frequent(amino_acid).codon
+            for amino_acid in AMINO_ACIDS
+            if amino_acid not in IGNORED_AMINO_ACIDS
         ]
 
         # Nc - the number of occurences of codon c in the sequence
@@ -592,7 +592,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         # Nrand - the expected number of preferred codons if all synonymous
         # codons were used equally
         n_rand = sum(
-            n_amino_acid[amino_acid] * (1 / len(AMINO_ACID_TO_CODONS_MAP[amino_acid]))
+            n_amino_acid[amino_acid] / len(AMINO_ACID_TO_CODONS_MAP[amino_acid])
             for amino_acid in n_amino_acid.keys()
         )
 
@@ -601,7 +601,30 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
 
         return (n_pfr - n_rand) / (n_tot - n_rand)
 
-    def analyze(self, organism: Organism | str = KAZUSA_HOMO_SAPIENS) -> Analysis:
+    @functools.cache
+    def trna_adaptation_index(self) -> float | None:
+        """Calculate the tRNA Adaptation Index of the sequence."""
+        if not self.is_amino_acid_sequence:
+            return None
+
+        S_VALUES = {
+            "dosReis": {
+                ("G", "T"): 0.41,
+                ("I", "C"): 0.28,
+                ("I", "A"): 0.9999,
+                ("U", "G"): 0.68,
+                ("L", "A"): 0.89,
+            },
+            "Tuller": {
+                ("G", "T"): 0.561,
+                ("I", "C"): 0.28,
+                ("I", "A"): 0.9999,
+                ("U", "G"): 0.68,
+                ("L", "A"): 0.89,
+            },
+        }
+
+    def analyze(self, organism: Organism = "homo-sapiens") -> Analysis:
         """Collect and return a set of statistics about the sequence."""
         start = timeit.default_timer()
         minimum_free_energy = self.minimum_free_energy
