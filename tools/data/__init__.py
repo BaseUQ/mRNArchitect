@@ -44,7 +44,9 @@ def load_codon_pairs() -> dict[tuple[str, str], float]:
 def load_codon_usage_table(organism: Organism = "homo-sapiens") -> CodonUsageTable:
     path = pathlib.Path(__file__).parent / "codon-tables" / f"{organism}.json"
     if not path.exists():
-        raise RuntimeError(f"Could not load organism, file does not exist: {path}")
+        raise RuntimeError(
+            f"Could not load codon usage table, file does not exist: {path}"
+        )
     with open(path, "rb") as f:
         return msgspec.json.decode(f.read(), type=CodonUsageTable)
 
