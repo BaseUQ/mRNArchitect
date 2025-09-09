@@ -22,7 +22,7 @@ see: https://www.genscript.com/tools/rare-codon-analysis
         [KAZUSA_MUS_MUSCULUS, KAZUSA_HOMO_SAPIENS, 0.04127556],
     ],
 )
-def test_codon_usage_bias(organism_f, organism_c, codon_usage_bias_result):
+def test_codon_usage_bias_organism(organism_f, organism_c, codon_usage_bias_result):
     assert codon_usage_bias(
         load_organism(organism_f).codon_usage_table,
         load_organism(organism_c).codon_usage_table,
@@ -30,7 +30,7 @@ def test_codon_usage_bias(organism_f, organism_c, codon_usage_bias_result):
 
 
 @pytest.mark.parametrize(
-    ["sequence_name", "organism", "codon_usage_bias"],
+    ["sequence_name", "organism", "codon_usage_bias_result"],
     [
         ["REC_A", KAZUSA_HOMO_SAPIENS, 0.68],
         ["REC_A", KAZUSA_MUS_MUSCULUS, 0.68],
@@ -38,9 +38,26 @@ def test_codon_usage_bias(organism_f, organism_c, codon_usage_bias_result):
         ["DNA_K", KAZUSA_MUS_MUSCULUS, 0.72],
     ],
 )
-def test_codon_usage_bias_sequence(sequence_name, organism, codon_usage_bias):
+def test_codon_usage_bias_sequence(sequence_name, organism, codon_usage_bias_result):
     sequence = Sequence.from_string(TEST_SEQUENCES[sequence_name])
     assert sequence.is_amino_acid_sequence
     assert sequence.codon_usage_bias(organism) == pytest.approx(
-        codon_usage_bias, abs=10**-2
+        codon_usage_bias_result, abs=10**-2
+    )
+
+
+@pytest.mark.parametrize(
+    ["sequence_name", "organism", "codon_bias_index_result"],
+    [
+        ["REC_A", KAZUSA_HOMO_SAPIENS, 0.21],
+        ["REC_A", KAZUSA_MUS_MUSCULUS, 0.21],
+        ["DNA_K", KAZUSA_HOMO_SAPIENS, 0.11],
+        ["DNA_K", KAZUSA_MUS_MUSCULUS, 0.12],
+    ],
+)
+def test_codon_bias_index(sequence_name, organism, codon_bias_index_result):
+    sequence = Sequence.from_string(TEST_SEQUENCES[sequence_name])
+    assert sequence.is_amino_acid_sequence
+    assert sequence.codon_bias_index(organism) == pytest.approx(
+        codon_bias_index_result, abs=10**-2
     )
