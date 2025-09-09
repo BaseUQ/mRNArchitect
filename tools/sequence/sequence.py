@@ -22,7 +22,6 @@ from ..organism import (
 )
 from ..types import AminoAcid, Codon, Organism
 from .optimize import OptimizationParameter, OptimizationError, optimize
-from tools import organism
 
 _DEFAULT_OPTIMIZATION_PARAMETERS = [
     OptimizationParameter(
