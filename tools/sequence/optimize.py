@@ -16,12 +16,9 @@ from dnachisel.builtin_specifications import (
 from dnachisel.builtin_specifications.codon_optimization import CodonOptimize
 from dnachisel.DnaOptimizationProblem import DnaOptimizationProblem, NoSolutionError
 
-from ..organism import (
-    CODON_TO_AMINO_ACID_MAP,
-    load_codon_usage_table,
-)
-from ..types import Organism
-
+from tools.organism import CODON_TO_AMINO_ACID_MAP
+from tools.types import Organism
+from tools.data import load_codon_usage_table
 
 OptimizationError = NoSolutionError
 

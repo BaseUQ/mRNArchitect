@@ -131,14 +131,6 @@ def load_codon_table_from_kazusa(kazusa_id: int) -> CodonUsageTable:
     )
 
 
-def load_codon_usage_table(organism: Organism = "homo-sapiens") -> CodonUsageTable:
-    path = pathlib.Path(f"data/organisms/{organism}.json")
-    if not path.exists():
-        raise RuntimeError(f"Could not load organism, file does not exist: {path}")
-    with open(path, "rb") as f:
-        return msgspec.json.decode(f.read(), type=Organism)
-
-
 def codon_usage_bias(f: CodonUsageTable, c: CodonUsageTable):
     """Calculate the codon usage bias between two codon usage tables."""
     number_f: dict[AminoAcid, int] = {

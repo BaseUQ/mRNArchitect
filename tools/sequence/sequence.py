@@ -7,21 +7,19 @@ import typing
 
 import msgspec
 
-from tools.utils.data import load_trna_adaptation_index_dataset
-
 from ..constants import (
     AMINO_ACID_TO_CODONS_MAP,
     AMINO_ACIDS,
     CODON_TO_AMINO_ACID_MAP,
 )
-from ..organism import (
+from tools.organism import (
     codon_usage_bias,
     CodonUsage,
     CodonUsageTable,
-    load_codon_usage_table,
 )
-from ..types import AminoAcid, Codon, Organism
-from .optimize import OptimizationParameter, OptimizationError, optimize
+from tools.types import AminoAcid, Codon, Organism
+from tools.sequence.optimize import optimize, OptimizationParameter, OptimizationError
+from tools.data import load_codon_usage_table, load_trna_adaptation_index_dataset
 
 _DEFAULT_OPTIMIZATION_PARAMETERS = [
     OptimizationParameter(
