@@ -3,12 +3,9 @@ import typing
 
 import msgspec
 
-from .organism import Organism
+from .constants import ORGANISMS
 from .sequence import Sequence
 from .sequence.optimize import OptimizationParameter
-
-
-ORGANISM_CHOICES = list(typing.get_args(Organism))
 
 
 def _parse_sequence(args):
@@ -95,7 +92,7 @@ def cli(args=None):
     optimize.add_argument(
         "--organism",
         type=str,
-        choices=ORGANISM_CHOICES,
+        choices=ORGANISMS,
         default="human",
         help="The organism to use.",
     )
@@ -161,7 +158,7 @@ def cli(args=None):
     analyze.add_argument(
         "--organism",
         type=str,
-        choices=ORGANISM_CHOICES,
+        choices=ORGANISMS,
         default="human",
         help="The organism to use.",
     )
@@ -183,7 +180,7 @@ def cli(args=None):
     convert.add_argument(
         "--organism",
         type=str,
-        choices=ORGANISM_CHOICES,
+        choices=ORGANISMS,
         default="human",
         help="The organism to use.",
     )

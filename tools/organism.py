@@ -13,10 +13,8 @@ from .constants import (
     CODON_TO_AMINO_ACID_MAP,
     CODONS,
 )
-from .types import Codon, AminoAcid
+from .types import AminoAcid, Codon, Organism
 
-
-Organism = typing.Literal["homo-sapiens", "mus-musculus"]
 
 ORGANISM_TO_KAZUSA_ID_MAP: dict[Organism, int] = {
     "homo-sapiens": 9606,

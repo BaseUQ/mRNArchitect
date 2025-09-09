@@ -7,6 +7,8 @@ import typing
 
 import msgspec
 
+from tools.utils.data import load_trna_adaptation_index_dataset
+
 from ..constants import (
     AMINO_ACID_TO_CODONS_MAP,
     AMINO_ACIDS,
@@ -17,10 +19,10 @@ from ..organism import (
     CodonUsage,
     CodonUsageTable,
     load_codon_usage_table,
-    Organism,
 )
-from ..types import AminoAcid, Codon
+from ..types import AminoAcid, Codon, Organism
 from .optimize import OptimizationParameter, OptimizationError, optimize
+from tools import organism
 
 _DEFAULT_OPTIMIZATION_PARAMETERS = [
     OptimizationParameter(
@@ -265,30 +267,33 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         """
         return "".join(CODON_TO_AMINO_ACID_MAP[codon] for codon in self.codons)
 
+    @property
     def reverse(self) -> "Sequence":
         """Returns a new Sequence that is the reverse of this sequence.
 
-        >>> str(Sequence("ACGT").reverse())
+        >>> str(Sequence("ACGT").reverse)
         'TGCA'
         """
         return Sequence("".join(reversed(self.nucleic_acid_sequence)))
 
+    @property
     def complement(self) -> "Sequence":
         """Returns a new Sequence that is the complement of this sequence.
 
-        >>> str(Sequence("ATGC").complement())
+        >>> str(Sequence("ATGC").complement)
         'TACG'
         """
         _COMPLEMENT_MAP = {"A": "T", "C": "G", "G": "C", "T": "A"}
         return Sequence("".join(_COMPLEMENT_MAP[n] for n in self.nucleic_acid_sequence))
 
+    @property
     def reverse_complement(self) -> "Sequence":
         """Returns a new Sequence that is the reverse complement of this sequence.
 
-        >>> str(Sequence("ATGC").reverse_complement())
+        >>> str(Sequence("ATGC").reverse_complement)
         'GCAT'
         """
-        return self.reverse().complement()
+        return self.reverse.complement
 
     @property
     @functools.cache
@@ -602,7 +607,9 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         return (n_pfr - n_rand) / (n_tot - n_rand)
 
     @functools.cache
-    def trna_adaptation_index(self) -> float | None:
+    def trna_adaptation_index(
+        self, organism: Organism = "homo-sapiens"
+    ) -> float | None:
         """Calculate the tRNA Adaptation Index of the sequence."""
         if not self.is_amino_acid_sequence:
             return None
@@ -612,17 +619,29 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
                 ("G", "T"): 0.41,
                 ("I", "C"): 0.28,
                 ("I", "A"): 0.9999,
-                ("U", "G"): 0.68,
+                ("T", "G"): 0.68,
                 ("L", "A"): 0.89,
             },
             "Tuller": {
                 ("G", "T"): 0.561,
                 ("I", "C"): 0.28,
                 ("I", "A"): 0.9999,
-                ("U", "G"): 0.68,
+                ("T", "G"): 0.68,
                 ("L", "A"): 0.89,
             },
         }
+
+        def _is_pair(codon: Codon, anticodon: Codon) -> bool:
+            return codon == str(Sequence.from_string(anticodon).complement)
+
+        dataset = load_trna_adaptation_index_dataset(organism)
+
+        weights: list[tuple[Codon, float]] = []
+        for codon in self.codons:
+            weight = 0
+            for trna_copy_number, trna_anticodon in dataset:
+                if trna_anticodon != codon:
+                    continue
 
     def analyze(self, organism: Organism = "homo-sapiens") -> Analysis:
         """Collect and return a set of statistics about the sequence."""

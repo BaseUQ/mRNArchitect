@@ -1,9 +1,11 @@
 import functools
 import pathlib
+import typing
 
 import polars as pl
 
 from tools.constants import CODON_TO_AMINO_ACID_MAP
+from tools.types import Codon, Organism
 
 
 @functools.cache
@@ -37,3 +39,30 @@ def load_codon_pairs() -> dict[tuple[str, str], float]:
     ]
     assert len(columns) == 64**2, f"Length should be {64**2}: {len(columns)}"
     return {(c[:3], c[3:]): df[c].to_list()[0] / total_count for c in columns}
+
+
+@functools.cache
+def load_trna_adaptation_index_dataset(
+    organism: Organism = "homo-sapiens",
+) -> list[tuple[int, Codon]]:
+    ORGANISM_TO_FILE: dict[Organism, str] = {
+        "homo-sapiens": "hg38-tRNAs-confidence-set.out",
+        "mus-musculus": "mm39-tRNAs-confidence-set.out",
+    }
+
+    with open(
+        pathlib.Path(__file__).parent
+        / ".."
+        / "data"
+        / "tAI"
+        / ORGANISM_TO_FILE[organism],
+        "r",
+    ) as f:
+        lines = f.readlines()
+
+    rows = [
+        line.strip().split(maxsplit=15)
+        for line in lines[3:]  # First three lines are headers
+        if line.strip()
+    ]
+    return [(int(row[1]), typing.cast(Codon, row[5])) for row in rows]

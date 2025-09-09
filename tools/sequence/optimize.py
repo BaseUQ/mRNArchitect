@@ -19,8 +19,8 @@ from dnachisel.DnaOptimizationProblem import DnaOptimizationProblem, NoSolutionE
 from ..organism import (
     CODON_TO_AMINO_ACID_MAP,
     load_codon_usage_table,
-    Organism,
 )
+from ..types import Organism
 
 
 OptimizationError = NoSolutionError
