@@ -34,7 +34,7 @@ const createDefaultParameter = (
   startCoordinate,
   endCoordinate,
   enforceSequence: false,
-  organism: "human",
+  organism: "homo-sapiens",
   avoidRepeatLength: 10,
   enableUridineDepletion: false,
   avoidRibosomeSlip: false,
