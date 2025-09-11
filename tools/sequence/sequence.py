@@ -603,42 +603,42 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
 
         return (n_pfr - n_rand) / (n_tot - n_rand)
 
-    @functools.cache
-    def trna_adaptation_index(
-        self, organism: Organism = "homo-sapiens"
-    ) -> float | None:
-        """Calculate the tRNA Adaptation Index of the sequence."""
-        if not self.is_amino_acid_sequence:
-            return None
+    # @functools.cache
+    # def trna_adaptation_index(
+    #    self, organism: Organism = "homo-sapiens"
+    # ) -> float | None:
+    #    """Calculate the tRNA Adaptation Index of the sequence."""
+    #    if not self.is_amino_acid_sequence:
+    #        return None
 
-        S_VALUES = {
-            "dosReis": {
-                ("G", "T"): 0.41,
-                ("I", "C"): 0.28,
-                ("I", "A"): 0.9999,
-                ("T", "G"): 0.68,
-                ("L", "A"): 0.89,
-            },
-            "Tuller": {
-                ("G", "T"): 0.561,
-                ("I", "C"): 0.28,
-                ("I", "A"): 0.9999,
-                ("T", "G"): 0.68,
-                ("L", "A"): 0.89,
-            },
-        }
+    #    S_VALUES = {
+    #        "dosReis": {
+    #            ("G", "T"): 0.41,
+    #            ("I", "C"): 0.28,
+    #            ("I", "A"): 0.9999,
+    #            ("T", "G"): 0.68,
+    #            ("L", "A"): 0.89,
+    #        },
+    #        "Tuller": {
+    #            ("G", "T"): 0.561,
+    #            ("I", "C"): 0.28,
+    #            ("I", "A"): 0.9999,
+    #            ("T", "G"): 0.68,
+    #            ("L", "A"): 0.89,
+    #        },
+    #    }
 
-        def _is_pair(codon: Codon, anticodon: Codon) -> bool:
-            return codon == str(Sequence.from_string(anticodon).complement)
+    #    def _is_pair(codon: Codon, anticodon: Codon) -> bool:
+    #        return codon == str(Sequence.from_string(anticodon).complement)
 
-        dataset = load_trna_adaptation_index_dataset(organism)
+    #    dataset = load_trna_adaptation_index_dataset(organism)
 
-        weights: list[tuple[Codon, float]] = []
-        for codon in self.codons:
-            weight = 0
-            for trna_copy_number, trna_anticodon in dataset:
-                if trna_anticodon != codon:
-                    continue
+    #    weights: list[tuple[Codon, float]] = []
+    #    for codon in self.codons:
+    #        weight = 0
+    #        for trna_copy_number, trna_anticodon in dataset:
+    #            if trna_anticodon != codon:
+    #                continue
 
     def analyze(self, organism: Organism = "homo-sapiens") -> Analysis:
         """Collect and return a set of statistics about the sequence."""
@@ -663,7 +663,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
     ) -> OptimizationResult:
         """Optimize the sequence based on the configuration parameters.
 
-        >>> Sequence("ACGACCATTAAA").optimize(parameters=[OptimizationParameter(organism="human")]).result.sequence
+        >>> Sequence("ACGACCATTAAA").optimize(parameters=[OptimizationParameter(organism="homo-sapiens")]).result.sequence
         Sequence(nucleic_acid_sequence='ACCACCATCAAG')
         """
         start = timeit.default_timer()

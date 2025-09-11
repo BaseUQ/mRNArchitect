@@ -92,7 +92,7 @@ def cli(args=None):
         "--organism",
         type=str,
         choices=ORGANISMS,
-        default="human",
+        default="homo-sapiens",
         help="The organism to use.",
     )
     optimize.add_argument(
@@ -158,7 +158,7 @@ def cli(args=None):
         "--organism",
         type=str,
         choices=ORGANISMS,
-        default="human",
+        default="homo-sapiens",
         help="The organism to use.",
     )
     analyze.add_argument("--format", type=str, choices=["yaml", "json"], default="yaml")
@@ -180,7 +180,7 @@ def cli(args=None):
         "--organism",
         type=str,
         choices=ORGANISMS,
-        default="human",
+        default="homo-sapiens",
         help="The organism to use.",
     )
     convert.add_argument("--format", type=str, choices=["yaml", "json"], default="yaml")
