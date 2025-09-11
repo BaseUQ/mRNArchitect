@@ -1,6 +1,5 @@
 import csv
 import functools
-import pathlib
 import re
 import typing
 import urllib.request

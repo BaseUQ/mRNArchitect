@@ -19,7 +19,6 @@ from tools.organism import (
 )
 from tools.types import AminoAcid, Codon, Organism
 from tools.sequence.optimize import optimize, OptimizationParameter, OptimizationError
-from tools.data import load_codon_usage_table, load_trna_adaptation_index_dataset
 
 _DEFAULT_OPTIMIZATION_PARAMETERS = [
     OptimizationParameter(
