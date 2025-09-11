@@ -16,12 +16,9 @@ from dnachisel.builtin_specifications import (
 from dnachisel.builtin_specifications.codon_optimization import CodonOptimize
 from dnachisel.DnaOptimizationProblem import DnaOptimizationProblem, NoSolutionError
 
-from ..organism import (
-    CODON_TO_AMINO_ACID_MAP,
-    load_organism,
-    Organism,
-)
-
+from tools.organism import CODON_TO_AMINO_ACID_MAP
+from tools.types import Organism
+from tools.data import load_codon_usage_table
 
 OptimizationError = NoSolutionError
 
@@ -102,7 +99,7 @@ class OptimizationParameter(
     Location, frozen=True, kw_only=True, rename="camel", forbid_unknown_fields=True
 ):
     enforce_sequence: bool = False
-    organism: Organism | str | None = None
+    organism: Organism | None = None
     avoid_repeat_length: int | None = None
     enable_uridine_depletion: bool = False
     avoid_ribosome_slip: bool = False
@@ -231,7 +228,9 @@ class OptimizationParameter(
         if self.organism is not None:
             objectives.append(
                 CodonOptimize(
-                    codon_usage_table=load_organism(self.organism).to_dnachisel_dict(),
+                    codon_usage_table=load_codon_usage_table(
+                        self.organism
+                    ).to_dnachisel_dict(),
                     method="use_best_codon",
                     location=location,
                 )

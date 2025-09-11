@@ -2,24 +2,14 @@ import argparse
 
 import msgspec
 
-from .organism import (
-    KAZUSA_HOMO_SAPIENS,
-    KAZUSA_MUS_MUSCULUS,
-)
+from .constants import ORGANISMS
 from .sequence import Sequence
 from .sequence.optimize import OptimizationParameter
-
-DEFAULT_ORGANISMS = {
-    "human": KAZUSA_HOMO_SAPIENS,
-    "mouse": KAZUSA_MUS_MUSCULUS,
-}
 
 
 def _parse_sequence(args):
     if hasattr(args, "sequence_type") and args.sequence_type == "amino-acid":
-        return Sequence.from_amino_acid_sequence(
-            args.sequence, organism=DEFAULT_ORGANISMS[args.organism]
-        )
+        return Sequence.from_amino_acid_sequence(args.sequence, organism=args.organism)
     return Sequence.from_nucleic_acid_sequence(args.sequence)
 
 
@@ -63,7 +53,7 @@ def _optimize(args):
 
 def _analyze(args):
     sequence = _parse_sequence(args)
-    result = sequence.analyze(organism=DEFAULT_ORGANISMS[args.organism])
+    result = sequence.analyze(organism=args.organism)
     _print(result, args)
 
 
@@ -101,8 +91,8 @@ def cli(args=None):
     optimize.add_argument(
         "--organism",
         type=str,
-        choices=DEFAULT_ORGANISMS.keys(),
-        default="human",
+        choices=ORGANISMS,
+        default="homo-sapiens",
         help="The organism to use.",
     )
     optimize.add_argument(
@@ -167,8 +157,8 @@ def cli(args=None):
     analyze.add_argument(
         "--organism",
         type=str,
-        choices=DEFAULT_ORGANISMS.keys(),
-        default="human",
+        choices=ORGANISMS,
+        default="homo-sapiens",
         help="The organism to use.",
     )
     analyze.add_argument("--format", type=str, choices=["yaml", "json"], default="yaml")
@@ -189,8 +179,8 @@ def cli(args=None):
     convert.add_argument(
         "--organism",
         type=str,
-        choices=DEFAULT_ORGANISMS.keys(),
-        default="human",
+        choices=ORGANISMS,
+        default="homo-sapiens",
         help="The organism to use.",
     )
     convert.add_argument("--format", type=str, choices=["yaml", "json"], default="yaml")

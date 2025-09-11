@@ -46,7 +46,7 @@ export const OptimizePage = () => {
       let codingSequence = optimizationInput.sequence.codingSequence;
       if (optimizationInput.sequence.codingSequenceType === "amino-acid") {
         codingSequence = await convertSequenceToNucleicAcid({
-          data: { sequence: codingSequence, organism: "human" },
+          data: { sequence: codingSequence, organism: "homo-sapiens" },
         });
       }
       return {
