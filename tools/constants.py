@@ -1,11 +1,15 @@
 import typing
 
-from .types import Codon, AminoAcid
+from .types import AminoAcid, Codon, Organism
 
 AMINO_ACIDS = set(typing.get_args(AminoAcid))
 
 
 CODONS = set(typing.get_args(Codon))
+
+
+ORGANISMS = set(typing.get_args(Organism))
+"""The known organisms."""
 
 
 AMINO_ACID_TO_CODONS_MAP: dict[AminoAcid, set[Codon]] = {
@@ -35,9 +39,70 @@ AMINO_ACID_TO_CODONS_MAP: dict[AminoAcid, set[Codon]] = {
 
 
 CODON_TO_AMINO_ACID_MAP: dict[Codon, AminoAcid] = {
-    codon: amino_acid
-    for amino_acid, codons in AMINO_ACID_TO_CODONS_MAP.items()
-    for codon in codons
+    "CGG": "R",
+    "CGC": "R",
+    "AGA": "R",
+    "CGA": "R",
+    "AGG": "R",
+    "CGT": "R",
+    "AAA": "K",
+    "AAG": "K",
+    "TGC": "C",
+    "TGT": "C",
+    "GCA": "A",
+    "GCC": "A",
+    "GCG": "A",
+    "GCT": "A",
+    "GTC": "V",
+    "GTG": "V",
+    "GTT": "V",
+    "GTA": "V",
+    "TAC": "Y",
+    "TAT": "Y",
+    "GGC": "G",
+    "GGA": "G",
+    "GGG": "G",
+    "GGT": "G",
+    "TAA": "*",
+    "TAG": "*",
+    "TGA": "*",
+    "CTA": "L",
+    "CTC": "L",
+    "CTG": "L",
+    "TTG": "L",
+    "CTT": "L",
+    "TTA": "L",
+    "CAG": "Q",
+    "CAA": "Q",
+    "ATG": "M",
+    "CAC": "H",
+    "CAT": "H",
+    "ACT": "T",
+    "ACA": "T",
+    "ACC": "T",
+    "ACG": "T",
+    "ATT": "I",
+    "ATA": "I",
+    "ATC": "I",
+    "TGG": "W",
+    "AAC": "N",
+    "AAT": "N",
+    "TCG": "S",
+    "TCA": "S",
+    "AGT": "S",
+    "TCT": "S",
+    "AGC": "S",
+    "TCC": "S",
+    "TTC": "F",
+    "TTT": "F",
+    "CCG": "P",
+    "CCA": "P",
+    "CCT": "P",
+    "CCC": "P",
+    "GAT": "D",
+    "GAC": "D",
+    "GAA": "E",
+    "GAG": "E",
 }
 """Maps a codon to an amino acid 1-letter symbol."""
 

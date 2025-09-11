@@ -59,7 +59,7 @@ def _optimize(
 ]:
     print(f"#{index:<8}: Optimizing {sequence_name}")
     parameter = OptimizationParameter(
-        organism="human",
+        organism="homo-sapiens",
         avoid_repeat_length=avoid_repeat_length,
         enable_uridine_depletion=enable_uridine_depletion,
         avoid_ribosome_slip=avoid_ribosome_slip,
@@ -79,7 +79,7 @@ def _optimize(
     input_analysis, output_sequence, output_analysis, error = None, None, None, None
     try:
         input_analysis = Sequence.from_nucleic_acid_sequence(input_sequence).analyze(
-            "human"
+            "homo-sapiens"
         )
 
         optimized = Sequence.from_nucleic_acid_sequence(input_sequence).optimize(
@@ -92,7 +92,7 @@ def _optimize(
                 else "Could not optimize: unknown error"
             )
         output_sequence = optimized.result.sequence.nucleic_acid_sequence
-        output_analysis = optimized.result.sequence.analyze("human")
+        output_analysis = optimized.result.sequence.analyze("homo-sapiens")
     except Exception as e:
         print(f"#{index:<8}: Error - {e}")
         error = e
