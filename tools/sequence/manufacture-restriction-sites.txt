@@ -2,3 +2,4 @@ name  sequence
 BspQI GCTCTTC
 Bsal  GGTCTC
 PaqC  CACCTGC
+Bsa1  CGAGACC
