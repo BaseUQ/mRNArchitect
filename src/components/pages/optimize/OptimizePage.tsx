@@ -139,7 +139,12 @@ export const OptimizePage = () => {
             threePrimeUtrAnalysis,
             fullSequenceAnalysis,
           },
-          outputs,
+          outputs: outputs.sort((a, b) =>
+            (a.fullSequenceAnalysis.codonAdaptationIndex ?? 0) >
+            (b.cdsAnalysis.codonAdaptationIndex ?? 0)
+              ? -1
+              : 1,
+          ),
         },
       });
       setActiveTab("output");
