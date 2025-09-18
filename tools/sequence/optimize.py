@@ -49,7 +49,7 @@ def _load_manufacture_restriction_sites() -> list[str]:
     """Load manufacture restriction sites.
 
     >>> len(_load_manufacture_restriction_sites())
-    3
+    4
 
     >>> all("U" not in it for it in _load_manufacture_restriction_sites())
     True
