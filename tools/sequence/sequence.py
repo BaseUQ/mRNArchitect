@@ -1,5 +1,6 @@
 from collections import defaultdict
 import functools
+import logging
 import math
 import re
 import timeit
@@ -20,6 +21,8 @@ from tools.organism import (
 from tools.types import AminoAcid, Codon, Organism
 from tools.sequence.optimize import optimize, OptimizationParameter, OptimizationError
 from tools.data import load_codon_usage_table
+
+_LOG = logging.getLogger(__name__)
 
 _DEFAULT_OPTIMIZATION_PARAMETERS = [
     OptimizationParameter(
@@ -408,7 +411,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
     @property
     @functools.cache
     def minimum_free_energy(self) -> MinimumFreeEnergy:
-        """Calculate the minimum free energy of the sequence.
+        """Calculate the minimum free energy of the sequence (Zukker).
 
         >>> Sequence("ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC").minimum_free_energy
         MinimumFreeEnergy(structure='.((((.((((((......))).)))))))........', energy=-10.199999809265137, average_energy=-0.2756756705206794)
@@ -419,6 +422,58 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         return MinimumFreeEnergy(
             structure=mfe[0], energy=mfe[1], average_energy=mfe[1] / len(self)
         )
+
+    @property
+    @functools.cache
+    def mean_windowed_minimum_free_energy(
+        self, window_size: int = 40, step: int = 4
+    ) -> float:
+        """Calculate the mean windowed minimum free energy."""
+        mfes = [
+            self[i : i + window_size].minimum_free_energy.energy
+            for i in range(0, len(self) - window_size, step)
+        ]
+        return sum(mfes) / len(mfes)
+
+    @property
+    @functools.cache
+    def pseudo_minimum_free_energy(self) -> float:
+        """Calculate the "pseudo-MFE" of the sequence.
+
+        see: https://academic.oup.com/nar/article/41/6/e73/2902446
+        """
+
+        def _get_energy(seq1: str, seq2: str) -> float:
+            bond_energy = 0
+            for i in range(min(len(seq1), len(seq2))):
+                n1, n2 = seq1[i], seq2[i]
+                match (n1, n2):
+                    case ("G", "C") | ("C", "G"):
+                        e = 3.12
+                    case ("A", "T") | ("T", "A"):
+                        e = 1
+                    case ("G", "T") | ("T", "G"):
+                        e = 1
+                    case _:
+                        e = 0
+                bond_energy += e
+            return bond_energy
+
+        sequence = str(self)
+        sequence_size = len(sequence)
+        i_block_size = 2  # initial block size
+        f_block_size = sequence_size / 2  # final block size
+        loop_size = 3  # minimum loop size
+        c_energy = 0  # cumulative energy
+        for s in [sequence, sequence[::-1]]:
+            b = i_block_size
+            while b < f_block_size and sequence_size >= (loop_size + 2 * b):
+                b += 1
+                seq1 = s[0:b]
+                seq2 = s[loop_size + b : loop_size + 2 * b]
+                energy = _get_energy(seq1, seq2)
+                c_energy += energy
+        return -c_energy / sequence_size
 
     @property
     @functools.cache
