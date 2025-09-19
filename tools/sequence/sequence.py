@@ -589,7 +589,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
                     number=counts[amino_acid][codon],
                     frequency=(
                         counts[amino_acid][codon]
-                        / (sum(counts[amino_acid].values() or [1]))
+                        / (sum(counts[amino_acid].values()) or 1)
                     ),
                 )
                 for codon, amino_acid in CODON_TO_AMINO_ACID_MAP.items()
