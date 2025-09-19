@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import Counter, defaultdict
 import functools
 import logging
 import math
@@ -543,6 +543,60 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
             ):
                 count += 1
         return count / len(self)
+
+    @property
+    @functools.cache
+    def relative_synonymous_codon_use(self) -> float | None:
+        """Relative synonymous codon use (RSCU)."""
+        if not self.is_amino_acid_sequence:
+            return None
+
+        x_i_j: dict[Codon, int] = defaultdict(int)
+        for codon in self.codons:
+            x_i_j[codon] += 1
+
+        rscu_i_j: dict[Codon, float] = {}
+        for codons in AMINO_ACID_TO_CODONS_MAP.values():
+            for codon in codons:
+                if codon not in x_i_j:
+                    continue
+                rscu_i_j[codon] = x_i_j[codon] / (
+                    (1 / len(codons)) * sum([x_i_j.get(codon, 0) for codon in codons])
+                )
+
+        return sum(rscu_i_j[codon] for codon in self.codons) / (len(self) / 3)
+
+    @property
+    @functools.cache
+    def relative_codon_bias_strength(self) -> float | None:
+        """Relative codon bias strength (RCBS)."""
+        if not self.is_amino_acid_sequence:
+            return None
+
+        codons = list(self.codons)
+        f = {codon: count / len(codons) for codon, count in Counter(codons).items()}
+        f1 = {
+            nucleotide: sum(codon[0] == nucleotide for codon in codons) / len(codons)
+            for nucleotide in ["A", "C", "G", "T"]
+        }
+        f2 = {
+            nucleotide: sum(codon[1] == nucleotide for codon in codons) / len(codons)
+            for nucleotide in ["A", "C", "G", "T"]
+        }
+        f3 = {
+            nucleotide: sum(codon[2] == nucleotide for codon in codons) / len(codons)
+            for nucleotide in ["A", "C", "G", "T"]
+        }
+
+        d = [
+            (f[codon] - f1[codon[0]] * f2[codon[1]] * f3[codon[2]])
+            / (f1[codon[0]] * f2[codon[1]] * f3[codon[2]])
+            for codon in codons
+        ]
+
+        rcbs = math.prod(1 + it for it in d) ** (1 / len(codons)) - 1
+
+        return rcbs
 
     @functools.cache
     def rare_codon_ratio(self, organism: Organism = "homo-sapiens") -> float | None:

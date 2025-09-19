@@ -62,6 +62,39 @@ def test_codon_bias_index(sequence_name, organism, codon_bias_index_result):
         codon_bias_index_result, abs=10**-2
     )
 
+
+@pytest.mark.parametrize(
+    ["sequence_name", "relative_synonymous_codon_use_result"],
+    [
+        ["REC_A", 1.85],
+        ["DNA_K", 1.92],
+    ],
+)
+def test_relative_synonymous_codon_use(
+    sequence_name, relative_synonymous_codon_use_result
+):
+    sequence = Sequence.from_string(TEST_SEQUENCES[sequence_name])
+    assert sequence.is_amino_acid_sequence
+    assert sequence.relative_synonymous_codon_use == pytest.approx(
+        relative_synonymous_codon_use_result, rel=3e-2
+    )
+
+
+@pytest.mark.parametrize(
+    ["sequence_name", "relative_codon_bias_strength_result"],
+    [
+        ["REC_A", 0.62],
+        ["DNA_K", 0.66],
+    ],
+)
+def test_relative_codon_bias_strength(
+    sequence_name, relative_codon_bias_strength_result
+):
+    sequence = Sequence.from_string(TEST_SEQUENCES[sequence_name])
+    assert sequence.is_amino_acid_sequence
+    assert sequence.relative_codon_bias_strength == pytest.approx(
+        relative_codon_bias_strength_result, rel=2e-2
+    )
     # @pytest.mark.parametrize(
     #    ["sequence_name", "organism", "trna_adaptation_index_result"],
     #    [
