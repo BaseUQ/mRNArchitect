@@ -598,6 +598,40 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
 
         return rcbs
 
+    @property
+    @functools.cache
+    def directional_codon_bias_score(self) -> float | None:
+        """Directional codon bias score (DCBS)."""
+        if not self.is_amino_acid_sequence:
+            return None
+
+        codons = list(self.codons)
+        f = {codon: count / len(codons) for codon, count in Counter(codons).items()}
+        f1 = {
+            nucleotide: sum(codon[0] == nucleotide for codon in codons) / len(codons)
+            for nucleotide in ["A", "C", "G", "T"]
+        }
+        f2 = {
+            nucleotide: sum(codon[1] == nucleotide for codon in codons) / len(codons)
+            for nucleotide in ["A", "C", "G", "T"]
+        }
+        f3 = {
+            nucleotide: sum(codon[2] == nucleotide for codon in codons) / len(codons)
+            for nucleotide in ["A", "C", "G", "T"]
+        }
+
+        d = [
+            max(
+                f[codon] / (f1[codon[0]] * f2[codon[1]] * f3[codon[2]]),
+                (f1[codon[0]] * f2[codon[1]] * f3[codon[2]]) / f[codon],
+            )
+            for codon in codons
+        ]
+
+        dcbs = sum(d) / len(codons)
+
+        return dcbs
+
     @functools.cache
     def rare_codon_ratio(self, organism: Organism = "homo-sapiens") -> float | None:
         """Get the ratio of rare codons in the sequence.

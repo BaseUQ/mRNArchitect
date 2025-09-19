@@ -95,6 +95,24 @@ def test_relative_codon_bias_strength(
     assert sequence.relative_codon_bias_strength == pytest.approx(
         relative_codon_bias_strength_result, rel=2e-2
     )
+
+
+@pytest.mark.parametrize(
+    ["sequence_name", "directional_codon_bias_score_result"],
+    [
+        ["REC_A", 2.39],
+        ["DNA_K", 2.39],
+    ],
+)
+def test_directional_codon_bias_strength(
+    sequence_name, directional_codon_bias_score_result
+):
+    sequence = Sequence.from_string(TEST_SEQUENCES[sequence_name])
+    assert sequence.is_amino_acid_sequence
+    assert sequence.directional_codon_bias_score == pytest.approx(
+        directional_codon_bias_score_result, rel=1e-2
+    )
+
     # @pytest.mark.parametrize(
     #    ["sequence_name", "organism", "trna_adaptation_index_result"],
     #    [
