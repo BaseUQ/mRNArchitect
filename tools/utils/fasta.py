@@ -11,7 +11,7 @@ def parse_fasta_file(
 
     def _parse_sequence(sequence: str, sequence_type: SequenceType):
         try:
-            return Sequence.from_string(sequence, sequence_type)
+            return Sequence.create(sequence, sequence_type)
         except RuntimeError:
             return None
 

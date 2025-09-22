@@ -39,7 +39,7 @@ def test_codon_usage_bias_organism(organism_f, organism_c, codon_usage_bias_resu
     ],
 )
 def test_codon_usage_bias_sequence(sequence_name, organism, codon_usage_bias_result):
-    sequence = Sequence.from_string(TEST_SEQUENCES[sequence_name])
+    sequence = Sequence.create(TEST_SEQUENCES[sequence_name])
     assert sequence.is_amino_acid_sequence
     assert sequence.codon_usage_bias(organism) == pytest.approx(
         codon_usage_bias_result, abs=10**-2
@@ -56,7 +56,7 @@ def test_codon_usage_bias_sequence(sequence_name, organism, codon_usage_bias_res
     ],
 )
 def test_codon_bias_index(sequence_name, organism, codon_bias_index_result):
-    sequence = Sequence.from_string(TEST_SEQUENCES[sequence_name])
+    sequence = Sequence.create(TEST_SEQUENCES[sequence_name])
     assert sequence.is_amino_acid_sequence
     assert sequence.codon_bias_index(organism) == pytest.approx(
         codon_bias_index_result, abs=10**-2
@@ -73,7 +73,7 @@ def test_codon_bias_index(sequence_name, organism, codon_bias_index_result):
 def test_relative_synonymous_codon_use(
     sequence_name, relative_synonymous_codon_use_result
 ):
-    sequence = Sequence.from_string(TEST_SEQUENCES[sequence_name])
+    sequence = Sequence.create(TEST_SEQUENCES[sequence_name])
     assert sequence.is_amino_acid_sequence
     assert sequence.relative_synonymous_codon_use == pytest.approx(
         relative_synonymous_codon_use_result, rel=3e-2
@@ -90,7 +90,7 @@ def test_relative_synonymous_codon_use(
 def test_relative_codon_bias_strength(
     sequence_name, relative_codon_bias_strength_result
 ):
-    sequence = Sequence.from_string(TEST_SEQUENCES[sequence_name])
+    sequence = Sequence.create(TEST_SEQUENCES[sequence_name])
     assert sequence.is_amino_acid_sequence
     assert sequence.relative_codon_bias_strength == pytest.approx(
         relative_codon_bias_strength_result, rel=2e-2
@@ -107,7 +107,7 @@ def test_relative_codon_bias_strength(
 def test_directional_codon_bias_strength(
     sequence_name, directional_codon_bias_score_result
 ):
-    sequence = Sequence.from_string(TEST_SEQUENCES[sequence_name])
+    sequence = Sequence.create(TEST_SEQUENCES[sequence_name])
     assert sequence.is_amino_acid_sequence
     assert sequence.directional_codon_bias_score == pytest.approx(
         directional_codon_bias_score_result, rel=1e-2
@@ -122,7 +122,7 @@ def test_directional_codon_bias_strength(
     ],
 )
 def test_gc1_gc2_gc3(sequence_name, gc1, gc2, gc3):
-    sequence = Sequence.from_string(TEST_SEQUENCES[sequence_name])
+    sequence = Sequence.create(TEST_SEQUENCES[sequence_name])
     assert sequence.is_amino_acid_sequence
     assert sequence.gc1_ratio == pytest.approx(gc1, rel=2e-2)
     assert sequence.gc2_ratio == pytest.approx(gc2, rel=2e-2)

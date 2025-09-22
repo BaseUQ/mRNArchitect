@@ -114,20 +114,22 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
             raise ValueError(f"`sequence` contains invalid character: {match.group(0)}")
 
     @classmethod
-    def from_string(
+    def create(
         cls,
-        sequence: str,
+        sequence: "Sequence | str",
         sequence_type: SequenceType = "auto-detect",
         organism: Organism = "homo-sapiens",
     ) -> "Sequence":
-        """Create a Sequence from a raw string.
+        """Create a new Sequence.
 
-        >>> str(Sequence.from_string("AuT"))
+        >>> str(Sequence.create("AuT"))
         'ATT'
 
-        >>> str(Sequence.from_amino_acid_sequence("Ir"))
+        >>> str(Sequence.create("Ir"))
         'ATCAGA'
         """
+        if isinstance(sequence, Sequence):
+            return Sequence(sequence.nucleic_acid_sequence)
 
         _sequence_type = sequence_type
         if sequence_type == "auto-detect":
@@ -135,7 +137,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
             _sequence_type = "amino-acid" if match else "nucleic-acid"
 
         if _sequence_type == "nucleic-acid":
-            # Interpret sequence and nucleic acid sequence
+            # Interpret sequence as nucleic acid sequence
             if re.search(r"[N]", sequence, re.IGNORECASE):
                 raise RuntimeError(
                     "Cannot parse nucleic acid sequences with 'N' symbols."
@@ -159,14 +161,11 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
     @classmethod
     def from_nucleic_acid_sequence(cls, nucleic_acid_sequence: str) -> "Sequence":
         """Create a Sequence from a nucleic acid sequence.
-        Ensures that the sequence will be upper cased and any `U` codons replaced with `T`.
 
         >>> str(Sequence.from_nucleic_acid_sequence("AuT"))
         'ATT'
         """
-        return cls.from_string(
-            sequence=nucleic_acid_sequence, sequence_type="nucleic-acid"
-        )
+        return cls.create(sequence=nucleic_acid_sequence, sequence_type="nucleic-acid")
 
     @classmethod
     def from_na(cls, nucleic_acid_sequence: str) -> "Sequence":
@@ -185,7 +184,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         >>> str(Sequence.from_amino_acid_sequence("Ir"))
         'ATCAGA'
         """
-        return cls.from_string(
+        return cls.create(
             sequence=amino_acid_sequence, sequence_type="amino-acid", organism=organism
         )
 
