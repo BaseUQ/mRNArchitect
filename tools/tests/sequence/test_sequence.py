@@ -113,6 +113,21 @@ def test_directional_codon_bias_strength(
         directional_codon_bias_score_result, rel=1e-2
     )
 
+
+@pytest.mark.parametrize(
+    ["sequence_name", "gc1", "gc2", "gc3"],
+    [
+        ["REC_A", 0.6, 0.39, 0.63],
+        ["DNA_K", 0.64, 0.37, 0.53],
+    ],
+)
+def test_gc1_gc2_gc3(sequence_name, gc1, gc2, gc3):
+    sequence = Sequence.from_string(TEST_SEQUENCES[sequence_name])
+    assert sequence.is_amino_acid_sequence
+    assert sequence.gc1_ratio == pytest.approx(gc1, rel=2e-2)
+    assert sequence.gc2_ratio == pytest.approx(gc2, rel=2e-2)
+    assert sequence.gc3_ratio == pytest.approx(gc3, rel=2e-2)
+
     # @pytest.mark.parametrize(
     #    ["sequence_name", "organism", "trna_adaptation_index_result"],
     #    [

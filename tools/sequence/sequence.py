@@ -372,6 +372,27 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
 
     @property
     @functools.cache
+    def gc1_ratio(self):
+        """GC Content at the First Position of Synonymous Codons (GC1)."""
+        c = Counter(c[0] for c in self.codons)
+        return (c["C"] + c["G"]) / (c["A"] + c["C"] + c["G"] + c["T"])
+
+    @property
+    @functools.cache
+    def gc2_ratio(self):
+        """GC Content at the Second Position of Synonymous Codons (GC2)."""
+        c = Counter(c[1] for c in self.codons)
+        return (c["C"] + c["G"]) / (c["A"] + c["C"] + c["G"] + c["T"])
+
+    @property
+    @functools.cache
+    def gc3_ratio(self):
+        """GC Content at the Third Position of Synonymous Codons (GC3)."""
+        c = Counter(c[2] for c in self.codons)
+        return (c["C"] + c["G"]) / (c["A"] + c["C"] + c["G"] + c["T"])
+
+    @property
+    @functools.cache
     def uridine_depletion(self) -> float | None:
         """The Uridine depletion of the sequence.
 
