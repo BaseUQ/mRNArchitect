@@ -372,22 +372,28 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
 
     @property
     @functools.cache
-    def gc1_ratio(self):
+    def gc1_ratio(self) -> float | None:
         """GC Content at the First Position of Synonymous Codons (GC1)."""
+        if not self.is_amino_acid_sequence:
+            return None
         c = Counter(c[0] for c in self.codons)
         return (c["C"] + c["G"]) / (c["A"] + c["C"] + c["G"] + c["T"])
 
     @property
     @functools.cache
-    def gc2_ratio(self):
+    def gc2_ratio(self) -> float | None:
         """GC Content at the Second Position of Synonymous Codons (GC2)."""
+        if not self.is_amino_acid_sequence:
+            return None
         c = Counter(c[1] for c in self.codons)
         return (c["C"] + c["G"]) / (c["A"] + c["C"] + c["G"] + c["T"])
 
     @property
     @functools.cache
-    def gc3_ratio(self):
+    def gc3_ratio(self) -> float | None:
         """GC Content at the Third Position of Synonymous Codons (GC3)."""
+        if not self.is_amino_acid_sequence:
+            return None
         c = Counter(c[2] for c in self.codons)
         return (c["C"] + c["G"]) / (c["A"] + c["C"] + c["G"] + c["T"])
 

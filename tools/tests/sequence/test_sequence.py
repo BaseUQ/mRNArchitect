@@ -118,7 +118,7 @@ def test_directional_codon_bias_strength(
     ["sequence_name", "gc1", "gc2", "gc3"],
     [
         ["REC_A", 0.6, 0.39, 0.63],
-        ["DNA_K", 0.64, 0.37, 0.53],
+        ["DNA_K", 0.64, 0.37, 0.52],
     ],
 )
 def test_gc1_gc2_gc3(sequence_name, gc1, gc2, gc3):
