@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import Counter, defaultdict
 import functools
 import logging
 import math
@@ -372,6 +372,33 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
 
     @property
     @functools.cache
+    def gc1_ratio(self) -> float | None:
+        """GC Content at the First Position of Synonymous Codons (GC1)."""
+        if not self.is_amino_acid_sequence:
+            return None
+        c = Counter(c[0] for c in self.codons)
+        return (c["C"] + c["G"]) / (c["A"] + c["C"] + c["G"] + c["T"])
+
+    @property
+    @functools.cache
+    def gc2_ratio(self) -> float | None:
+        """GC Content at the Second Position of Synonymous Codons (GC2)."""
+        if not self.is_amino_acid_sequence:
+            return None
+        c = Counter(c[1] for c in self.codons)
+        return (c["C"] + c["G"]) / (c["A"] + c["C"] + c["G"] + c["T"])
+
+    @property
+    @functools.cache
+    def gc3_ratio(self) -> float | None:
+        """GC Content at the Third Position of Synonymous Codons (GC3)."""
+        if not self.is_amino_acid_sequence:
+            return None
+        c = Counter(c[2] for c in self.codons)
+        return (c["C"] + c["G"]) / (c["A"] + c["C"] + c["G"] + c["T"])
+
+    @property
+    @functools.cache
     def uridine_depletion(self) -> float | None:
         """The Uridine depletion of the sequence.
 
@@ -544,6 +571,94 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
                 count += 1
         return count / len(self)
 
+    @property
+    @functools.cache
+    def relative_synonymous_codon_use(self) -> float | None:
+        """Relative synonymous codon use (RSCU)."""
+        if not self.is_amino_acid_sequence:
+            return None
+
+        x_i_j: dict[Codon, int] = defaultdict(int)
+        for codon in self.codons:
+            x_i_j[codon] += 1
+
+        rscu_i_j: dict[Codon, float] = {}
+        for codons in AMINO_ACID_TO_CODONS_MAP.values():
+            for codon in codons:
+                if codon not in x_i_j:
+                    continue
+                rscu_i_j[codon] = x_i_j[codon] / (
+                    (1 / len(codons)) * sum([x_i_j.get(codon, 0) for codon in codons])
+                )
+
+        return sum(rscu_i_j[codon] for codon in self.codons) / (len(self) / 3)
+
+    @property
+    @functools.cache
+    def relative_codon_bias_strength(self) -> float | None:
+        """Relative codon bias strength (RCBS)."""
+        if not self.is_amino_acid_sequence:
+            return None
+
+        codons = list(self.codons)
+        f = {codon: count / len(codons) for codon, count in Counter(codons).items()}
+        f1 = {
+            nucleotide: sum(codon[0] == nucleotide for codon in codons) / len(codons)
+            for nucleotide in ["A", "C", "G", "T"]
+        }
+        f2 = {
+            nucleotide: sum(codon[1] == nucleotide for codon in codons) / len(codons)
+            for nucleotide in ["A", "C", "G", "T"]
+        }
+        f3 = {
+            nucleotide: sum(codon[2] == nucleotide for codon in codons) / len(codons)
+            for nucleotide in ["A", "C", "G", "T"]
+        }
+
+        d = [
+            (f[codon] - f1[codon[0]] * f2[codon[1]] * f3[codon[2]])
+            / (f1[codon[0]] * f2[codon[1]] * f3[codon[2]])
+            for codon in codons
+        ]
+
+        rcbs = math.prod(1 + it for it in d) ** (1 / len(codons)) - 1
+
+        return rcbs
+
+    @property
+    @functools.cache
+    def directional_codon_bias_score(self) -> float | None:
+        """Directional codon bias score (DCBS)."""
+        if not self.is_amino_acid_sequence:
+            return None
+
+        codons = list(self.codons)
+        f = {codon: count / len(codons) for codon, count in Counter(codons).items()}
+        f1 = {
+            nucleotide: sum(codon[0] == nucleotide for codon in codons) / len(codons)
+            for nucleotide in ["A", "C", "G", "T"]
+        }
+        f2 = {
+            nucleotide: sum(codon[1] == nucleotide for codon in codons) / len(codons)
+            for nucleotide in ["A", "C", "G", "T"]
+        }
+        f3 = {
+            nucleotide: sum(codon[2] == nucleotide for codon in codons) / len(codons)
+            for nucleotide in ["A", "C", "G", "T"]
+        }
+
+        d = [
+            max(
+                f[codon] / (f1[codon[0]] * f2[codon[1]] * f3[codon[2]]),
+                (f1[codon[0]] * f2[codon[1]] * f3[codon[2]]) / f[codon],
+            )
+            for codon in codons
+        ]
+
+        dcbs = sum(d) / len(codons)
+
+        return dcbs
+
     @functools.cache
     def rare_codon_ratio(self, organism: Organism = "homo-sapiens") -> float | None:
         """Get the ratio of rare codons in the sequence.
@@ -589,7 +704,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
                     number=counts[amino_acid][codon],
                     frequency=(
                         counts[amino_acid][codon]
-                        / (sum(counts[amino_acid].values() or [1]))
+                        / (sum(counts[amino_acid].values()) or 1)
                     ),
                 )
                 for codon, amino_acid in CODON_TO_AMINO_ACID_MAP.items()
