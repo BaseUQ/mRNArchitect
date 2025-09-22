@@ -65,7 +65,7 @@ def _to_raw_energy(energy: float) -> float:
 def test_pseudo_minimum_free_energy(name):
     sequence = TEST_DATA[name][0]
     pseudo_minimum_free_energy = _to_raw_energy(TEST_DATA[name][1])
-    assert Sequence.from_string(sequence).pseudo_minimum_free_energy == pytest.approx(
+    assert Sequence.create(sequence).pseudo_minimum_free_energy == pytest.approx(
         pseudo_minimum_free_energy,
         rel=2e-2,  # Accurate to within 2%
     )
@@ -74,4 +74,4 @@ def test_pseudo_minimum_free_energy(name):
 @pytest.mark.parametrize("name", TEST_DATA.keys())
 def test_mean_windowed_minimum_free_energy(name):
     sequence = TEST_DATA[name][0]
-    assert Sequence.from_string(sequence).mean_windowed_minimum_free_energy < 0
+    assert Sequence.create(sequence).mean_windowed_minimum_free_energy < 0

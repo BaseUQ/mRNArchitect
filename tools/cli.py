@@ -8,9 +8,7 @@ from .sequence.optimize import OptimizationParameter
 
 
 def _parse_sequence(args):
-    if hasattr(args, "sequence_type") and args.sequence_type == "amino-acid":
-        return Sequence.from_amino_acid_sequence(args.sequence, organism=args.organism)
-    return Sequence.from_nucleic_acid_sequence(args.sequence)
+    return Sequence.create(args.sequence, args.sequence_type, args.organism)
 
 
 def _print(output, args):
