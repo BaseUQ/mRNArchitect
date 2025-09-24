@@ -456,7 +456,6 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
             structure=mfe[0], energy=mfe[1], average_energy=mfe[1] / len(self)
         )
 
-    @property
     @functools.cache
     def windowed_minimum_free_energy(
         self, window_size: int = 40, step: int = 4
