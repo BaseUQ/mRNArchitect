@@ -72,6 +72,6 @@ def test_pseudo_minimum_free_energy(name):
 
 
 @pytest.mark.parametrize("name", TEST_DATA.keys())
-def test_mean_windowed_minimum_free_energy(name):
+def test_windowed_minimum_free_energy(name):
     sequence = TEST_DATA[name][0]
-    assert Sequence.create(sequence).mean_windowed_minimum_free_energy < 0
+    assert Sequence.create(sequence).windowed_minimum_free_energy.mean_energy < 0

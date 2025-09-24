@@ -1,8 +1,8 @@
 from collections import Counter, defaultdict
 import functools
-import logging
 import math
 import re
+import statistics
 import timeit
 import typing
 
@@ -22,7 +22,6 @@ from tools.types import AminoAcid, Codon, Organism
 from tools.sequence.optimize import optimize, OptimizationParameter, OptimizationError
 from tools.data import load_codon_usage_table
 
-_LOG = logging.getLogger(__name__)
 
 _DEFAULT_OPTIMIZATION_PARAMETERS = [
     OptimizationParameter(
@@ -59,6 +58,14 @@ class MinimumFreeEnergy(msgspec.Struct, kw_only=True, rename="camel"):
     """Minimum free energy (MFE)."""
     average_energy: float
     """Normalied MFE (or AMFE)."""
+
+
+class WindowedMinimumFreeEnergy(msgspec.Struct, kw_only=True, rename="camel"):
+    window_size: int
+    step: int
+    energies: list[MinimumFreeEnergy]
+    mean_energy: float
+    standard_deviation: float
 
 
 class Analysis(msgspec.Struct, kw_only=True, rename="camel"):
@@ -451,15 +458,22 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
 
     @property
     @functools.cache
-    def mean_windowed_minimum_free_energy(
+    def windowed_minimum_free_energy(
         self, window_size: int = 40, step: int = 4
-    ) -> float:
-        """Calculate the mean windowed minimum free energy."""
+    ) -> WindowedMinimumFreeEnergy:
+        """Calculate the windowed minimum free energy."""
         mfes = [
-            self[i : i + window_size].minimum_free_energy.energy
+            self[i : i + window_size].minimum_free_energy
             for i in range(0, len(self) - window_size, step)
         ]
-        return sum(mfes) / len(mfes)
+
+        return WindowedMinimumFreeEnergy(
+            window_size=window_size,
+            step=step,
+            energies=mfes,
+            mean_energy=statistics.mean(it.energy for it in mfes),
+            standard_deviation=statistics.pstdev(it.energy for it in mfes),
+        )
 
     @property
     @functools.cache
