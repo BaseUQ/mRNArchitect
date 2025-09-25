@@ -23,6 +23,14 @@ dev = [
   "ruff>=0.11.12",
 ]
 
+[tool.ruff]
+exclude = [
+    "notebooks"
+]
+
+[tool.pyright]
+include = ["tools"]
+
 [tool.pytest.ini_options]
 addopts = "--doctest-modules --ignore tools/scripts"
 
