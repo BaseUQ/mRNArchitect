@@ -24,7 +24,7 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "--doctest-modules --ignore tools/scripts"
+addopts = "--doctest-modules --ignore tools/scripts --ignore notebooks"
 
 [build-system]
 requires = ["hatchling"]
