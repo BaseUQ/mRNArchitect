@@ -282,7 +282,7 @@ class OptimizationResult(msgspec.Struct, kw_only=True, rename="camel"):
         location: str | None
 
     class Result(msgspec.Struct, kw_only=True, rename="camel"):
-        sequence: str
+        sequence: Sequence
         constraints: str | None
         objectives: str | None
 
@@ -352,7 +352,7 @@ def optimize(
 ) -> OptimizationResult:
     """Optimize the sequence based on the configuration parameters.
 
-    >>> optimize(Sequence("ACGACCATTAAA"), parameters=[OptimizationParameter(codon_usage_table="homo-sapiens", optimize_cai=True)]).result.sequence
+    >>> str(optimize(Sequence("ACGACCATTAAA"), parameters=[OptimizationParameter(codon_usage_table="homo-sapiens", optimize_cai=True)]).result.sequence)
     'ACCACCATCAAG'
     """
     start = timeit.default_timer()
@@ -378,7 +378,7 @@ def optimize(
     return OptimizationResult(
         success=True,
         result=OptimizationResult.Result(
-            sequence=result.sequence,
+            sequence=Sequence(result.sequence),
             constraints=result.constraints_text_summary(),
             objectives=result.objectives_text_summary(),
         ),

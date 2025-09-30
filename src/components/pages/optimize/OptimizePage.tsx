@@ -83,14 +83,14 @@ export const OptimizePage = () => {
       const cdsAnalysis = await analyzeSequence({
         data: {
           sequence: optimization.result.sequence.nucleicAcidSequence,
-          organism: parameters[0].organism,
+          organism: parameters[0].codonUsageTable,
         },
       });
 
       const fullSequenceAnalysis = await analyzeSequence({
         data: {
           sequence: `${sequence.fivePrimeUtr}${optimization.result.sequence.nucleicAcidSequence}${sequence.threePrimeUtr}${sequence.polyATail}`,
-          organism: parameters[0].organism,
+          organism: parameters[0].codonUsageTable,
         },
       });
 
@@ -102,7 +102,7 @@ export const OptimizePage = () => {
     try {
       const formValues = await parseInput(values);
       const { sequence, parameters, numberOfSequences } = formValues;
-      const organism = parameters[0].organism;
+      const organism = parameters[0].codonUsageTable;
 
       const [
         cdsAnalysis,

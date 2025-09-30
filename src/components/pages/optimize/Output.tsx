@@ -47,7 +47,7 @@ const generateReport = ({
       if (!c.enforceSequence) {
         report.push(
           ...[
-            `Organism\t\t\t\t${c.organism}`,
+            `Organism\t\t\t\t${c.codonUsageTable}`,
             `Avoid repeat length\t\t\t${c.avoidRepeatLength}`,
             `Enable uridine depletion\t\t${c.enableUridineDepletion}`,
             `Avoid ribosome slip\t\t\t${c.avoidRibosomeSlip}`,
