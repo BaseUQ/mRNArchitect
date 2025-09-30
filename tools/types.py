@@ -25,6 +25,53 @@ AminoAcid = typing.Literal[
 ]
 """The 1-letter symbol for an amino acid."""
 
+AminoAcid3 = typing.Literal[
+    "Ala",
+    "Arg",
+    "Asn",
+    "Asp",
+    "Cys",
+    "Glu",
+    "Gln",
+    "Gly",
+    "His",
+    "Ile",
+    "Leu",
+    "Lys",
+    "Met",
+    "Phe",
+    "Pro",
+    "Ser",
+    "Thr",
+    "Trp",
+    "Tyr",
+    "Val",
+]
+"""The 3-letter symbol for an amino acid."""
+
+AminoAcidName = typing.Literal[
+    "Alanine",
+    "Arginine",
+    "Asparagine",
+    "Aspartate",
+    "Cysteine",
+    "Glutamate",
+    "Glutamine",
+    "Glycine",
+    "Histidine",
+    "Isoleucine",
+    "Leucine",
+    "Lysine",
+    "Methionine",
+    "Phenylalanine",
+    "Proline",
+    "Serine",
+    "Threonine",
+    "Tryptophan",
+    "Tyrosine",
+    "Valine",
+]
+"""The full name of an amino acid."""
 
 Codon = typing.Literal[
     "AAA",

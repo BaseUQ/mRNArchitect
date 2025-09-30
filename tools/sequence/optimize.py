@@ -1,5 +1,6 @@
 import functools
 import pathlib
+import timeit
 import typing
 
 import msgspec
@@ -16,9 +17,13 @@ from dnachisel.builtin_specifications import (
 from dnachisel.builtin_specifications.codon_optimization import CodonOptimize
 from dnachisel.DnaOptimizationProblem import DnaOptimizationProblem, NoSolutionError
 
-from tools.organism import CODON_TO_AMINO_ACID_MAP
+from tools.constants import AMINO_ACIDS, CodonTable
 from tools.types import Organism
 from tools.data import load_codon_usage_table
+from tools.organism import CodonUsageTable
+from tools.sequence.sequence import Sequence
+from tools.sequence.specifications.constraints import CAIRange
+from tools.sequence.specifications.objectives import TargetPseudoMFE
 
 OptimizationError = NoSolutionError
 
@@ -99,7 +104,9 @@ class OptimizationParameter(
     Location, frozen=True, kw_only=True, rename="camel", forbid_unknown_fields=True
 ):
     enforce_sequence: bool = False
-    organism: Organism | None = None
+    codon_usage_table: CodonUsageTable | Organism | None = None
+    optimize_cai: bool = False
+    optimize_mfe: float | None = None
     avoid_repeat_length: int | None = None
     enable_uridine_depletion: bool = False
     avoid_ribosome_slip: bool = False
@@ -116,6 +123,8 @@ class OptimizationParameter(
     avoid_poly_t: int | None = None
     hairpin_stem_size: int | None = None
     hairpin_window: int | None = None
+    cai_min: float | None = None
+    cai_max: float | None = None
 
     def __post_init__(self):
         super().__post_init__()
@@ -187,10 +196,9 @@ class OptimizationParameter(
             uridine_depletion_codon_usage_table = {
                 amino_acid: {
                     codon: (0.0 if codon[-1] == "T" else 1.0)
-                    for codon, aa in CODON_TO_AMINO_ACID_MAP.items()
-                    if aa == amino_acid
+                    for codon in CodonTable.codons(amino_acid)
                 }
-                for amino_acid in set(CODON_TO_AMINO_ACID_MAP.values())
+                for amino_acid in AMINO_ACIDS
             }
             constraints.append(
                 AvoidRareCodons(
@@ -225,13 +233,35 @@ class OptimizationParameter(
         ]
         constraints.extend(custom_pattern_constraints)
 
-        if self.organism is not None:
+        if (
+            self.codon_usage_table
+            and self.cai_min is not None
+            and self.cai_max is not None
+        ):
+            constraints.append(
+                CAIRange(
+                    codon_usage_table=load_codon_usage_table(self.codon_usage_table),
+                    cai_min=self.cai_min,
+                    cai_max=self.cai_max,
+                    location=location,
+                )
+            )
+
+        if self.codon_usage_table and self.optimize_cai:
             objectives.append(
                 CodonOptimize(
                     codon_usage_table=load_codon_usage_table(
-                        self.organism
+                        self.codon_usage_table
                     ).to_dnachisel_dict(),
                     method="use_best_codon",
+                    location=location,
+                )
+            )
+
+        if self.optimize_mfe:
+            objectives.append(
+                TargetPseudoMFE(
+                    target_pseudo_mfe=self.optimize_mfe,
                     location=location,
                 )
             )
@@ -244,10 +274,29 @@ class OptimizationParameter(
         return constraints, objectives
 
 
-def optimize(
+class OptimizationResult(msgspec.Struct, kw_only=True, rename="camel"):
+    class Error(msgspec.Struct, kw_only=True, rename="camel"):
+        message: str
+        problem: str | None
+        constraint: str | None
+        location: str | None
+
+    class Result(msgspec.Struct, kw_only=True, rename="camel"):
+        sequence: Sequence
+        constraints: str | None
+        objectives: str | None
+
+    success: bool
+    result: Result | None
+    error: Error | None
+    time_in_seconds: float
+
+
+def _optimize(
     nucleic_acid_sequence: str,
     parameters: typing.Sequence[OptimizationParameter],
-    max_random_iters: int = 20_000,
+    max_random_iters: int,
+    mutations_per_iteration: int,
 ) -> DnaOptimizationProblem:
     constraints, objectives = [], []
     for p in parameters:
@@ -262,9 +311,77 @@ def optimize(
         logger=None,  # type: ignore
     )
     optimization_problem.max_random_iters = max_random_iters
+    optimization_problem.mutations_per_iteration = mutations_per_iteration
 
     optimization_problem.resolve_constraints()
 
     optimization_problem.optimize()
 
     return optimization_problem
+
+
+_DEFAULT_OPTIMIZATION_PARAMETERS = [
+    OptimizationParameter(
+        enforce_sequence=False,
+        codon_usage_table="homo-sapiens",
+        avoid_repeat_length=10,
+        enable_uridine_depletion=False,
+        avoid_ribosome_slip=False,
+        avoid_manufacture_restriction_sites=False,
+        avoid_micro_rna_seed_sites=False,
+        gc_content_min=0.4,
+        gc_content_max=0.7,
+        gc_content_window=100,
+        avoid_restriction_sites=[],
+        avoid_sequences=[],
+        avoid_poly_a=9,
+        avoid_poly_c=6,
+        avoid_poly_g=6,
+        avoid_poly_t=9,
+        hairpin_stem_size=10,
+        hairpin_window=60,
+    )
+]
+
+
+def optimize(
+    sequence: Sequence,
+    parameters: typing.Sequence[OptimizationParameter] | None = None,
+    max_random_iters: int = 20_000,
+    mutations_per_iteration: int = 2,
+) -> OptimizationResult:
+    """Optimize the sequence based on the configuration parameters.
+
+    >>> str(optimize(Sequence("ACGACCATTAAA"), parameters=[OptimizationParameter(codon_usage_table="homo-sapiens", optimize_cai=True)]).result.sequence)
+    'ACCACCATCAAG'
+    """
+    start = timeit.default_timer()
+    try:
+        result = _optimize(
+            sequence.nucleic_acid_sequence,
+            parameters=parameters or _DEFAULT_OPTIMIZATION_PARAMETERS,
+            max_random_iters=max_random_iters,
+            mutations_per_iteration=mutations_per_iteration,
+        )
+    except OptimizationError as e:
+        return OptimizationResult(
+            success=False,
+            result=None,
+            error=OptimizationResult.Error(
+                message=str(e.message),
+                problem=str(e.problem),
+                location=str(e.location),
+                constraint=str(e.constraint),
+            ),
+            time_in_seconds=(timeit.default_timer() - start),
+        )
+    return OptimizationResult(
+        success=True,
+        result=OptimizationResult.Result(
+            sequence=Sequence(result.sequence),
+            constraints=result.constraints_text_summary(),
+            objectives=result.objectives_text_summary(),
+        ),
+        error=None,
+        time_in_seconds=(timeit.default_timer() - start),
+    )

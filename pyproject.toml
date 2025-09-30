@@ -24,9 +24,6 @@ dev = [
 ]
 
 [tool.ruff]
-exclude = [
-    "notebooks"
-]
 
 [tool.pyright]
 include = ["tools"]

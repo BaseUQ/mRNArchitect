@@ -7,10 +7,9 @@ import urllib.request
 import msgspec
 
 from .constants import (
-    AMINO_ACID_TO_CODONS_MAP,
     AMINO_ACIDS,
-    CODON_TO_AMINO_ACID_MAP,
     CODONS,
+    CodonTable,
 )
 from .types import AminoAcid, Codon, Organism
 
@@ -40,7 +39,7 @@ class CodonUsage(msgspec.Struct, frozen=True):
     @property
     def amino_acid(self) -> str:
         """The 1-letter amino acid symbol for this codon."""
-        return CODON_TO_AMINO_ACID_MAP[self.codon]
+        return CodonTable.amino_acid(self.codon)
 
 
 class CodonUsageTable(msgspec.Struct, frozen=True):
@@ -57,7 +56,7 @@ class CodonUsageTable(msgspec.Struct, frozen=True):
             [
                 usage
                 for codon, usage in self.usage.items()
-                if codon in AMINO_ACID_TO_CODONS_MAP[amino_acid]
+                if codon in CodonTable.codons(amino_acid)
             ],
             key=lambda x: x.number,
         )
@@ -68,13 +67,13 @@ class CodonUsageTable(msgspec.Struct, frozen=True):
             [
                 usage
                 for codon, usage in self.usage.items()
-                if codon in AMINO_ACID_TO_CODONS_MAP[amino_acid]
+                if codon in CodonTable.codons(amino_acid)
             ],
             key=lambda x: x.number,
         )
 
     def weight(self, codon: Codon) -> float:
-        amino_acid = CODON_TO_AMINO_ACID_MAP[codon]
+        amino_acid = CodonTable.amino_acid(codon)
         return self.usage[codon].number / self.most_frequent(amino_acid).number
 
     def to_dnachisel_dict(self) -> dict[str, dict[str, float]]:
@@ -146,7 +145,8 @@ def codon_usage_bias(f: CodonUsageTable, c: CodonUsageTable):
     return sum(
         p_f[amino_acid]
         * sum(
-            abs(f.usage[codon].frequency - c.usage[codon].frequency) for codon in codons
+            abs(f.usage[codon].frequency - c.usage[codon].frequency)
+            for codon in CodonTable.codons(amino_acid)
         )
-        for amino_acid, codons in AMINO_ACID_TO_CODONS_MAP.items()
+        for amino_acid in AMINO_ACIDS
     )
