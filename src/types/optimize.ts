@@ -8,7 +8,7 @@ export const OptimizationParameter = z
     startCoordinate: z.int(REQUIRED_MESSAGE).min(1).nullable(),
     endCoordinate: z.int(REQUIRED_MESSAGE).min(1).nullable(),
     enforceSequence: z.boolean(),
-    organism: z.string(),
+    codonUsageTable: z.string(),
     avoidRepeatLength: z.int(REQUIRED_MESSAGE).min(0),
     enableUridineDepletion: z.boolean(),
     avoidRibosomeSlip: z.boolean(),
