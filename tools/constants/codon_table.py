@@ -1,11 +1,8 @@
 import typing
 
-from .types import AminoAcid, AminoAcid3, AminoAcidName, Codon, Organism
+from tools.types import AminoAcid, AminoAcid3, AminoAcidName, Codon, Organism
 
 AMINO_ACIDS = set(typing.get_args(AminoAcid))
-
-
-AMINO_ACIDS_3 = set(typing.get_args(AminoAcid3))
 
 
 CODONS = set(typing.get_args(Codon))
@@ -134,27 +131,45 @@ CODON_TO_AMINO_ACID_MAP: dict[Codon, AminoAcid] = {
 
 
 class CodonTable:
-    _name_map: dict[AminoAcidName, tuple[AminoAcid3, AminoAcid]] = {
-        it[0]: (it[1], it[2]) for it in AMINO_ACID_SET
+    _names: dict[AminoAcidName, int] = {
+        it[0]: index for index, it in enumerate(AMINO_ACID_SET)
     }
-    _3_map: dict[AminoAcid3, tuple[AminoAcidName, AminoAcid]] = {
-        it[1]: (it[0], it[2]) for it in AMINO_ACID_SET
+    _3s: dict[AminoAcid3, int] = {
+        it[1]: index for index, it in enumerate(AMINO_ACID_SET)
     }
-    _1_map: dict[AminoAcid, tuple[AminoAcidName, AminoAcid3]] = {
-        it[2]: (it[0], it[1]) for it in AMINO_ACID_SET
+    _1s: dict[AminoAcid, int] = {
+        it[2]: index for index, it in enumerate(AMINO_ACID_SET)
     }
 
     @classmethod
-    def codons(cls, for_: AminoAcid | AminoAcid3 | AminoAcidName | Codon) -> set[Codon]:
-        if for_ in cls._name_map:
-            key = cls._name_map[for_][1]
-        elif for_ in cls._3_map:
-            key = cls._3_map[for_][1]
-        elif for_ in cls._1_map:
-            key = for_
+    def amino_acid(
+        cls, for_: AminoAcid | AminoAcid3 | AminoAcidName | Codon
+    ) -> AminoAcid:
+        if for_ in cls._names:
+            amino_acid = AMINO_ACID_SET[cls._names[for_]][2]
+        elif for_ in cls._3s:
+            amino_acid = AMINO_ACID_SET[cls._3s[for_]][2]
+        elif for_ in cls._1s:
+            amino_acid = AMINO_ACID_SET[cls._1s[for_]][2]
         elif for_ in CODON_TO_AMINO_ACID_MAP:
-            key = CODON_TO_AMINO_ACID_MAP[for_]
+            amino_acid = CODON_TO_AMINO_ACID_MAP[for_]
         else:
             raise RuntimeError(f"Unknown key: {for_}")
 
-        return AMINO_ACID_TO_CODONS_MAP[key]
+        return amino_acid
+
+    @classmethod
+    def amino_acid3(
+        cls, for_: AminoAcid | AminoAcid3 | AminoAcidName | Codon
+    ) -> AminoAcid3:
+        return AMINO_ACID_SET[cls._1s[cls.amino_acid(for_)]][1]
+
+    @classmethod
+    def amino_acid_name(
+        cls, for_: AminoAcid | AminoAcid3 | AminoAcidName | Codon
+    ) -> AminoAcidName:
+        return AMINO_ACID_SET[cls._1s[cls.amino_acid(for_)]][0]
+
+    @classmethod
+    def codons(cls, for_: AminoAcid | AminoAcid3 | AminoAcidName | Codon) -> set[Codon]:
+        return AMINO_ACID_TO_CODONS_MAP[cls.amino_acid(for_)]

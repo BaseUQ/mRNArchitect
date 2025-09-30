@@ -4,7 +4,7 @@ import msgspec
 
 from .constants import ORGANISMS
 from .sequence import Sequence
-from .sequence.optimize import OptimizationParameter
+from .sequence.optimize import optimize, OptimizationParameter
 
 
 def _parse_sequence(args):
@@ -25,7 +25,7 @@ def _optimize(args):
     else:
         parameters = [
             OptimizationParameter(
-                organism=args.organism,
+                codon_usage_table=args.organism,
                 avoid_repeat_length=args.avoid_repeat_length,
                 enable_uridine_depletion=args.enable_uridine_depletion,
                 avoid_ribosome_slip=args.avoid_ribosome_slip,
@@ -45,13 +45,13 @@ def _optimize(args):
             )
         ]
 
-    result = sequence.optimize(parameters=parameters)
+    result = optimize(sequence, parameters=parameters)
     _print(result, args)
 
 
 def _analyze(args):
     sequence = _parse_sequence(args)
-    result = sequence.analyze(organism=args.organism)
+    result = sequence.analyze(codon_usage_table=args.organism)
     _print(result, args)
 
 

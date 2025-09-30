@@ -1,3 +1,4 @@
+import collections
 import functools
 import pathlib
 import typing
@@ -5,7 +6,7 @@ import typing
 import msgspec
 import polars as pl
 
-from tools.constants import CODON_TO_AMINO_ACID_MAP
+from tools.constants import CODONS
 from tools.organism import CodonUsageTable
 from tools.types import Codon, Organism
 
@@ -31,17 +32,17 @@ def load_codon_pairs() -> dict[tuple[str, str], float]:
     df = pl.read_csv(pathlib.Path(__file__).parent / "codon-pair" / "human.csv")
     total_count = df["#CODON PAIRS"].to_list()[0]
     columns = [
-        c
-        for c in df.columns
-        if len(c) == 6
-        and c[:3] in CODON_TO_AMINO_ACID_MAP
-        and c[3:] in CODON_TO_AMINO_ACID_MAP
+        c for c in df.columns if len(c) == 6 and c[:3] in CODONS and c[3:] in CODONS
     ]
     assert len(columns) == 64**2, f"Length should be {64**2}: {len(columns)}"
     return {(c[:3], c[3:]): df[c].to_list()[0] / total_count for c in columns}
 
 
-def load_codon_usage_table(organism: Organism = "homo-sapiens") -> CodonUsageTable:
+def load_codon_usage_table(
+    organism: CodonUsageTable | Organism = "homo-sapiens",
+) -> CodonUsageTable:
+    if isinstance(organism, CodonUsageTable):
+        return organism
     path = pathlib.Path(__file__).parent / "codon-tables" / f"{organism}.json"
     if not path.exists():
         raise RuntimeError(
@@ -54,7 +55,7 @@ def load_codon_usage_table(organism: Organism = "homo-sapiens") -> CodonUsageTab
 @functools.cache
 def load_trna_adaptation_index_dataset(
     organism: Organism = "homo-sapiens",
-) -> list[tuple[int, Codon]]:
+) -> dict[Codon, list[int]]:
     ORGANISM_TO_FILE: dict[Organism, str] = {
         "homo-sapiens": "hg38-tRNAs-confidence-set.out",
         "mus-musculus": "mm39-tRNAs-confidence-set.out",
@@ -71,4 +72,10 @@ def load_trna_adaptation_index_dataset(
         for line in lines[3:]  # First three lines are headers
         if line.strip()
     ]
-    return [(int(row[1]), typing.cast(Codon, row[5])) for row in rows]
+
+    trna_gene_copy_numbers = collections.defaultdict(list)
+    for row in rows:
+        codon = typing.cast(Codon, row[5])
+        gene_copy_number = int(row[1])
+        trna_gene_copy_numbers[codon].append(gene_copy_number)
+    return trna_gene_copy_numbers

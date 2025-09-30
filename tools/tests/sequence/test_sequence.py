@@ -128,18 +128,19 @@ def test_gc1_gc2_gc3(sequence_name, gc1, gc2, gc3):
     assert sequence.gc2_ratio == pytest.approx(gc2, rel=2e-2)
     assert sequence.gc3_ratio == pytest.approx(gc3, rel=2e-2)
 
-    # @pytest.mark.parametrize(
-    #    ["sequence_name", "organism", "trna_adaptation_index_result"],
-    #    [
-    #        ["REC_A", "homo-sapiens", 0.35],
-    #        ["REC_A", "mus-musculus", 0.17],
-    #        ["DNA_K", "homo-sapiens", 0.36],
-    #        ["DNA_K", "mus-musculus", 0.17],
-    #    ],
-    # )
-    # def test_trna_adaptation_index(sequence_name, organism, trna_adaption_index_result):
-    #    sequence = Sequence.from_string(TEST_SEQUENCES[sequence_name])
-    #    assert sequence.is_amino_acid_sequence
-    #    assert sequence.trna_adaptation_index(organism) == pytest.approx(
-    #        trna_adaption_index_result, abs=10**-2
-    #    )
+
+@pytest.mark.parametrize(
+    ["sequence_name", "organism", "trna_adaptation_index_result"],
+    [
+        ["REC_A", "homo-sapiens", 0.35],
+        ["REC_A", "mus-musculus", 0.17],
+        ["DNA_K", "homo-sapiens", 0.36],
+        ["DNA_K", "mus-musculus", 0.17],
+    ],
+)
+def test_trna_adaptation_index(sequence_name, organism, trna_adaption_index_result):
+    sequence = Sequence.create(TEST_SEQUENCES[sequence_name])
+    assert sequence.is_amino_acid_sequence
+    assert sequence.trna_adaptation_index(organism) == pytest.approx(
+        trna_adaption_index_result, abs=10**-2
+    )
