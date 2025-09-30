@@ -1,17 +1,14 @@
 import collections
 import functools
 import pathlib
-from statistics import geometric_mean
 import statistics
-import typing
 
-from dnachisel.builtin_specifications import CodonSpecification
 import msgspec
 import polars as pl
 
-from tools.constants import CODONS, CodonTable
+from tools.constants import CODONS
 from tools.organism import CodonUsageTable
-from tools.types import AminoAcid, AminoAcid3, Codon, Organism
+from tools.types import Organism
 
 
 @functools.cache

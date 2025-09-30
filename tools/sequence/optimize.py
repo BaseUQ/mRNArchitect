@@ -17,7 +17,7 @@ from dnachisel.builtin_specifications import (
 from dnachisel.builtin_specifications.codon_optimization import CodonOptimize
 from dnachisel.DnaOptimizationProblem import DnaOptimizationProblem, NoSolutionError
 
-from tools.constants import AMINO_ACIDS, CODONS, CodonTable
+from tools.constants import AMINO_ACIDS, CodonTable
 from tools.types import Organism
 from tools.data import load_codon_usage_table
 from tools.organism import CodonUsageTable
