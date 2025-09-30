@@ -1,6 +1,7 @@
 from collections import Counter, defaultdict
 import functools
 import math
+from os import stat
 import re
 import statistics
 import timeit
@@ -758,34 +759,11 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         if not self.is_amino_acid_sequence:
             return None
 
-        S_VALUES = {
-            "dosReis": {
-                ("G", "T"): 0.41,
-                ("I", "C"): 0.28,
-                ("I", "A"): 0.9999,
-                ("T", "G"): 0.68,
-                ("L", "A"): 0.89,
-            },
-            "Tuller": {
-                ("G", "T"): 0.561,
-                ("I", "C"): 0.28,
-                ("I", "A"): 0.9999,
-                ("T", "G"): 0.68,
-                ("L", "A"): 0.89,
-            },
-        }
+        trna_weights = load_trna_adaptation_index_dataset(organism)
 
-        def _is_pair(codon: Codon, anticodon: Codon) -> bool:
-            return codon == str(Sequence.create(anticodon).complement)
-
-        dataset = load_trna_adaptation_index_dataset(organism)
-
-        weights: list[tuple[Codon, float]] = []
-        for codon, anticodon in zip(self.codons, self.complement.codons):
-            weight = 0
-            for trna_copy_number, trna_anticodon in dataset:
-                if trna_anticodon != codon:
-                    continue
+        return statistics.geometric_mean(
+            trna_weights[codon] for codon in self.codons if codon in trna_weights
+        )
 
     def analyze(
         self, codon_usage_table: CodonUsageTable | Organism = "homo-sapiens"

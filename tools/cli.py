@@ -25,6 +25,7 @@ def _optimize(args):
     else:
         parameters = [
             OptimizationParameter(
+                optimize_cai=True,
                 codon_usage_table=args.organism,
                 avoid_repeat_length=args.avoid_repeat_length,
                 enable_uridine_depletion=args.enable_uridine_depletion,

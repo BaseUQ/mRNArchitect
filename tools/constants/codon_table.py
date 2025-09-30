@@ -145,12 +145,12 @@ class CodonTable:
     def amino_acid(
         cls, for_: AminoAcid | AminoAcid3 | AminoAcidName | Codon
     ) -> AminoAcid:
-        if for_ in cls._names:
+        if for_ in AMINO_ACIDS:
+            amino_acid = typing.cast(AminoAcid, for_)
+        elif for_ in cls._names:
             amino_acid = AMINO_ACID_SET[cls._names[for_]][2]
         elif for_ in cls._3s:
             amino_acid = AMINO_ACID_SET[cls._3s[for_]][2]
-        elif for_ in cls._1s:
-            amino_acid = AMINO_ACID_SET[cls._1s[for_]][2]
         elif for_ in CODON_TO_AMINO_ACID_MAP:
             amino_acid = CODON_TO_AMINO_ACID_MAP[for_]
         else:

@@ -352,8 +352,8 @@ def optimize(
 ) -> OptimizationResult:
     """Optimize the sequence based on the configuration parameters.
 
-    >>> Sequence("ACGACCATTAAA").optimize(parameters=[OptimizationParameter(organism="homo-sapiens")]).result.sequence
-    Sequence(nucleic_acid_sequence='ACCACCATCAAG')
+    >>> optimize(Sequence("ACGACCATTAAA"), parameters=[OptimizationParameter(codon_usage_table="homo-sapiens", optimize_cai=True)]).result.sequence
+    'ACCACCATCAAG'
     """
     start = timeit.default_timer()
     try:
