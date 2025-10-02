@@ -52,6 +52,7 @@ class Analysis(msgspec.Struct, kw_only=True, rename="camel"):
     gc_ratio: float
     uridine_depletion: float | None
     codon_adaptation_index: float | None
+    trna_adaptation_index: float | None
     minimum_free_energy: MinimumFreeEnergy
     debug: Debug
 
@@ -780,6 +781,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
             gc_ratio=self.gc_ratio,
             uridine_depletion=self.uridine_depletion,
             codon_adaptation_index=self.codon_adaptation_index(codon_usage_table),
+            trna_adaptation_index=self.trna_adaptation_index(codon_usage_table),
             minimum_free_energy=minimum_free_energy,
             debug=Analysis.Debug(time_seconds=timeit.default_timer() - start),
         )

@@ -90,6 +90,7 @@ const generateReport = ({
       `GC ratio\t\t${output.input.cdsAnalysis.gcRatio.toFixed(2)}\t${cdsAnalysis.gcRatio.toFixed(2)}`,
       `Uridine depletion\t${output.input.cdsAnalysis.uridineDepletion?.toFixed(2) ?? "-"}\t${cdsAnalysis.uridineDepletion?.toFixed(2) ?? "-"}`,
       `CAI\t\t\t${output.input.cdsAnalysis.codonAdaptationIndex?.toFixed(2) ?? "-"}\t${cdsAnalysis.codonAdaptationIndex?.toFixed(2) ?? "-"}`,
+      `tAI\t\t\t${output.input.cdsAnalysis.trnaAdaptationIndex?.toFixed(2) ?? "-"}\t${cdsAnalysis.trnaAdaptationIndex?.toFixed(2) ?? "-"}`,
       `CDS MFE (kcal/mol)\t${output.input.cdsAnalysis.minimumFreeEnergy.energy.toFixed(2)}\t${cdsAnalysis.minimumFreeEnergy.energy.toFixed(2)}`,
       `5' UTR MFE (kcal/mol)\t${output.input.fivePrimeUtrAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}\t${output.input.fivePrimeUtrAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}`,
       `3' UTR MFE (kcal/mol)\t${output.input.threePrimeUtrAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}\t${output.input.threePrimeUtrAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}`,

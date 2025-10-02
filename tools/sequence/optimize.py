@@ -23,7 +23,7 @@ from tools.data import load_codon_usage_table
 from tools.organism import CodonUsageTable
 from tools.sequence.sequence import Sequence
 from tools.sequence.specifications.constraints import CAIRange
-from tools.sequence.specifications.objectives import TargetPseudoMFE
+from tools.sequence.specifications.objectives import OptimizeTAI, TargetPseudoMFE
 
 OptimizationError = NoSolutionError
 
@@ -107,6 +107,7 @@ class OptimizationParameter(
     codon_usage_table: CodonUsageTable | Organism | None = None
     optimize_cai: bool = False
     optimize_mfe: float | None = None
+    optimize_tai: float | None = None
     avoid_repeat_length: int | None = None
     enable_uridine_depletion: bool = False
     avoid_ribosome_slip: bool = False
@@ -266,6 +267,14 @@ class OptimizationParameter(
                 )
             )
 
+        if self.optimize_tai:
+            objectives.append(
+                OptimizeTAI(
+                    target_tai=self.optimize_tai,
+                    location=location,
+                )
+            )
+
         if self.avoid_repeat_length is not None:
             objectives.append(
                 UniquifyAllKmers(k=self.avoid_repeat_length, location=location)
@@ -324,6 +333,7 @@ _DEFAULT_OPTIMIZATION_PARAMETERS = [
     OptimizationParameter(
         enforce_sequence=False,
         codon_usage_table="homo-sapiens",
+        optimize_cai=True,
         avoid_repeat_length=10,
         enable_uridine_depletion=False,
         avoid_ribosome_slip=False,
