@@ -594,7 +594,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
             for codon in codons
         ]
 
-        rcbs = math.prod(1 + it for it in d) ** (1 / len(codons)) - 1
+        rcbs = statistics.geometric_mean(1 + it for it in d) - 1
 
         return rcbs
 

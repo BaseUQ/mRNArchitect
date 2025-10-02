@@ -119,8 +119,8 @@ export const ParameterInput = ({
             }}
           >
             <Group>
-              <Radio value="cai" label="Codon Adaptation Index" />
-              <Radio value="tai" label="tRNA Adaptation Index" />
+              <Radio value="cai" label="Codon Adaptation Index (CAI)" />
+              <Radio value="tai" label="tRNA Adaptation Index (tAI)" />
             </Group>
           </Radio.Group>
           <NativeSelect
