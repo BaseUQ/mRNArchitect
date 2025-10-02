@@ -1,6 +1,5 @@
 from collections import Counter, defaultdict
 import functools
-import math
 import re
 import statistics
 import timeit
