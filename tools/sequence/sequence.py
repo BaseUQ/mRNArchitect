@@ -1,6 +1,5 @@
 from collections import Counter, defaultdict
 import functools
-import math
 import re
 import statistics
 import timeit
@@ -399,7 +398,9 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         codon_usage_table = load_codon_usage_table(codon_usage_table)
 
         weights = [codon_usage_table.weight(codon) for codon in self.codons]
-        return statistics.geometric_mean(weights)
+        cai = statistics.geometric_mean(weights)
+
+        return cai
 
     @property
     @functools.cache
