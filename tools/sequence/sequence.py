@@ -399,8 +399,7 @@ class Sequence(msgspec.Struct, frozen=True, rename="camel"):
         codon_usage_table = load_codon_usage_table(codon_usage_table)
 
         weights = [codon_usage_table.weight(codon) for codon in self.codons]
-        cai = math.prod(weights) ** (1 / len(weights))
-        return cai
+        return statistics.geometric_mean(weights)
 
     @property
     @functools.cache

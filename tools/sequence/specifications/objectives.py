@@ -31,10 +31,7 @@ class OptimizeTAI(Specification):
 
         tai_diff = abs(tai - self.target_tai)
 
-        if tai_diff:
-            message = f"Failed - target tAI {self.target_tai} is {tai_diff} off {tai}"
-        else:
-            message = f"Success - target tAI matched {self.target_tai}"
+        message = f"tAI {tai} is {tai_diff} off target {self.target_tai}"
 
         return SpecEvaluation(
             self,
