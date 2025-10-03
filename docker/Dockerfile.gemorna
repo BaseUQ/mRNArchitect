@@ -1,0 +1,26 @@
+FROM debian:13-slim
+
+RUN apt-get update -qy && apt-get install -qy gcc git git-lfs wget
+
+# Install Miniconda3
+RUN wget -qO /tmp/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+  chmod +x /tmp/miniconda.sh && \
+  /tmp/miniconda.sh -b -p /opt/miniconda
+ENV PATH="/opt/miniconda/bin:$PATH"
+
+RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main && \
+  conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
+
+# Install GEMORNA
+RUN mkdir -p /opt/gemorna
+WORKDIR /opt/gemorna
+RUN git lfs install && \
+  git clone https://github.com/RainaBio/GEMORNA.git . && \
+  conda env create -v -f environment.yaml
+
+RUN eval "$(conda shell.bash activate gemorna)"
+# Make RUN commands use the new environment
+SHELL ["conda", "run", "--no-capture-output", "-n", "gemorna", "/bin/bash", "-c"]
+
+ENTRYPOINT ["conda", "run", "-n", "gemorna"]
+
