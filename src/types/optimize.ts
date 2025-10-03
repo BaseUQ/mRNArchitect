@@ -9,6 +9,8 @@ export const OptimizationParameter = z
     endCoordinate: z.int(REQUIRED_MESSAGE).min(1).nullable(),
     enforceSequence: z.boolean(),
     codonUsageTable: z.string(),
+    optimizeCai: z.boolean(),
+    optimizeTai: z.number().nullable(),
     avoidRepeatLength: z.int(REQUIRED_MESSAGE).min(0),
     enableUridineDepletion: z.boolean(),
     avoidRibosomeSlip: z.boolean(),
@@ -118,6 +120,7 @@ export const Analysis = z.object({
   gcRatio: z.number(),
   uridineDepletion: z.number().nullable(),
   codonAdaptationIndex: z.number().nullable(),
+  trnaAdaptationIndex: z.number().nullable(),
   minimumFreeEnergy: z.object({
     structure: z.string().nonempty(),
     energy: z.number(),

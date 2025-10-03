@@ -35,6 +35,8 @@ const createDefaultParameter = (
   endCoordinate,
   enforceSequence: false,
   codonUsageTable: "homo-sapiens",
+  optimizeCai: true,
+  optimizeTai: null,
   avoidRepeatLength: 10,
   enableUridineDepletion: false,
   avoidRibosomeSlip: false,
