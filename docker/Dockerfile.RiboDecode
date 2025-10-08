@@ -12,12 +12,12 @@ RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkg
   conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
 
 
-RUN mkdir /opt/CodonTransformer
-WORKDIR /opt/CodonTransformer
-RUN git clone https://github.com/Adibvafa/CodonTransformer.git .
-RUN python -m venv .venv
-ENV PATH="/opt/CodonTransformer/.venv/bin/:$PATH"
-RUN pip install -r requirements.txt
+RUN mkdir /opt/RiboDecode
+WORKDIR /opt/RiboDecode
+RUN git clone https://github.com/wangfanfff/RiboDecode.git .
+RUN conda create -n ribodecode python=3.8 -y 
+RUN eval "$(conda shell.bash activate ribodecode)"
+
 
 COPY docker/codon-transformer.py .
 
