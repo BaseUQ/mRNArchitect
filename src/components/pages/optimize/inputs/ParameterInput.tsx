@@ -100,8 +100,8 @@ export const ParameterInput = ({
           <NativeSelect
             label="Organism"
             data={ORGANISMS}
-            key={form.key(`parameters.${index}.codon_usage_table`)}
-            {...form.getInputProps(`parameters.${index}.codon_usage_table`)}
+            key={form.key(`parameters.${index}.codonUsageTable`)}
+            {...form.getInputProps(`parameters.${index}.codonUsageTable`)}
           />
           <NumberInput
             label="Avoid repeat length"
