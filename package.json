@@ -10,7 +10,7 @@
     "start": "PORT=8080 node .output/server/index.mjs"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.1.4",
+    "@biomejs/biome": "^2.2.6",
     "@playwright/test": "^1.54.2",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
