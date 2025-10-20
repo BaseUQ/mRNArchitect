@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import z from "zod/v4";
-import { loggingMiddleware } from "~/global-middleware";
 import {
   Analysis,
   Optimization,
@@ -23,8 +22,9 @@ const OptimizationRequest = z.object({
 type OptimizationRequest = z.infer<typeof OptimizationRequest>;
 
 export const convertSequenceToNucleicAcid = createServerFn({ method: "POST" })
-  .middleware([loggingMiddleware])
-  .validator((data: SequenceAndOrganism) => SequenceAndOrganism.parse(data))
+  .inputValidator((data: SequenceAndOrganism) =>
+    SequenceAndOrganism.parse(data),
+  )
   .handler(async ({ data: { sequence, organism } }) => {
     const { stdout } = await execFileAsync(
       "python",
@@ -46,8 +46,9 @@ export const convertSequenceToNucleicAcid = createServerFn({ method: "POST" })
   });
 
 export const analyzeSequence = createServerFn({ method: "POST" })
-  .middleware([loggingMiddleware])
-  .validator((data: SequenceAndOrganism) => SequenceAndOrganism.parse(data))
+  .inputValidator((data: SequenceAndOrganism) =>
+    SequenceAndOrganism.parse(data),
+  )
   .handler(async ({ data: { sequence, organism } }) => {
     const { stdout } = await execFileAsync(
       "python",
@@ -69,8 +70,9 @@ export const analyzeSequence = createServerFn({ method: "POST" })
   });
 
 export const optimizeSequence = createServerFn({ method: "POST" })
-  .middleware([loggingMiddleware])
-  .validator((data: OptimizationRequest) => OptimizationRequest.parse(data))
+  .inputValidator((data: OptimizationRequest) =>
+    OptimizationRequest.parse(data),
+  )
   .handler(async ({ data: { sequence, parameters } }) => {
     const { stdout } = await execFileAsync(
       "python",
