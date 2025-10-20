@@ -16,7 +16,8 @@
       "!**/.tanstack",
       "!**/.vinxi",
       "!**/.venv",
-      "!**/data"
+      "!**/data",
+      "!**/dist"
     ]
   },
   "formatter": {
