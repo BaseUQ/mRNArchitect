@@ -10,13 +10,13 @@
     "includes": [
       "**",
       "!**/routeTree.gen.ts",
-      "!**/.nitro/**",
-      "!**/.output/**",
-      "!**/.pnpm-store/**",
-      "!**/.tanstack/**",
-      "!**/.vinxi/**",
-      "!**/.venv/**",
-      "!**/data/**"
+      "!**/.nitro",
+      "!**/.output",
+      "!**/.pnpm-store",
+      "!**/.tanstack",
+      "!**/.vinxi",
+      "!**/.venv",
+      "!**/data"
     ]
   },
   "formatter": {
