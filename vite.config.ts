@@ -4,7 +4,7 @@ import { nitro } from "nitro/vite";
 import tsConfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   server: {
     hmr: {
       port: 8081,
@@ -24,11 +24,11 @@ export default defineConfig({
       },
       srcDirectory: "src",
     }),
-    nitro(),
+    mode === "production" ? nitro() : null, // Using the nitro plugin breaks vitest, so only enable it in production
     viteReact(),
   ],
   test: {
     include: ["src/**/*.test.{ts,tsx}"],
     exclude: ["e2e/**"],
   },
-});
+}));
