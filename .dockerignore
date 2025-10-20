@@ -9,5 +9,6 @@ __pycache__
 .tanstack
 .venv
 .vscode
+dist
 node_modules
 *.egg-info

@@ -56,7 +56,7 @@ export const SequenceInput = ({
     } else if (v === "generate") {
       const length =
         typeof polyATailGenerate === "string"
-          ? Number.parseInt(polyATailGenerate)
+          ? Number.parseInt(polyATailGenerate, 10)
           : polyATailGenerate;
       form.setFieldValue("sequence.polyATail", "A".repeat(length));
     }

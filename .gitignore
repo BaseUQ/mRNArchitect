@@ -7,5 +7,6 @@ __pycache__/
 .venv/
 .vinxi/
 .vscode/
+dist/
 node_modules/
 *.egg-info/
