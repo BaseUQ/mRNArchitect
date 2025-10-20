@@ -17,13 +17,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     tsConfigPaths({ projects: ["./tsconfig.json"] }),
-    tanstackStart({
-      serverFns: {
-        generateFunctionId: ({ filename, functionName }) =>
-          `${filename}-${functionName}`,
-      },
-      srcDirectory: "src",
-    }),
+    tanstackStart({ srcDirectory: "src" }),
     mode === "production" ? nitro() : null, // Using the nitro plugin breaks vitest, so only enable it in production
     viteReact(),
   ],
