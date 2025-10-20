@@ -5,7 +5,7 @@ import {
   MantineProvider,
   mantineHtmlProps,
 } from "@mantine/core";
-// @ts-ignore
+// @ts-expect-error
 import mantineCssUrl from "@mantine/core/styles.css?url";
 import {
   createRootRoute,

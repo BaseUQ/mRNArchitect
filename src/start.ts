@@ -1,23 +1,20 @@
-import {
-  createMiddleware,
-  //registerGlobalMiddleware,
-} from "@tanstack/react-start";
-import { getHeaders } from "@tanstack/react-start/server";
+import { createMiddleware, createStart } from "@tanstack/react-start";
+import { getRequestHeaders } from "@tanstack/react-start/server";
 import { differenceInMilliseconds } from "date-fns";
 
 export const loggingMiddleware = createMiddleware({ type: "function" }).server(
-  async ({ next, data }) => {
+  async ({ next, functionId, data }) => {
     const startTime = Date.now();
     const result = await next();
     const endTime = Date.now();
-    const headers = getHeaders();
+    const headers = getRequestHeaders();
     try {
       console.info(
         JSON.stringify({
+          functionId,
           requestData: data,
-          requestIp: headers["x-forwarded-for"] ?? "unknown",
+          requestIp: headers.get("x-forwarded-for") ?? "unknown",
           requestTimeMilliseconds: differenceInMilliseconds(endTime, startTime),
-          result,
         }),
       );
     } catch (e) {
@@ -27,8 +24,8 @@ export const loggingMiddleware = createMiddleware({ type: "function" }).server(
   },
 );
 
-// NOTE: As of 2025-06-23 this global middleware appears to be broken,
-// so logging must be added to each server function individually.
-//registerGlobalMiddleware({
-//  middleware: [loggingMiddleware],
-//});
+export const startInstance = createStart(() => {
+  return {
+    functionMiddleware: [loggingMiddleware],
+  };
+});

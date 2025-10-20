@@ -15,8 +15,14 @@ export default defineConfig({
     noExternal: ["@phosphor-icons/react"], // fixes "too many open files" error
   },
   plugins: [
-    tsConfigPaths(),
-    tanstackStart({ customViteReactPlugin: true }),
+    tsConfigPaths({ projects: ["./tsconfig.json"] }),
+    tanstackStart({
+      serverFns: {
+        generateFunctionId: ({ filename, functionName }) =>
+          `${filename}-${functionName}`,
+      },
+      srcDirectory: "src",
+    }),
     viteReact(),
   ],
   test: {

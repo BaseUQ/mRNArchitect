@@ -6,11 +6,11 @@ RUN apt-get update -qy && \
 
 # Install uv
 # see: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
-COPY --from=ghcr.io/astral-sh/uv:0.7.8 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.9.4 /uv /uvx /bin/
 
 # Install pnpm 
 # see: https://github.com/pnpm/pnpm/releases/
-RUN wget -qO /usr/local/bin/pnpm https://github.com/pnpm/pnpm/releases/download/v10.14.0/pnpm-linux-x64 && \
+RUN wget -qO /usr/local/bin/pnpm https://github.com/pnpm/pnpm/releases/download/v10.18.3/pnpm-linux-x64 && \
   chmod +x /usr/local/bin/pnpm
 
 # Install AWS Lambda Web Adapter
