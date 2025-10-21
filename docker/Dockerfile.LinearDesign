@@ -2,8 +2,8 @@ FROM debian:13-slim
 
 RUN apt update -qy && apt install -qy git g++ make python3
 
-RUN mkdir -p /srv/LinearDesign
-WORKDIR /srv/LinearDesign
+RUN mkdir -p /opt/LinearDesign
+WORKDIR /opt/LinearDesign
 RUN git clone https://github.com/LinearDesignSoftware/LinearDesign.git .
 RUN make
 

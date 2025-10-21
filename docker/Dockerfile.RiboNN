@@ -1,6 +1,6 @@
 FROM debian:13-slim
 
-RUN apt-get update -qy && apt-get install -qy gcc g++ git git-lfs wget
+RUN apt update -qy && apt install -qy g++ git git-lfs make wget
 
 # Install Miniconda3
 RUN wget -qO /tmp/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
@@ -12,13 +12,14 @@ RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkg
   conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
 
 
-RUN mkdir /opt/RiboDecode
-WORKDIR /opt/RiboDecode
-RUN git clone https://github.com/wangfanfff/RiboDecode.git .
-RUN conda create -n ribodecode python=3.8 -y 
-RUN eval "$(conda shell.bash activate ribodecode)"
+RUN mkdir /opt/RiboNN
+WORKDIR /opt/RiboNN
+RUN git clone https://github.com/Sanofi-Public/RiboNN.git .
 
+RUN ["conda", "config", "--add", "channels", "conda-forge"]
+RUN ["conda", "update", "-n", "base", "--all"]
+RUN ["conda", "install", "-n", "base", "mamba"]
+RUN make install
+RUN eval "$(conda shell.bash activate RiboNN)"
+ENTRYPOINT ["conda", "run", "-n", "RiboNN"]
 
-COPY docker/codon-transformer.py .
-
-ENTRYPOINT ["python", "codon-transformer.py"]
