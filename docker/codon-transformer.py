@@ -19,7 +19,7 @@ def run():
     # Load model and tokenizer
     tokenizer = AutoTokenizer.from_pretrained("adibvafa/CodonTransformer")
     model = BigBirdForMaskedLM.from_pretrained("adibvafa/CodonTransformer").to(device)
-    
+
     # Predict with CodonTransformer
     output = predict_dna_sequence(
         protein=protein,
@@ -28,7 +28,7 @@ def run():
         tokenizer=tokenizer,
         model=model,
         attention_type="original_full",
-        deterministic=True
+        deterministic=True,
     )
     print(format_model_output(output))
 
