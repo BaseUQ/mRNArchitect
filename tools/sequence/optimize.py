@@ -23,7 +23,7 @@ from tools.data import load_codon_usage_table
 from tools.organism import CodonUsageTable
 from tools.sequence.sequence import Sequence
 from tools.sequence.specifications.constraints import CAIRange
-from tools.sequence.specifications.objectives import TargetPseudoMFE
+from tools.sequence.specifications.objectives import OptimizeTAI, TargetPseudoMFE
 
 OptimizationError = NoSolutionError
 
@@ -107,6 +107,7 @@ class OptimizationParameter(
     codon_usage_table: CodonUsageTable | Organism | None = None
     optimize_cai: bool = False
     optimize_mfe: float | None = None
+    optimize_tai: float | None = None
     avoid_repeat_length: int | None = None
     enable_uridine_depletion: bool = False
     avoid_ribosome_slip: bool = False
@@ -266,6 +267,14 @@ class OptimizationParameter(
                 )
             )
 
+        if self.optimize_tai:
+            objectives.append(
+                OptimizeTAI(
+                    target_tai=self.optimize_tai,
+                    location=location,
+                )
+            )
+
         if self.avoid_repeat_length is not None:
             objectives.append(
                 UniquifyAllKmers(k=self.avoid_repeat_length, location=location)
@@ -320,28 +329,27 @@ def _optimize(
     return optimization_problem
 
 
-_DEFAULT_OPTIMIZATION_PARAMETERS = [
-    OptimizationParameter(
-        enforce_sequence=False,
-        codon_usage_table="homo-sapiens",
-        avoid_repeat_length=10,
-        enable_uridine_depletion=False,
-        avoid_ribosome_slip=False,
-        avoid_manufacture_restriction_sites=False,
-        avoid_micro_rna_seed_sites=False,
-        gc_content_min=0.4,
-        gc_content_max=0.7,
-        gc_content_window=100,
-        avoid_restriction_sites=[],
-        avoid_sequences=[],
-        avoid_poly_a=9,
-        avoid_poly_c=6,
-        avoid_poly_g=6,
-        avoid_poly_t=9,
-        hairpin_stem_size=10,
-        hairpin_window=60,
-    )
-]
+DEFAULT_OPTIMIZATION_PARAMETER = OptimizationParameter(
+    enforce_sequence=False,
+    codon_usage_table="homo-sapiens",
+    optimize_cai=True,
+    avoid_repeat_length=10,
+    enable_uridine_depletion=False,
+    avoid_ribosome_slip=False,
+    avoid_manufacture_restriction_sites=False,
+    avoid_micro_rna_seed_sites=False,
+    gc_content_min=0.4,
+    gc_content_max=0.7,
+    gc_content_window=100,
+    avoid_restriction_sites=[],
+    avoid_sequences=[],
+    avoid_poly_a=9,
+    avoid_poly_c=6,
+    avoid_poly_g=6,
+    avoid_poly_t=9,
+    hairpin_stem_size=10,
+    hairpin_window=60,
+)
 
 
 def optimize(
@@ -359,7 +367,7 @@ def optimize(
     try:
         result = _optimize(
             sequence.nucleic_acid_sequence,
-            parameters=parameters or _DEFAULT_OPTIMIZATION_PARAMETERS,
+            parameters=parameters or [DEFAULT_OPTIMIZATION_PARAMETER],
             max_random_iters=max_random_iters,
             mutations_per_iteration=mutations_per_iteration,
         )
