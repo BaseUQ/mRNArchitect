@@ -97,32 +97,34 @@ export const ParameterInput = ({
           </Stack>
         </InputWrapper>
       )}
-      {false && !form.getValues().parameters[index].enforceSequence && (
+      {!form.getValues().parameters[index].enforceSequence && (
         <>
-          <Radio.Group
-            name="objective"
-            label="Optimization objective"
-            value={
-              form.getValues().parameters[index].optimizeCai ? "cai" : "tai"
-            }
-            onChange={(v) => {
-              const optimizeCai = v === "cai";
-              const optimizeTai = v === "cai" ? null : 1.0;
-              form.setFieldValue(
-                `parameters.${index}.optimizeCai`,
-                optimizeCai,
-              );
-              form.setFieldValue(
-                `parameters.${index}.optimizeTai`,
-                optimizeTai,
-              );
-            }}
-          >
-            <Group>
-              <Radio value="cai" label="Codon Adaptation Index (CAI)" />
-              <Radio value="tai" label="tRNA Adaptation Index (tAI)" />
-            </Group>
-          </Radio.Group>
+          {false && (
+            <Radio.Group
+              name="objective"
+              label="Optimization objective"
+              value={
+                form.getValues().parameters[index].optimizeCai ? "cai" : "tai"
+              }
+              onChange={(v) => {
+                const optimizeCai = v === "cai";
+                const optimizeTai = v === "cai" ? null : 1.0;
+                form.setFieldValue(
+                  `parameters.${index}.optimizeCai`,
+                  optimizeCai,
+                );
+                form.setFieldValue(
+                  `parameters.${index}.optimizeTai`,
+                  optimizeTai,
+                );
+              }}
+            >
+              <Group>
+                <Radio value="cai" label="Codon Adaptation Index (CAI)" />
+                <Radio value="tai" label="tRNA Adaptation Index (tAI)" />
+              </Group>
+            </Radio.Group>
+          )}
           <NativeSelect
             label="Organism"
             data={ORGANISMS}
