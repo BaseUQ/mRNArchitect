@@ -3,7 +3,6 @@ import argparse
 import torch
 from transformers import AutoTokenizer, BigBirdForMaskedLM
 from CodonTransformer.CodonPrediction import predict_dna_sequence
-from CodonTransformer.CodonJupyter import format_model_output
 
 
 def run():
