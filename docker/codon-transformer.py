@@ -30,7 +30,7 @@ def run():
         attention_type="original_full",
         deterministic=True,
     )
-    print(format_model_output(output))
+    print(output.predicted_dna)
 
 
 if __name__ == "__main__":

@@ -14,9 +14,12 @@ RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkg
 # Install GEMORNA
 RUN mkdir -p /opt/gemorna
 WORKDIR /opt/gemorna
+ENV GIT_LFS_SKIP_SMUDGE=1
 RUN git lfs install && \
   git clone https://github.com/RainaBio/GEMORNA.git . && \
   conda env create -v -f environment.yaml
+
+COPY docker/checkpoints checkpoints
 
 RUN eval "$(conda shell.bash activate gemorna)"
 # Make RUN commands use the new environment
