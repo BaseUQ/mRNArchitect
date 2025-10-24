@@ -47,8 +47,8 @@ const generateReport = ({
       if (!c.enforceSequence) {
         report.push(
           ...[
-            `Optimise CAI\t\t\t\t${c.optimizeCai}`,
-            `Optimise tAI\t\t\t\t${c.optimizeTai}`,
+            //`Optimise CAI\t\t\t\t${c.optimizeCai}`,
+            //`Optimise tAI\t\t\t\t${c.optimizeTai}`,
             `Organism\t\t\t\t${c.codonUsageTable}`,
             `Avoid repeat length\t\t\t${c.avoidRepeatLength}`,
             `Enable uridine depletion\t\t${c.enableUridineDepletion}`,
