@@ -97,7 +97,7 @@ export const ParameterInput = ({
           </Stack>
         </InputWrapper>
       )}
-      {!form.getValues().parameters[index].enforceSequence && (
+      {false && !form.getValues().parameters[index].enforceSequence && (
         <>
           <Radio.Group
             name="objective"
