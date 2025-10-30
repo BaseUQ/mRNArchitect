@@ -19,7 +19,7 @@ from mrnarchitect.utils.fasta import SequenceType
 ASSETS_DIR = pathlib.Path("frontend/dist")
 
 
-@get("/", media_type=MediaType.HTML)
+@get("/", media_type=MediaType.HTML, include_in_schema=False)
 async def get_index() -> str:
     with open(ASSETS_DIR / "index.html", "r") as f:
         return f.read()
@@ -35,7 +35,11 @@ class ConvertResponse(msgspec.Struct):
     sequence: str
 
 
-@post("/api/convert")
+@post(
+    "/api/convert",
+    summary="Convert sequence.",
+    description="Convert a sequence from amino to nucleic acid.",
+)
 async def post_convert(data: ConvertRequest) -> ConvertResponse:
     sequence = Sequence.create(
         data.sequence, sequence_type=data.sequence_type, codon_usage_table=data.organism
@@ -48,7 +52,11 @@ class OptimizeRequest(msgspec.Struct):
     parameters: list[OptimizationParameter]
 
 
-@post("/api/optimize")
+@post(
+    "/api/optimize",
+    summary="Optimize sequence.",
+    description="Run an optimization on the given sequence.",
+)
 async def post_optimize(data: OptimizeRequest) -> OptimizationResult:
     return optimize(Sequence.create(data.sequence), parameters=data.parameters)
 
@@ -58,7 +66,11 @@ class AnalyzeRequest(msgspec.Struct):
     organism: Organism = "homo-sapiens"
 
 
-@post("/api/analyze")
+@post(
+    "/api/analyze",
+    summary="Analyze sequence.",
+    description="Analyze and return statistics about the given sequence.",
+)
 async def post_analyze(data: AnalyzeRequest) -> Analysis:
     sequence = Sequence.create(data.sequence)
     return sequence.analyze(data.organism)
