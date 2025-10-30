@@ -23,7 +23,6 @@ on:
         description: The newly created lambda function URL (if deployed).
         value: ${{ jobs.build-push-and-deploy.outputs.lambda-function-url }}
 
-
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: read # This is required for actions/checkout
@@ -68,5 +67,3 @@ jobs:
           echo "### Lambda function deployed" >> $GITHUB_STEP_SUMMARY
           echo "Version: $VERSION" >> $GITHUB_STEP_SUMMARY
           echo "Function URL: $FUNCTION_URL" >> $GITHUB_STEP_SUMMARY
-
-
