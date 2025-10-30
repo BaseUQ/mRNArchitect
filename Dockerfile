@@ -37,7 +37,8 @@ RUN wget -qO viennarna.deb https://www.tbi.univie.ac.at/RNA/download/debian/debi
 # RUN update_blastdb.pl --decompress --verbose taxdb
 
 # Setup the app directory
-RUN mkdir /app
+RUN mkdir /app && chown node:node /app
+USER node
 WORKDIR /app
 
 ENV UV_COMPILE_BYTECODE=1
@@ -51,7 +52,7 @@ RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=cache,target=/root/.pnpm-store \
   pnpm install --frozen-lockfile
 
-COPY . .
+COPY --chown=node:node . .
 RUN --mount=type=cache,target=/root/.cache/uv \
   uv sync --locked
 
@@ -59,7 +60,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 FROM base AS e2e
 
 RUN pnpm install @playwright/test
+USER root
 RUN pnpm playwright install-deps
+USER node
 RUN pnpm playwright install chromium --no-shell
 RUN pnpm run build
 CMD ["pnpm", "playwright", "test"]
