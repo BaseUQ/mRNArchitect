@@ -79,4 +79,5 @@ CMD ["bun", "run", "dev"]
 FROM base
 
 RUN bun run build
-CMD ["litestar", "--app", "mrnarchitect.app:app", "run", "--host", "0.0.0.0", "--port", "8080"]
+#CMD ["litestar", "--app", "mrnarchitect.app:app", "run", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["bun", "run", "start"]

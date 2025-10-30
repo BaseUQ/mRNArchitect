@@ -9,6 +9,7 @@
   "scripts": {
     "check": "bun run --filter frontend check",
     "fix": "bun run --filter frontend fix",
-    "build": "bun run --filter frontend build"
+    "build": "bun run --filter frontend build",
+    "start": "uv run litestar --app mrnarchitect.app:app run --host 0.0.0.0 --port 8080"
   }
 }
