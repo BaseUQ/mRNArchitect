@@ -26,6 +26,7 @@ dev = [
   "pyright>=1.1.406",
   "pytest>=8.4.2",
   "ruff>=0.14.1",
+  "ty>=0.0.1a25",
 ]
 
 [project.scripts]
@@ -36,6 +37,12 @@ requires = ["uv_build>=0.9.5,<0.10.0"]
 build-backend = "uv_build"
 
 [tool.ruff]
+
+[tool.ty.rules]
+unresolved-attribute = "ignore"
+
+[tool.ty.src]
+include = ["src"]
 
 [tool.pyright]
 include = ["tools"]
