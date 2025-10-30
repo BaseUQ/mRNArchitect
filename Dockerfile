@@ -46,6 +46,7 @@ RUN --mount=type=bind,source=uv.lock,target=uv.lock \
   --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
   --mount=type=cache,target=/root/.cache/uv \
   uv sync --locked --no-install-project --all-groups --compile-bytecode
+ENV PATH="/app/.venv/bin:$PATH"
 
 RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=bind,source=package.json,target=package.json \

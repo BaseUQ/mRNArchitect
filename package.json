@@ -9,7 +9,7 @@
   },
   "scripts": {
     "build": "pnpm run --filter frontend build",
-    "start": "uv run litestar --app mrnarchitect.app:app run --host 0.0.0.0 --port 8080",
+    "start": "litestar --app mrnarchitect.app:app run --host 0.0.0.0 --port 8080",
     "check": "biome check",
     "fix": "biome check --fix"
   }
