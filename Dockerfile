@@ -58,6 +58,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 FROM base AS e2e
 
+RUN pnpm install @playwright/test
 RUN pnpm playwright install-deps
 RUN pnpm playwright install chromium --no-shell
 RUN pnpm run build
