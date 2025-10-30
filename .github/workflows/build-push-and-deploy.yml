@@ -47,7 +47,6 @@ jobs:
         with:
           push: true
           tags: ${{ steps.ecr.outputs.registry }}/app:${{ inputs.image-tag }}
-          target: prod
           provenance: false
           cache-from: type=registry,ref=${{ steps.ecr.outputs.registry }}/app:buildcache
           cache-to: type=registry,ref=${{ steps.ecr.outputs.registry }}/app:buildcache,mode=max

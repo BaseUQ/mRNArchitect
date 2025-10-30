@@ -43,25 +43,21 @@ WORKDIR /app
 ENV UV_COMPILE_BYTECODE=1
 RUN --mount=type=bind,source=uv.lock,target=uv.lock \
   --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-  --mount=type=cache,target=/home/app/.cache/uv \
-  uv sync --locked --no-install-project --all-groups
-ENV PATH="/app/.venv/bin:$PATH"
+  --mount=type=cache,target=/root/.cache/uv \
+  uv sync --locked --no-install-project --all-groups --compile-bytecode
 
 RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=bind,source=package.json,target=package.json \
-  --mount=type=cache,target=/home/node/.pnpm-store \
+  --mount=type=cache,target=/root/.pnpm-store \
   pnpm install --frozen-lockfile
 
 COPY . .
-RUN --mount=type=bind,source=uv.lock,target=uv.lock \
-  --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-  --mount=type=cache,target=/home/app/.cache/uv \
+RUN --mount=type=cache,target=/root/.cache/uv \
   uv sync --locked
 
 
 FROM base AS e2e
 
-#RUN pnpm install @playwright/test@latest
 RUN pnpm playwright install-deps
 RUN pnpm playwright install chromium --no-shell
 RUN pnpm run build
@@ -73,7 +69,7 @@ FROM base AS dev
 CMD ["pnpm", "run", "dev"]
 
 
-FROM base as prod
+FROM base
 
 RUN pnpm run build
 CMD ["pnpm", "run", "start"]
