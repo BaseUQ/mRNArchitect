@@ -49,7 +49,7 @@ RUN --mount=type=bind,source=uv.lock,target=uv.lock \
 RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=bind,source=package.json,target=package.json \
   --mount=type=cache,target=/root/.pnpm-store \
-  pnpm install
+  pnpm install --frozen-lockfile
 
 COPY . .
 RUN --mount=type=cache,target=/root/.cache/uv \
@@ -71,5 +71,6 @@ CMD ["pnpm", "run", "dev"]
 
 FROM base
 
+RUN pnpm install @playwright/test
 RUN pnpm run build
 CMD ["pnpm", "run", "start"]
