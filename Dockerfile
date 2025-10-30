@@ -1,7 +1,7 @@
 FROM node:lts-slim AS base
 
 RUN apt-get update -qy && \
-  apt-get install -qy wget && \
+  apt-get install -qy just wget && \
   rm -rf /var/lib/apt/lists/*
 
 # Install uv

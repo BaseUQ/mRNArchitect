@@ -12,11 +12,9 @@ export const ProgressLoader = ({
   estimatedTimeInSeconds,
 }: ProgressLoaderProps & PropsWithChildren) => {
   const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
-  useInterval(
-    () => setElapsedSeconds((s) => s + 1),
-    1000,
-    { autoInvoke: true },
-  );
+  useInterval(() => setElapsedSeconds((s) => s + 1), 1000, {
+    autoInvoke: true,
+  });
 
   const formattedEstimatedTime = formatDuration(
     intervalToDuration({ start: 0, end: estimatedTimeInSeconds * 1000 }),
