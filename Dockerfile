@@ -6,7 +6,7 @@ RUN apt-get update -qy && \
 
 # Install uv
 # see: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
-COPY --from=ghcr.io/astral-sh/uv:0.9.4 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.9.5 /uv /uvx /bin/
 
 # Install pnpm 
 # see: https://github.com/pnpm/pnpm/releases/
