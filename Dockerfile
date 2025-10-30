@@ -1,7 +1,7 @@
-FROM node:lts-slim AS base
+FROM debian:12-slim AS base
 
 RUN apt-get update -qy && \
-  apt-get install -qy curl wget && \
+  apt-get install -qy wget && \
   rm -rf /var/lib/apt/lists/*
 
 # Install uv
@@ -10,9 +10,6 @@ COPY --from=ghcr.io/astral-sh/uv:0.9.4 /uv /uvx /bin/
 
 # Install bun
 COPY --from=docker.io/oven/bun:distroless /usr/local/bin/bun /usr/local/bin/
-
-# Install just
-RUN curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
 
 # Install AWS Lambda Web Adapter
 # see: https://github.com/awslabs/aws-lambda-web-adapter
@@ -28,18 +25,17 @@ RUN wget -qO viennarna.deb https://www.tbi.univie.ac.at/RNA/download/debian/debi
 # Install BLAST+
 # see: https://blast.ncbi.nlm.nih.gov/doc/blast-help/downloadblastdata.html
 # see: https://hub.docker.com/r/ncbi/blast
-COPY --from=docker.io/ncbi/blast:2.17.0 /blast /blast
-RUN apt-get update -qy && \
-  apt-get install -qy curl libidn12 libnet-perl perl-doc liblmdb-dev wget libsqlite3-dev perl && \
-  rm -rf /var/lib/apt/lists/*
-ENV PATH="/blast/bin:$PATH"
-ENV BLASTDB="/blast/blastdb/"
-WORKDIR ${BLASTDB}
-RUN update_blastdb.pl --decompress --verbose taxdb
+# COPY --from=docker.io/ncbi/blast:2.17.0 /blast /blast
+# RUN apt-get update -qy && \
+#   apt-get install -qy curl libidn12 libnet-perl perl-doc liblmdb-dev wget libsqlite3-dev perl && \
+#   rm -rf /var/lib/apt/lists/*
+# ENV PATH="/blast/bin:$PATH"
+# ENV BLASTDB="/blast/blastdb/"
+# WORKDIR ${BLASTDB}
+# RUN update_blastdb.pl --decompress --verbose taxdb
 
 # Setup the app directory
-RUN mkdir /app && chown node:node /app
-USER node
+RUN mkdir /app
 WORKDIR /app
 
 ENV UV_COMPILE_BYTECODE=1
@@ -49,13 +45,11 @@ RUN --mount=type=bind,source=uv.lock,target=uv.lock \
   uv sync --locked --no-install-project --all-groups
 ENV PATH="/app/.venv/bin:$PATH"
 
-RUN mkdir frontend
-RUN --mount=type=bind,source=frontend/bun.lock,target=frontend/bun.lock \
-  --mount=type=bind,source=frontend/package.json,target=frontend/package.json \
-  ls -lah frontend && cd frontend && bun install
+COPY . .
+RUN --mount=type=bind,source=bun.lock,target=bun.lock \
+  --mount=type=bind,source=package.json,target=package.json \
+  bun install
 
-
-COPY --chown=node:node . .
 RUN --mount=type=bind,source=uv.lock,target=uv.lock \
   --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
   --mount=type=cache,target=/home/app/.cache/uv \
@@ -84,5 +78,5 @@ CMD ["bun", "run", "dev"]
 
 FROM base
 
-RUN cd frontend && bun run build
+RUN bun run build
 CMD ["litestar", "--app", "mrnarchitect.app:app", "run", "--host", "0.0.0.0", "--port", "8080"]

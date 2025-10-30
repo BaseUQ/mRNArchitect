@@ -1,0 +1,14 @@
+{
+  "name": "mrnarchitect",
+  "workspaces": [
+    "frontend"
+  ],
+  "devDependencies": {
+    "frontend": "workspace:*"
+  },
+  "scripts": {
+    "check": "bun run --filter frontend check",
+    "fix": "bun run --filter frontend fix",
+    "build": "bun run --filter frontend build"
+  }
+}

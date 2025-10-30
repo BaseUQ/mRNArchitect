@@ -31,7 +31,8 @@ jobs:
           tags: ${{ env.TAG }}
           target: dev
           cache-from: type=registry,ref=${{ steps.ecr.outputs.registry }}/app:buildcache
-      - run: docker run --rm $TAG just frontend-check
+      - run: docker run --rm $TAG bun run check
+      - run: docker run --rm $TAG bun run vitest run
       - run: docker run --rm $TAG ruff check --diff
       - run: docker run --rm $TAG pyright
       - run: docker run --rm $TAG pytest
