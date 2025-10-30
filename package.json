@@ -1,12 +1,14 @@
 {
   "name": "mrnarchitect",
   "devDependencies": {
+    "@biomejs/biome": "^2.3.2",
+    "@playwright/test": "^1.56.1",
     "frontend": "workspace:*"
   },
   "scripts": {
-    "check": "pnpm run --filter frontend check",
-    "fix": "pnpm run --filter frontend fix",
     "build": "pnpm run --filter frontend build",
-    "start": "uv run litestar --app mrnarchitect.app:app run --host 0.0.0.0 --port 8080"
+    "start": "uv run litestar --app mrnarchitect.app:app run --host 0.0.0.0 --port 8080",
+    "check": "biome check",
+    "fix": "biome check --fix"
   }
 }
