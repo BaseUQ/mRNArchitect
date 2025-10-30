@@ -1,7 +1,7 @@
 FROM node:lts-slim AS base
 
 RUN apt-get update -qy && \
-  apt-get install -qy just wget && \
+  apt-get install -qy curl wget && \
   rm -rf /var/lib/apt/lists/*
 
 # Install uv
@@ -10,6 +10,9 @@ COPY --from=ghcr.io/astral-sh/uv:0.9.4 /uv /uvx /bin/
 
 # Install bun
 COPY --from=docker.io/oven/bun:distroless /usr/local/bin/bun /usr/local/bin/
+
+# Install just
+RUN curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to DEST
 
 # Install pnpm 
 # see: https://github.com/pnpm/pnpm/releases/
