@@ -84,5 +84,5 @@ app = Litestar(
         post_analyze,
         create_static_files_router(path="/", directories=[ASSETS_DIR]),
     ],
-    openapi_config=OpenAPIConfig(title="My API", version="1.0.0"),
+    openapi_config=OpenAPIConfig(title="mRNArchitect API", version="0.0.1"),
 )
