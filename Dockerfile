@@ -1,4 +1,4 @@
-FROM debian:12-slim AS base
+FROM node:lts-slim AS base
 
 RUN apt-get update -qy && \
   apt-get install -qy wget && \
@@ -8,8 +8,10 @@ RUN apt-get update -qy && \
 # see: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
 COPY --from=ghcr.io/astral-sh/uv:0.9.4 /uv /uvx /bin/
 
-# Install bun
-COPY --from=docker.io/oven/bun:distroless /usr/local/bin/bun /usr/local/bin/
+# Install pnpm 
+# see: https://github.com/pnpm/pnpm/releases/
+RUN wget -qO /usr/local/bin/pnpm https://github.com/pnpm/pnpm/releases/download/v10.18.3/pnpm-linux-x64 && \
+  chmod +x /usr/local/bin/pnpm
 
 # Install AWS Lambda Web Adapter
 # see: https://github.com/awslabs/aws-lambda-web-adapter
@@ -45,11 +47,12 @@ RUN --mount=type=bind,source=uv.lock,target=uv.lock \
   uv sync --locked --no-install-project --all-groups
 ENV PATH="/app/.venv/bin:$PATH"
 
-COPY . .
-RUN --mount=type=bind,source=bun.lock,target=bun.lock \
+RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=bind,source=package.json,target=package.json \
-  bun install
+  --mount=type=cache,target=/home/node/.pnpm-store \
+  pnpm install --frozen-lockfile
 
+COPY . .
 RUN --mount=type=bind,source=uv.lock,target=uv.lock \
   --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
   --mount=type=cache,target=/home/app/.cache/uv \
@@ -58,26 +61,19 @@ RUN --mount=type=bind,source=uv.lock,target=uv.lock \
 
 FROM base AS e2e
 
-USER root
-RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
-  --mount=type=bind,source=package.json,target=package.json \
-  --mount=type=cache,target=/home/node/.pnpm-store \
-  pnpm playwright install-deps
-USER node
-RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
-  --mount=type=bind,source=package.json,target=package.json \
-  --mount=type=cache,target=/home/node/.pnpm-store \
-  pnpm playwright install chromium --no-shell
+RUN pnpm install @playwright/test@latest
+RUN pnpm playwright install-deps
+RUN pnpm playwright install chromium --no-shell
+RUN pnpm run build
 CMD ["pnpm", "playwright", "test"]
 
 
 FROM base AS dev
 
-CMD ["bun", "run", "dev"]
+CMD ["pnpm", "run", "dev"]
 
 
 FROM base
 
-RUN bun run build
-#CMD ["litestar", "--app", "mrnarchitect.app:app", "run", "--host", "0.0.0.0", "--port", "8080"]
-CMD ["bun", "run", "start"]
+RUN pnpm run build
+CMD ["pnpm", "run", "start"]

@@ -1,15 +1,12 @@
 {
   "name": "mrnarchitect",
-  "workspaces": [
-    "frontend"
-  ],
   "devDependencies": {
     "frontend": "workspace:*"
   },
   "scripts": {
-    "check": "bun run --filter frontend check",
-    "fix": "bun run --filter frontend fix",
-    "build": "bun run --filter frontend build",
+    "check": "pnpm run --filter frontend check",
+    "fix": "pnpm run --filter frontend fix",
+    "build": "pnpm run --filter frontend build",
     "start": "uv run litestar --app mrnarchitect.app:app run --host 0.0.0.0 --port 8080"
   }
 }
