@@ -1,0 +1,14 @@
+__pycache__
+.git
+.github
+.gitignore
+.nitro
+.output
+.pytest_cache
+.ruff-cache
+.tanstack
+.venv
+.vscode
+dist
+node_modules
+*.egg-info

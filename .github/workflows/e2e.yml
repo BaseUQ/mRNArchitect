@@ -1,0 +1,40 @@
+name: e2e
+on:
+  workflow_call:
+    inputs:
+      playwright-base-url:
+        description: "The playwright baseURL setting."
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.sha }}
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-southeast-2
+          role-to-assume: arn:aws:iam::340752831962:role/deploy
+      - uses: aws-actions/amazon-ecr-login@v2
+        id: ecr
+      - uses: docker/setup-buildx-action@v3
+        with:
+          # avoids having to export the local image
+          # see: https://docs.docker.com/build/builders/drivers/
+          driver: docker
+      - uses: docker/build-push-action@v6
+        with:
+          load: true
+          tags: ${{ env.TAG }}
+          target: e2e
+          cache-from: type=registry,ref=${{ steps.ecr.outputs.registry }}/app:buildcache
+      - run: |
+          docker run --rm -e CI=true -e PLAYWRIGHT_BASE_URL=${{ inputs.playwright-base-url }} $TAG \
+            pnpm playwright test

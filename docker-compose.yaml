@@ -1,0 +1,66 @@
+services:
+  app:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    ports:
+      - 8080:8080
+      - 8081:8081 # hmr
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.venv
+    develop:
+      watch:
+        - path: ./pnpm-lock.yaml
+          action: rebuild
+        - path: ./uv.lock
+          action: rebuild
+        #- path: ./
+        #  target: /app
+        #  action: sync
+        #  ignore:
+        #    - .venv/
+        #    - node_modules/
+        #    - notebooks/
+  e2e:
+    profiles: [e2e]
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: e2e
+    command: pnpm playwright test --ui-host 0.0.0.0 --ui-port 2345
+    ports:
+      - 2345:2345
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.venv
+    develop:
+      watch:
+        - path: ./pnpm-lock.yaml
+          action: rebuild
+        - path: ./uv.lock
+          action: rebuild
+        #- path: ./
+        #  target: /app
+        #  action: rebuild
+        #  ignore:
+        #    - .venv/
+        #    - node_modules/
+        #    - notebooks/
+  jupyter:
+    profiles: [jupyter]
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    command: jupyter lab --ip 0.0.0.0 --port 8888 --notebook-dir=./notebooks/ --IdentityProvider.token="" --ServerApp.password=""
+    ports:
+      - 8888:8888
+    volumes:
+      - ./notebooks/:/app/notebooks/
+      - $HOME/.aws:/home/node/.aws
