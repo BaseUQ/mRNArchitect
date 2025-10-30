@@ -73,7 +73,7 @@ FROM base AS dev
 CMD ["pnpm", "run", "dev"]
 
 
-FROM base
+FROM base as prod
 
 RUN pnpm run build
 CMD ["pnpm", "run", "start"]
