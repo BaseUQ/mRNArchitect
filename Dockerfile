@@ -12,12 +12,7 @@ COPY --from=ghcr.io/astral-sh/uv:0.9.4 /uv /uvx /bin/
 COPY --from=docker.io/oven/bun:distroless /usr/local/bin/bun /usr/local/bin/
 
 # Install just
-RUN curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to DEST
-
-# Install pnpm 
-# see: https://github.com/pnpm/pnpm/releases/
-#RUN wget -qO /usr/local/bin/pnpm https://github.com/pnpm/pnpm/releases/download/v10.18.3/pnpm-linux-x64 && \
-# chmod +x /usr/local/bin/pnpm
+RUN curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
 
 # Install AWS Lambda Web Adapter
 # see: https://github.com/awslabs/aws-lambda-web-adapter
