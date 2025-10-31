@@ -45,7 +45,7 @@ ENV UV_COMPILE_BYTECODE=1
 RUN --mount=type=bind,source=uv.lock,target=uv.lock \
   --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
   --mount=type=cache,target=/root/.cache/uv \
-  uv sync --locked --no-install-project --all-groups --compile-bytecode
+  uv sync --locked --no-dev --no-install-project --compile-bytecode
 ENV PATH="/app/.venv/bin:$PATH"
 
 RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
@@ -55,7 +55,7 @@ RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
 
 COPY --chown=node:node . .
 RUN --mount=type=cache,target=/root/.cache/uv \
-  uv sync --locked
+  uv sync --locked --no-dev
 
 
 FROM base AS e2e
@@ -71,11 +71,16 @@ CMD ["pnpm", "playwright", "test"]
 
 FROM base AS dev
 
+RUN --mount=type=bind,source=uv.lock,target=uv.lock \
+  --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+  --mount=type=cache,target=/root/.cache/uv \
+  uv sync --locked --group dev --compile-bytecode
+
 CMD ["pnpm", "run", "dev"]
 
 
 FROM base
 
-RUN pnpm install @playwright/test
+RUN pnpm install
 RUN pnpm run build
 CMD ["pnpm", "run", "start"]

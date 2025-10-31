@@ -36,4 +36,4 @@ jobs:
       - run: docker run --rm $TAG uv run ruff check --diff
       - run: docker run --rm $TAG uv run ty check
       - run: docker run --rm $TAG uv run pytest
-      - run: docker run --rm $TAG uv run mRNArchitect optimize ACGACG
+      - run: docker run --rm $TAG mRNArchitect optimize ACGACG
