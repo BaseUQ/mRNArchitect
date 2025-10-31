@@ -1,6 +1,7 @@
 import pathlib
 
 from litestar import Litestar, MediaType, get, post
+from litestar.config.compression import CompressionConfig
 from litestar.openapi import OpenAPIConfig
 from litestar.static_files import create_static_files_router
 import msgspec
@@ -84,5 +85,6 @@ app = Litestar(
         post_analyze,
         create_static_files_router(path="/", directories=[ASSETS_DIR]),
     ],
+    compression_config=CompressionConfig(backend="gzip", gzip_compress_level=9),
     openapi_config=OpenAPIConfig(title="mRNArchitect API", version="0.0.1"),
 )

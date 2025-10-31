@@ -6,14 +6,22 @@ import {
   QuestionIcon,
   ScribbleIcon,
 } from "@phosphor-icons/react";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { analyze, convert, optimize } from "~/api";
 import { OptimizationError } from "~/types/optimize";
-import { Help } from "./Help";
 import { InputForm } from "./InputForm";
 import { Output, type OutputProps } from "./Output";
-import { TermsAndConditions } from "./TermsAndConditions";
 import type { OptimizationInput, OptimizationOutput } from "./types";
+
+const Help = lazy(() =>
+  import("./Help").then((module) => ({ default: module.Help })),
+);
+
+const TermsAndConditions = lazy(() =>
+  import("./TermsAndConditions").then((module) => ({
+    default: module.TermsAndConditions,
+  })),
+);
 
 export const OptimizePage = () => {
   const [activeTab, setActiveTab] = useState<string | null>("input");
@@ -185,10 +193,14 @@ export const OptimizePage = () => {
           {outputProps && <Output {...outputProps} />}
         </Tabs.Panel>
         <Tabs.Panel value="help">
-          <Help />
+          <Suspense>
+            <Help />
+          </Suspense>
         </Tabs.Panel>
         <Tabs.Panel value="terms-and-conditions">
-          <TermsAndConditions />
+          <Suspense>
+            <TermsAndConditions />
+          </Suspense>
         </Tabs.Panel>
       </Box>
       {optimizationError && (
