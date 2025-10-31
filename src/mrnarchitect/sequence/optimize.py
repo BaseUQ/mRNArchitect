@@ -69,7 +69,7 @@ def _load_manufacture_restriction_sites() -> list[str]:
         ]
 
 
-class Location(msgspec.Struct, frozen=True, kw_only=True, rename="camel"):
+class Location(msgspec.Struct, frozen=True, kw_only=True):
     start_coordinate: int | None = None
     """The start coordinate (1-based)."""
     end_coordinate: int | None = None
@@ -101,7 +101,7 @@ class Location(msgspec.Struct, frozen=True, kw_only=True, rename="camel"):
 
 
 class OptimizationParameter(
-    Location, frozen=True, kw_only=True, rename="camel", forbid_unknown_fields=True
+    Location, frozen=True, kw_only=True, forbid_unknown_fields=True
 ):
     enforce_sequence: bool = False
     codon_usage_table: CodonUsageTable | Organism | None = None
@@ -283,14 +283,14 @@ class OptimizationParameter(
         return constraints, objectives
 
 
-class OptimizationResult(msgspec.Struct, kw_only=True, rename="camel"):
-    class Error(msgspec.Struct, kw_only=True, rename="camel"):
+class OptimizationResult(msgspec.Struct, kw_only=True):
+    class Error(msgspec.Struct, kw_only=True):
         message: str
         problem: str | None
         constraint: str | None
         location: str | None
 
-    class Result(msgspec.Struct, kw_only=True, rename="camel"):
+    class Result(msgspec.Struct, kw_only=True):
         sequence: Sequence
         constraints: str | None
         objectives: str | None

@@ -31,36 +31,36 @@ const createDefaultParameter = (
   startCoordinate: number | null = null,
   endCoordinate: number | null = null,
 ): OptimizationParameter => ({
-  startCoordinate,
-  endCoordinate,
-  enforceSequence: false,
-  codonUsageTable: "homo-sapiens",
-  optimizeCai: true,
-  optimizeTai: null,
-  avoidRepeatLength: 10,
-  enableUridineDepletion: false,
-  avoidRibosomeSlip: false,
-  avoidManufactureRestrictionSites: false,
-  avoidMicroRnaSeedSites: false,
-  gcContentMin: 0.4,
-  gcContentMax: 0.7,
-  gcContentWindow: 100,
-  avoidRestrictionSites: [],
-  avoidSequences: [],
-  avoidPolyT: 9,
-  avoidPolyA: 9,
-  avoidPolyC: 6,
-  avoidPolyG: 6,
-  hairpinStemSize: 10,
-  hairpinWindow: 60,
+  start_coordinate: startCoordinate,
+  end_coordinate: endCoordinate,
+  enforce_sequence: false,
+  codon_usage_table: "homo-sapiens",
+  optimize_cai: true,
+  optimize_tai: null,
+  avoid_repeat_length: 10,
+  enable_uridine_depletion: false,
+  avoid_ribosome_slip: false,
+  avoid_manufacture_restriction_sites: false,
+  avoid_micro_rna_seed_sites: false,
+  gc_content_min: 0.4,
+  gc_content_max: 0.7,
+  gc_content_window: 100,
+  avoid_restriction_sites: [],
+  avoid_sequences: [],
+  avoid_poly_t: 9,
+  avoid_poly_a: 9,
+  avoid_poly_c: 6,
+  avoid_poly_g: 6,
+  hairpin_stem_size: 10,
+  hairpin_window: 60,
 });
 
 const parameterTitle = (
   sequence: Sequence,
   parameter: OptimizationParameter,
 ) => {
-  const start = parameter.startCoordinate ?? 1;
-  const end = parameter.endCoordinate ?? nucleotideCDSLength(sequence);
+  const start = parameter.start_coordinate ?? 1;
+  const end = parameter.end_coordinate ?? nucleotideCDSLength(sequence);
   return `Region [${start}-${end}]`;
 };
 

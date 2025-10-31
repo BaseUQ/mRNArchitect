@@ -12,8 +12,8 @@ const parameterTitle = (
   sequence: Sequence,
   parameter: OptimizationParameter,
 ): string => {
-  const start = parameter.startCoordinate ?? 1;
-  const end = parameter.endCoordinate ?? nucleotideCDSLength(sequence);
+  const start = parameter.start_coordinate ?? 1;
+  const end = parameter.end_coordinate ?? nucleotideCDSLength(sequence);
   return `Parameter region [${start}-${end}]`;
 };
 
@@ -40,32 +40,32 @@ const generateReport = ({
     .map((c) => {
       const report: string[] = [
         `---${parameterTitle(sequence, c)}`,
-        `Start coordinate\t\t\t${c.startCoordinate || "1"}`,
-        `End coordinate\t\t\t\t${c.endCoordinate || output.outputs[0].optimization.result.sequence.nucleicAcidSequence.length}`,
-        `Don't optimise region\t\t\t${c.enforceSequence}`,
+        `Start coordinate\t\t\t${c.start_coordinate || "1"}`,
+        `End coordinate\t\t\t\t${c.end_coordinate || output.outputs[0].optimization.result.sequence.nucleic_acid_sequence.length}`,
+        `Don't optimise region\t\t\t${c.enforce_sequence}`,
       ];
-      if (!c.enforceSequence) {
+      if (!c.enforce_sequence) {
         report.push(
           ...[
             //`Optimise CAI\t\t\t\t${c.optimizeCai}`,
             //`Optimise tAI\t\t\t\t${c.optimizeTai}`,
-            `Organism\t\t\t\t${c.codonUsageTable}`,
-            `Avoid repeat length\t\t\t${c.avoidRepeatLength}`,
-            `Enable uridine depletion\t\t${c.enableUridineDepletion}`,
-            `Avoid ribosome slip\t\t\t${c.avoidRibosomeSlip}`,
-            `Avoid manufacture restriction sites\t${c.avoidManufactureRestrictionSites}`,
-            `Avoid microRNA seed sites\t\t${c.avoidMicroRnaSeedSites}`,
-            `GC content minimum\t\t\t${c.gcContentMin}`,
-            `GC content maximum\t\t\t${c.gcContentMax}`,
-            `GC content window\t\t\t${c.gcContentWindow}`,
-            `Avoid cut sites\t\t\t\t${c.avoidRestrictionSites}`,
-            `Avoid sequences\t\t\t\t${c.avoidSequences}`,
-            `Avoid poly(U)\t\t\t\t${c.avoidPolyT}`,
-            `Avoid poly(A)\t\t\t\t${c.avoidPolyA}`,
-            `Avoid poly(C)\t\t\t\t${c.avoidPolyC}`,
-            `Avoid poly(G)\t\t\t\t${c.avoidPolyG}`,
-            `Hairpin stem size\t\t\t${c.hairpinStemSize}`,
-            `Hairpin window\t\t\t\t${c.hairpinWindow}`,
+            `Organism\t\t\t\t${c.codon_usage_table}`,
+            `Avoid repeat length\t\t\t${c.avoid_repeat_length}`,
+            `Enable uridine depletion\t\t${c.enable_uridine_depletion}`,
+            `Avoid ribosome slip\t\t\t${c.avoid_ribosome_slip}`,
+            `Avoid manufacture restriction sites\t${c.avoid_manufacture_restriction_sites}`,
+            `Avoid microRNA seed sites\t\t${c.avoid_micro_rna_seed_sites}`,
+            `GC content minimum\t\t\t${c.gc_content_min}`,
+            `GC content maximum\t\t\t${c.gc_content_max}`,
+            `GC content window\t\t\t${c.gc_content_window}`,
+            `Avoid cut sites\t\t\t\t${c.avoid_restriction_sites}`,
+            `Avoid sequences\t\t\t\t${c.avoid_sequences}`,
+            `Avoid poly(U)\t\t\t\t${c.avoid_poly_t}`,
+            `Avoid poly(A)\t\t\t\t${c.avoid_poly_a}`,
+            `Avoid poly(C)\t\t\t\t${c.avoid_poly_c}`,
+            `Avoid poly(G)\t\t\t\t${c.avoid_poly_g}`,
+            `Hairpin stem size\t\t\t${c.hairpin_stem_size}`,
+            `Hairpin window\t\t\t\t${c.hairpin_window}`,
           ],
         );
       }
@@ -77,26 +77,26 @@ const generateReport = ({
     ({ optimization, cdsAnalysis, fullSequenceAnalysis }, index) => [
       `---Optimised Sequence #${index + 1}`,
       "",
-      `CDS:\t\t\t${optimization.result.sequence.nucleicAcidSequence}`,
+      `CDS:\t\t\t${optimization.result.sequence.nucleic_acid_sequence}`,
       "",
-      `Full-length mRNA:\t${sequence.fivePrimeUtr + optimization.result.sequence.nucleicAcidSequence + sequence.threePrimeUtr + sequence.polyATail}`,
+      `Full-length mRNA:\t${sequence.fivePrimeUtr + optimization.result.sequence.nucleic_acid_sequence + sequence.threePrimeUtr + sequence.polyATail}`,
       "",
       "---Results",
       "Metric\t\t\tInput\tOptimised",
-      `A ratio\t\t\t${output.input.cdsAnalysis.aRatio.toFixed(2)}\t${cdsAnalysis.aRatio.toFixed(2)}`,
-      `T/U ratio\t\t${output.input.cdsAnalysis.tRatio.toFixed(2)}\t${cdsAnalysis.tRatio.toFixed(2)}`,
-      `G ratio\t\t\t${output.input.cdsAnalysis.gRatio.toFixed(2)}\t${cdsAnalysis.gRatio.toFixed(2)}`,
-      `C ratio\t\t\t${output.input.cdsAnalysis.cRatio.toFixed(2)}\t${cdsAnalysis.cRatio.toFixed(2)}`,
-      `AT ratio\t\t${output.input.cdsAnalysis.atRatio.toFixed(2)}\t${cdsAnalysis.atRatio.toFixed(2)}`,
-      `GA ratio\t\t${output.input.cdsAnalysis.gaRatio.toFixed(2)}\t${cdsAnalysis.gaRatio.toFixed(2)}`,
-      `GC ratio\t\t${output.input.cdsAnalysis.gcRatio.toFixed(2)}\t${cdsAnalysis.gcRatio.toFixed(2)}`,
-      `Uridine depletion\t${output.input.cdsAnalysis.uridineDepletion?.toFixed(2) ?? "-"}\t${cdsAnalysis.uridineDepletion?.toFixed(2) ?? "-"}`,
-      `CAI\t\t\t${output.input.cdsAnalysis.codonAdaptationIndex?.toFixed(2) ?? "-"}\t${cdsAnalysis.codonAdaptationIndex?.toFixed(2) ?? "-"}`,
-      `tAI\t\t\t${output.input.cdsAnalysis.trnaAdaptationIndex?.toFixed(2) ?? "-"}\t${cdsAnalysis.trnaAdaptationIndex?.toFixed(2) ?? "-"}`,
-      `CDS MFE (kcal/mol)\t${output.input.cdsAnalysis.minimumFreeEnergy.energy.toFixed(2)}\t${cdsAnalysis.minimumFreeEnergy.energy.toFixed(2)}`,
-      `5' UTR MFE (kcal/mol)\t${output.input.fivePrimeUtrAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}\t${output.input.fivePrimeUtrAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}`,
-      `3' UTR MFE (kcal/mol)\t${output.input.threePrimeUtrAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}\t${output.input.threePrimeUtrAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}`,
-      `Total MFE (kcal/mol)\t${output.input.fullSequenceAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}\t${fullSequenceAnalysis?.minimumFreeEnergy.energy.toFixed(2) ?? "-"}`,
+      `A ratio\t\t\t${output.input.cdsAnalysis.a_ratio.toFixed(2)}\t${cdsAnalysis.a_ratio.toFixed(2)}`,
+      `T/U ratio\t\t${output.input.cdsAnalysis.t_ratio.toFixed(2)}\t${cdsAnalysis.t_ratio.toFixed(2)}`,
+      `G ratio\t\t\t${output.input.cdsAnalysis.g_ratio.toFixed(2)}\t${cdsAnalysis.g_ratio.toFixed(2)}`,
+      `C ratio\t\t\t${output.input.cdsAnalysis.c_ratio.toFixed(2)}\t${cdsAnalysis.c_ratio.toFixed(2)}`,
+      `AT ratio\t\t${output.input.cdsAnalysis.at_ratio.toFixed(2)}\t${cdsAnalysis.at_ratio.toFixed(2)}`,
+      `GA ratio\t\t${output.input.cdsAnalysis.ga_ratio.toFixed(2)}\t${cdsAnalysis.ga_ratio.toFixed(2)}`,
+      `GC ratio\t\t${output.input.cdsAnalysis.gc_ratio.toFixed(2)}\t${cdsAnalysis.gc_ratio.toFixed(2)}`,
+      `Uridine depletion\t${output.input.cdsAnalysis.uridine_depletion?.toFixed(2) ?? "-"}\t${cdsAnalysis.uridine_depletion?.toFixed(2) ?? "-"}`,
+      `CAI\t\t\t${output.input.cdsAnalysis.codon_adaptation_index?.toFixed(2) ?? "-"}\t${cdsAnalysis.codon_adaptation_index?.toFixed(2) ?? "-"}`,
+      `tAI\t\t\t${output.input.cdsAnalysis.trna_adaptation_index?.toFixed(2) ?? "-"}\t${cdsAnalysis.trna_adaptation_index?.toFixed(2) ?? "-"}`,
+      `CDS MFE (kcal/mol)\t${output.input.cdsAnalysis.minimum_free_energy.energy.toFixed(2)}\t${cdsAnalysis.minimum_free_energy.energy.toFixed(2)}`,
+      `5' UTR MFE (kcal/mol)\t${output.input.fivePrimeUtrAnalysis?.minimum_free_energy.energy.toFixed(2) ?? "-"}\t${output.input.fivePrimeUtrAnalysis?.minimum_free_energy.energy.toFixed(2) ?? "-"}`,
+      `3' UTR MFE (kcal/mol)\t${output.input.threePrimeUtrAnalysis?.minimum_free_energy.energy.toFixed(2) ?? "-"}\t${output.input.threePrimeUtrAnalysis?.minimum_free_energy.energy.toFixed(2) ?? "-"}`,
+      `Total MFE (kcal/mol)\t${output.input.fullSequenceAnalysis?.minimum_free_energy.energy.toFixed(2) ?? "-"}\t${fullSequenceAnalysis?.minimum_free_energy.energy.toFixed(2) ?? "-"}`,
       "",
       "---Logs",
       ...optimization.result.constraints.trim().split("\n"),

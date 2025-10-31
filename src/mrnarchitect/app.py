@@ -29,7 +29,7 @@ async def get_index() -> str:
         return f.read()
 
 
-class ConvertRequest(msgspec.Struct, rename="camel"):
+class ConvertRequest(msgspec.Struct):
     sequence: str
     sequence_type: SequenceType = "auto-detect"
     organism: Organism = "homo-sapiens"
