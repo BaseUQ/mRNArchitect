@@ -74,7 +74,7 @@ FROM base AS dev
 RUN --mount=type=bind,source=uv.lock,target=uv.lock \
   --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
   --mount=type=cache,target=/root/.cache/uv \
-  uv sync --locked --only-group dev --compile-bytecode
+  uv sync --locked --group dev --compile-bytecode
 
 CMD ["pnpm", "run", "dev"]
 
