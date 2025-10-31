@@ -1,10 +1,10 @@
 import collections
+import csv
 import functools
 import pathlib
 import statistics
 
 import msgspec
-import polars as pl
 
 from mrnarchitect.constants import CODONS
 from mrnarchitect.organism import CodonUsageTable
@@ -18,8 +18,12 @@ def load_rare_codons() -> set[str]:
     >>> len(load_rare_codons())
     61
     """
-    df = pl.read_csv(pathlib.Path(__file__).parent / "rare-codons.csv")
-    return set(df["codon"].to_list())
+    # df = pl.read_csv(pathlib.Path(__file__).parent / "rare-codons.csv")
+    with open(
+        pathlib.Path(__file__).parent / "rare-codons.csv", "r", encoding="utf-8-sig"
+    ) as f:
+        reader = csv.DictReader(f, delimiter=",")
+        return set([row["codon"] for row in reader])
 
 
 @functools.cache
@@ -29,13 +33,18 @@ def load_codon_pairs() -> dict[tuple[str, str], float]:
     >>> len(load_codon_pairs())
     4096
     """
-    df = pl.read_csv(pathlib.Path(__file__).parent / "codon-pair" / "human.csv")
-    total_count = df["#CODON PAIRS"].to_list()[0]
+    with open(pathlib.Path(__file__).parent / "codon-pair" / "human.csv", "r") as f:
+        reader = csv.DictReader(f, delimiter=",")
+        rows = [row for row in reader]
+    total_count = float(rows[0]["#CODON PAIRS"])
+    assert reader.fieldnames
     columns = [
-        c for c in df.columns if len(c) == 6 and c[:3] in CODONS and c[3:] in CODONS
+        c
+        for c in reader.fieldnames
+        if len(c) == 6 and c[:3] in CODONS and c[3:] in CODONS
     ]
     assert len(columns) == 64**2, f"Length should be {64**2}: {len(columns)}"
-    return {(c[:3], c[3:]): df[c].to_list()[0] / total_count for c in columns}
+    return {(c[:3], c[3:]): float(rows[0][c]) / total_count for c in columns}
 
 
 def load_codon_usage_table(

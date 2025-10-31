@@ -3,9 +3,7 @@ name = "mrnarchitect"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-authors = [
-    { name = "Jonathon Waterhouse", email = "jon@wtrhs.com" }
-]
+authors = [{ name = "Jonathon Waterhouse", email = "jon@wtrhs.com" }]
 requires-python = ">=3.13,<3.14"
 dependencies = [
   "biopython>=1.85",
@@ -13,8 +11,6 @@ dependencies = [
   "dnachisel>=3.2.16",
   "litestar[standard]>=2.18.0",
   "msgspec>=0.19.0",
-  "plotnine>=0.15.0",
-  "polars[all]>=1.34.0",
   "viennarna>=2.7.0",
 ]
 
@@ -22,6 +18,8 @@ dependencies = [
 dev = [
   "ipython>=9.6.0",
   "jupyterlab>=4.4.9",
+  "plotnine>=0.15.0",
+  "polars[all]>=1.34.0",
   "pyright>=1.1.406",
   "pytest>=8.4.2",
   "ruff>=0.14.1",
