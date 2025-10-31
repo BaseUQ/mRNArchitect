@@ -15,6 +15,7 @@
     "build": "pnpm run --filter frontend build",
     "start": "uv run --no-project litestar --app mrnarchitect.app:app run --host 0.0.0.0 --port 8080",
     "check": "biome check",
-    "fix": "biome check --fix"
+    "fix": "biome check --fix",
+    "test": "pnpm vitest run --dir frontend"
   }
 }
