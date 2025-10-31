@@ -15,15 +15,12 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = [
+dev = ["pyright>=1.1.406", "pytest>=8.4.2", "ruff>=0.14.1", "ty>=0.0.1a25"]
+data = [
   "ipython>=9.6.0",
   "jupyterlab>=4.4.9",
   "plotnine>=0.15.0",
   "polars[all]>=1.34.0",
-  "pyright>=1.1.406",
-  "pytest>=8.4.2",
-  "ruff>=0.14.1",
-  "ty>=0.0.1a25",
 ]
 
 [project.scripts]

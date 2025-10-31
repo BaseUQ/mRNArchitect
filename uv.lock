@@ -1416,11 +1416,13 @@ dependencies = [
 ]
 
 [package.dev-dependencies]
-dev = [
+data = [
     { name = "ipython" },
     { name = "jupyterlab" },
     { name = "plotnine" },
     { name = "polars", extra = ["all"] },
+]
+dev = [
     { name = "pyright" },
     { name = "pytest" },
     { name = "ruff" },
@@ -1438,11 +1440,13 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-dev = [
+data = [
     { name = "ipython", specifier = ">=9.6.0" },
     { name = "jupyterlab", specifier = ">=4.4.9" },
     { name = "plotnine", specifier = ">=0.15.0" },
     { name = "polars", extras = ["all"], specifier = ">=1.34.0" },
+]
+dev = [
     { name = "pyright", specifier = ">=1.1.406" },
     { name = "pytest", specifier = ">=8.4.2" },
     { name = "ruff", specifier = ">=0.14.1" },
