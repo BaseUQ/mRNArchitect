@@ -1,9 +1,9 @@
 import z from "zod/v4";
 import {
-  type Analysis,
+  type AnalyzeResponse,
   OptimizationParameter,
   type OptimizationResult,
-} from "~/types/optimize";
+} from "~/api/types";
 import { Sequence } from "~/types/sequence";
 
 export const OptimizationInput = z.object({
@@ -17,14 +17,14 @@ export type OptimizationInput = z.infer<typeof OptimizationInput>;
 
 export interface OptimizationOutput {
   input: {
-    cdsAnalysis: Analysis;
-    fivePrimeUtrAnalysis: Analysis | null;
-    threePrimeUtrAnalysis: Analysis | null;
-    fullSequenceAnalysis: Analysis;
+    cdsAnalysis: AnalyzeResponse;
+    fivePrimeUtrAnalysis: AnalyzeResponse | null;
+    threePrimeUtrAnalysis: AnalyzeResponse | null;
+    fullSequenceAnalysis: AnalyzeResponse;
   };
   outputs: {
     optimization: OptimizationResult;
-    cdsAnalysis: Analysis;
-    fullSequenceAnalysis: Analysis;
+    cdsAnalysis: AnalyzeResponse;
+    fullSequenceAnalysis: AnalyzeResponse;
   }[];
 }

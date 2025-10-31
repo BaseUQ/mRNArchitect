@@ -8,7 +8,7 @@ import {
 } from "@phosphor-icons/react";
 import { lazy, Suspense, useState } from "react";
 import { analyze, convert, optimize } from "~/api";
-import { OptimizationError } from "~/types/optimize";
+import { OptimizationError } from "~/api/types";
 import { InputForm } from "./InputForm";
 import { Output, type OutputProps } from "./Output";
 import type { OptimizationInput, OptimizationOutput } from "./types";
@@ -83,13 +83,13 @@ export const OptimizePage = () => {
       }
 
       const cdsAnalysis = await analyze({
-        sequence: optimization.result.sequence.nucleicAcidSequence,
-        organism: parameters[0].codonUsageTable,
+        sequence: optimization.result.sequence.nucleic_acid_sequence,
+        organism: parameters[0].codon_usage_table,
       });
 
       const fullSequenceAnalysis = await analyze({
-        sequence: `${sequence.fivePrimeUtr}${optimization.result.sequence.nucleicAcidSequence}${sequence.threePrimeUtr}${sequence.polyATail}`,
-        organism: parameters[0].codonUsageTable,
+        sequence: `${sequence.fivePrimeUtr}${optimization.result.sequence.nucleic_acid_sequence}${sequence.threePrimeUtr}${sequence.polyATail}`,
+        organism: parameters[0].codon_usage_table,
       });
 
       return { optimization, cdsAnalysis, fullSequenceAnalysis };
@@ -100,7 +100,7 @@ export const OptimizePage = () => {
     try {
       const formValues = await parseInput(values);
       const { sequence, parameters, numberOfSequences } = formValues;
-      const organism = parameters[0].codonUsageTable;
+      const organism = parameters[0].codon_usage_table;
 
       const [
         cdsAnalysis,
@@ -134,8 +134,8 @@ export const OptimizePage = () => {
             fullSequenceAnalysis,
           },
           outputs: outputs.sort((a, b) =>
-            (a.fullSequenceAnalysis.codonAdaptationIndex ?? 0) >
-            (b.cdsAnalysis.codonAdaptationIndex ?? 0)
+            (a.fullSequenceAnalysis.codon_adaptation_index ?? 0) >
+            (b.cdsAnalysis.codon_adaptation_index ?? 0)
               ? -1
               : 1,
           ),
