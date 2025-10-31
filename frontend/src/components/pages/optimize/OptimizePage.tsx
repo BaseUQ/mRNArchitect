@@ -150,10 +150,7 @@ export const OptimizePage = () => {
   return (
     <Tabs value={activeTab} onChange={handleTabsOnChange}>
       <Tabs.List>
-        <Tabs.Tab
-          value="input"
-          leftSection={<ScribbleIcon size={16} transform="rotate(45)" />}
-        >
+        <Tabs.Tab value="input" leftSection={<ScribbleIcon size={16} />}>
           Input
         </Tabs.Tab>
         <Tabs.Tab
