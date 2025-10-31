@@ -1,7 +1,9 @@
 import pathlib
+import os
 
 from litestar import Litestar, MediaType, get, post
 from litestar.config.compression import CompressionConfig
+from litestar.config.cors import CORSConfig
 from litestar.openapi import OpenAPIConfig
 from litestar.static_files import create_static_files_router
 import msgspec
@@ -18,6 +20,7 @@ from mrnarchitect.utils.fasta import SequenceType
 
 
 ASSETS_DIR = pathlib.Path("frontend/dist")
+ALLOW_ORIGINS = [it for it in os.getenv("ALLOW_ORIGINS", "").split(",") if it]
 
 
 @get("/", media_type=MediaType.HTML, include_in_schema=False)
@@ -86,5 +89,6 @@ app = Litestar(
         create_static_files_router(path="/", directories=[ASSETS_DIR]),
     ],
     compression_config=CompressionConfig(backend="gzip", gzip_compress_level=9),
+    cors_config=CORSConfig(allow_origins=ALLOW_ORIGINS) if ALLOW_ORIGINS else None,
     openapi_config=OpenAPIConfig(title="mRNArchitect API", version="0.0.1"),
 )
