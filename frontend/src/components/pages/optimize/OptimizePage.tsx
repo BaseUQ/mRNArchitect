@@ -8,7 +8,7 @@ import {
 } from "@phosphor-icons/react";
 import { lazy, Suspense, useState } from "react";
 import { analyze, convert, optimize } from "~/api";
-import { OptimizationError } from "~/types/optimize";
+import { OptimizationError } from "~/api/types";
 import { InputForm } from "./InputForm";
 import { Output, type OutputProps } from "./Output";
 import type { OptimizationInput, OptimizationOutput } from "./types";

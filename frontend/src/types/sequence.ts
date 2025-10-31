@@ -1,5 +1,5 @@
 import z from "zod/v4";
-import { sanitizeNucleicAcidSequence, sanitizeSequence } from "./util";
+import { sanitizeNucleicAcidSequence, sanitizeSequence } from "~/api/utils";
 
 export const Sequence = z
   .object({

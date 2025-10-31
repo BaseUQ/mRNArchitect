@@ -1,7 +1,14 @@
 import z from "zod/v4";
-import { sanitizeNucleicAcidSequence } from "./util";
+import { sanitizeNucleicAcidSequence } from "./utils";
 
 const REQUIRED_MESSAGE = "Field cannot be empty.";
+
+export const SequenceAndOrganism = z.object({
+  sequence: z.string().nonempty(),
+  organism: z.string().nonempty(),
+});
+
+export type SequenceAndOrganism = z.infer<typeof SequenceAndOrganism>;
 
 export const OptimizationParameter = z
   .object({
@@ -82,6 +89,13 @@ export const OptimizationParameter = z
 
 export type OptimizationParameter = z.infer<typeof OptimizationParameter>;
 
+export const OptimizationRequest = z.object({
+  sequence: z.string().nonempty(),
+  parameters: z.array(OptimizationParameter),
+});
+
+export type OptimizationRequest = z.infer<typeof OptimizationRequest>;
+
 export const OptimizationResult = z.object({
   success: z.literal(true),
   result: z.object({
@@ -106,11 +120,14 @@ export const OptimizationError = z.object({
 
 export type OptimizationError = z.infer<typeof OptimizationError>;
 
-export const Optimization = z.union([OptimizationResult, OptimizationError]);
+export const OptimizationResponse = z.union([
+  OptimizationResult,
+  OptimizationError,
+]);
 
-export type Optimization = z.infer<typeof Optimization>;
+export type OptimizationResponse = z.infer<typeof OptimizationResponse>;
 
-export const Analysis = z.object({
+export const AnalyzeResponse = z.object({
   a_ratio: z.number(),
   c_ratio: z.number(),
   g_ratio: z.number(),
@@ -130,4 +147,4 @@ export const Analysis = z.object({
   }),
 });
 
-export type Analysis = z.infer<typeof Analysis>;
+export type AnalyzeResponse = z.infer<typeof AnalyzeResponse>;
