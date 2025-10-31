@@ -20,6 +20,12 @@ jobs:
       image-tag: pr-${{ github.sha }}
       lambda-function-alias: pr-${{ github.event.pull_request.number }}
 
+  e2e-lambda:
+    needs: [build-push-and-deploy]
+    uses: ./.github/workflows/e2e.yml
+    with:
+      playwright-base-url: ${{ needs.build-push-and-deploy.outputs.lambda-function-url }}
+
   comment-function-url:
     needs: [build-push-and-deploy]
     runs-on: ubuntu-latest
@@ -44,5 +50,3 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           uv run .github/scripts/prune-lambda-versions.py ${{ github.repository }}
-
-
