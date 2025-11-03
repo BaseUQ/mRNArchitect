@@ -81,6 +81,7 @@ CMD ["pnpm", "run", "dev"]
 
 FROM base
 
+# pnpm install is needed again to fix a typescript error during build
 RUN pnpm install
 RUN pnpm run build
 CMD ["pnpm", "run", "start"]
