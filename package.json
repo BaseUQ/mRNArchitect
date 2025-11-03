@@ -6,10 +6,10 @@
     "concurrently": "^9.2.1",
     "frontend": "workspace:*",
     "typescript": "~5.9.3",
-    "vitest": "^4.0.4"
+    "vitest": "^4.0.6"
   },
   "scripts": {
-    "dev": "conc 'pnpm dev:frontend' 'pnpm dev:backend'",
+    "dev": "conc --names frontend,backend 'pnpm dev:frontend' 'pnpm dev:backend'",
     "dev:frontend": "VITE_API='http://127.0.0.1:8080' pnpm --filter frontend dev",
     "dev:backend": "ALLOW_ORIGINS='*' uv run --no-project litestar --app mrnarchitect.app:app run --host 0.0.0.0 --port 8080 --reload --debug",
     "build": "pnpm run --filter frontend build",
