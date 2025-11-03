@@ -8,7 +8,6 @@ from litestar.openapi import OpenAPIConfig
 from litestar.static_files import create_static_files_router
 import msgspec
 
-from mrnarchitect import sequence
 from mrnarchitect.sequence.optimize import (
     optimize,
     OptimizationParameter,
