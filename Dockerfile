@@ -81,6 +81,5 @@ CMD ["pnpm", "run", "dev"]
 
 FROM base
 
-RUN pnpm install
 RUN pnpm run build
 CMD ["pnpm", "run", "start"]
