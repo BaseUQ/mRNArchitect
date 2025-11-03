@@ -1,6 +1,9 @@
 import pathlib
+import os
 
 from litestar import Litestar, MediaType, get, post
+from litestar.config.compression import CompressionConfig
+from litestar.config.cors import CORSConfig
 from litestar.openapi import OpenAPIConfig
 from litestar.static_files import create_static_files_router
 import msgspec
@@ -17,6 +20,7 @@ from mrnarchitect.utils.fasta import SequenceType
 
 
 ASSETS_DIR = pathlib.Path("frontend/dist")
+ALLOW_ORIGINS = [it for it in os.getenv("ALLOW_ORIGINS", "").split(",") if it]
 
 
 @get("/", media_type=MediaType.HTML, include_in_schema=False)
@@ -25,7 +29,7 @@ async def get_index() -> str:
         return f.read()
 
 
-class ConvertRequest(msgspec.Struct, rename="camel"):
+class ConvertRequest(msgspec.Struct):
     sequence: str
     sequence_type: SequenceType = "auto-detect"
     organism: Organism = "homo-sapiens"
@@ -57,8 +61,21 @@ class OptimizeRequest(msgspec.Struct):
     summary="Optimize sequence.",
     description="Run an optimization on the given sequence.",
 )
-async def post_optimize(data: OptimizeRequest) -> OptimizationResult:
-    return optimize(Sequence.create(data.sequence), parameters=data.parameters)
+async def post_optimize(data: OptimizeRequest, headers: dict) -> OptimizationResult:
+    result = optimize(Sequence.create(data.sequence), parameters=data.parameters)
+    # Log the optimization
+    print(
+        msgspec.json.encode(
+            {
+                "function": "optimize",
+                "ip": headers.get("x-forwarded-for")
+                or headers.get("X-Forwarded-For")
+                or None,
+                "sequence": data.sequence,
+            }
+        ).decode("utf-8")
+    )
+    return result
 
 
 class AnalyzeRequest(msgspec.Struct):
@@ -84,5 +101,7 @@ app = Litestar(
         post_analyze,
         create_static_files_router(path="/", directories=[ASSETS_DIR]),
     ],
+    compression_config=CompressionConfig(backend="gzip", gzip_compress_level=9),
+    cors_config=CORSConfig(allow_origins=ALLOW_ORIGINS) if ALLOW_ORIGINS else None,
     openapi_config=OpenAPIConfig(title="mRNArchitect API", version="0.0.1"),
 )

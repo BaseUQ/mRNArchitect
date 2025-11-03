@@ -1,18 +1,12 @@
 import z from "zod/v4";
 import {
-  Analysis,
-  Optimization,
-  OptimizationParameter,
-} from "~/types/optimize";
+  AnalyzeResponse,
+  type OptimizationRequest,
+  OptimizationResponse,
+  type SequenceAndOrganism,
+} from "./types";
 
 const API = import.meta.env.VITE_API ?? "";
-
-const SequenceAndOrganism = z.object({
-  sequence: z.string().nonempty(),
-  organism: z.string().nonempty(),
-});
-
-type SequenceAndOrganism = z.infer<typeof SequenceAndOrganism>;
 
 export const convert = (data: SequenceAndOrganism) =>
   fetch(`${API}/api/convert`, {
@@ -28,20 +22,13 @@ export const convert = (data: SequenceAndOrganism) =>
         .parse(json),
     );
 
-const OptimizationRequest = z.object({
-  sequence: z.string().nonempty(),
-  parameters: z.array(OptimizationParameter),
-});
-
-type OptimizationRequest = z.infer<typeof OptimizationRequest>;
-
 export const optimize = (data: OptimizationRequest) =>
   fetch(`${API}/api/optimize`, {
     method: "POST",
     body: JSON.stringify(data),
   })
     .then((response) => response.json())
-    .then((json) => Optimization.parse(json));
+    .then((json) => OptimizationResponse.parse(json));
 
 export const analyze = (data: SequenceAndOrganism) =>
   fetch(`${API}/api/analyze`, {
@@ -49,4 +36,4 @@ export const analyze = (data: SequenceAndOrganism) =>
     body: JSON.stringify(data),
   })
     .then((response) => response.json())
-    .then((json) => Analysis.parse(json));
+    .then((json) => AnalyzeResponse.parse(json));

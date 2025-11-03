@@ -21,7 +21,7 @@ from mrnarchitect.types import AminoAcid, Codon, Organism
 from mrnarchitect.data import load_codon_usage_table, load_trna_adaptation_index_dataset
 
 
-class MinimumFreeEnergy(msgspec.Struct, kw_only=True, rename="camel"):
+class MinimumFreeEnergy(msgspec.Struct, kw_only=True):
     structure: str
     """String representing the sequence structure."""
     energy: float
@@ -30,7 +30,7 @@ class MinimumFreeEnergy(msgspec.Struct, kw_only=True, rename="camel"):
     """Normalized MFE (or AMFE)."""
 
 
-class WindowedMinimumFreeEnergy(msgspec.Struct, kw_only=True, rename="camel"):
+class WindowedMinimumFreeEnergy(msgspec.Struct, kw_only=True):
     window_size: int
     step: int
     energies: list[MinimumFreeEnergy]
@@ -38,8 +38,8 @@ class WindowedMinimumFreeEnergy(msgspec.Struct, kw_only=True, rename="camel"):
     standard_deviation: float
 
 
-class Analysis(msgspec.Struct, kw_only=True, rename="camel"):
-    class Debug(msgspec.Struct, kw_only=True, rename="camel"):
+class Analysis(msgspec.Struct, kw_only=True):
+    class Debug(msgspec.Struct, kw_only=True):
         time_seconds: float
 
     a_ratio: float
@@ -59,7 +59,7 @@ class Analysis(msgspec.Struct, kw_only=True, rename="camel"):
 SequenceType = typing.Literal["nucleic-acid", "amino-acid", "auto-detect"]
 
 
-class Sequence(msgspec.Struct, frozen=True, rename="camel"):
+class Sequence(msgspec.Struct, frozen=True):
     """A nucleic acid sequence.
 
     >>> str(Sequence("ATT"))

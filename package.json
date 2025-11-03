@@ -3,14 +3,19 @@
   "devDependencies": {
     "@biomejs/biome": "^2.3.2",
     "@playwright/test": "^1.56.1",
+    "concurrently": "^9.2.1",
     "frontend": "workspace:*",
     "typescript": "~5.9.3",
-    "vitest": "^4.0.4"
+    "vitest": "^4.0.6"
   },
   "scripts": {
+    "dev": "conc --names frontend,backend 'pnpm dev:frontend' 'pnpm dev:backend'",
+    "dev:frontend": "VITE_API='http://127.0.0.1:8080' pnpm --filter frontend dev",
+    "dev:backend": "ALLOW_ORIGINS='*' uv run --no-project litestar --app mrnarchitect.app:app run --host 0.0.0.0 --port 8080 --reload --debug",
     "build": "pnpm run --filter frontend build",
-    "start": "litestar --app mrnarchitect.app:app run --host 0.0.0.0 --port 8080",
+    "start": "uv run --no-project litestar --app mrnarchitect.app:app run --host 0.0.0.0 --port 8080",
     "check": "biome check",
-    "fix": "biome check --fix"
+    "fix": "biome check --fix",
+    "test": "pnpm vitest run --dir frontend"
   }
 }

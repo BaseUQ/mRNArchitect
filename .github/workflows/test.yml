@@ -32,8 +32,8 @@ jobs:
           target: dev
           cache-from: type=registry,ref=${{ steps.ecr.outputs.registry }}/app:buildcache
       - run: docker run --rm $TAG pnpm check
-      - run: docker run --rm $TAG pnpm vitest run --dir frontend
+      - run: docker run --rm $TAG pnpm test
       - run: docker run --rm $TAG uv run ruff check --diff
       - run: docker run --rm $TAG uv run ty check
       - run: docker run --rm $TAG uv run pytest
-      - run: docker run --rm $TAG uv run mRNArchitect optimize ACGACG
+      - run: docker run --rm $TAG mRNArchitect optimize ACGACG
