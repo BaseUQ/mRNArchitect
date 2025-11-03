@@ -1,39 +1,45 @@
 [project]
-name = "tools"
+name = "mrnarchitect"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
+authors = [{ name = "Jonathon Waterhouse", email = "jon@wtrhs.com" }]
 requires-python = ">=3.13,<3.14"
 dependencies = [
   "biopython>=1.85",
   "boto3>=1.40.55",
   "dnachisel>=3.2.16",
+  "litestar[standard]>=2.18.0",
   "msgspec>=0.19.0",
-  "plotnine>=0.15.0",
-  "polars[all]>=1.34.0",
   "viennarna>=2.7.0",
 ]
 
 [dependency-groups]
-dev = [
+dev = ["pyright>=1.1.406", "pytest>=8.4.2", "ruff>=0.14.1", "ty>=0.0.1a25"]
+data = [
   "ipython>=9.6.0",
   "jupyterlab>=4.4.9",
-  "pyright>=1.1.406",
-  "pytest>=8.4.2",
-  "ruff>=0.14.1",
+  "plotnine>=0.15.0",
+  "polars[all]>=1.34.0",
 ]
 
+[project.scripts]
+mRNArchitect = "mrnarchitect.cli:cli"
+
+[build-system]
+requires = ["uv_build>=0.9.5,<0.10.0"]
+build-backend = "uv_build"
+
 [tool.ruff]
+
+[tool.ty.rules]
+unresolved-attribute = "ignore"
+
+[tool.ty.src]
+include = ["src"]
 
 [tool.pyright]
 include = ["tools"]
 
 [tool.pytest.ini_options]
-addopts = "--doctest-modules --ignore tools/scripts --ignore docker"
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[project.scripts]
-mRNArchitect = "tools.cli:cli"
+addopts = "--doctest-modules --ignore tools/scripts"

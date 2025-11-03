@@ -1,0 +1,224 @@
+import { Alert, Box, Modal, Stack, Tabs, Text } from "@mantine/core";
+import {
+  ClipboardTextIcon,
+  FileIcon,
+  InfoIcon,
+  QuestionIcon,
+  ScribbleIcon,
+} from "@phosphor-icons/react";
+import { lazy, Suspense, useState } from "react";
+import { analyze, convert, optimize } from "~/api";
+import { OptimizationError } from "~/api/types";
+import { InputForm } from "./InputForm";
+import { Output, type OutputProps } from "./Output";
+import type { OptimizationInput, OptimizationOutput } from "./types";
+
+const Help = lazy(() =>
+  import("./Help").then((module) => ({ default: module.Help })),
+);
+
+const TermsAndConditions = lazy(() =>
+  import("./TermsAndConditions").then((module) => ({
+    default: module.TermsAndConditions,
+  })),
+);
+
+export const OptimizePage = () => {
+  const [activeTab, setActiveTab] = useState<string | null>("input");
+  const [outputProps, setOutputProps] = useState<OutputProps>();
+  const [optimizationError, setOptimizationError] = useState<
+    OptimizationError | string
+  >();
+
+  const handleTabsOnChange = (tab: string | null) => {
+    if (tab === "paper") {
+      window
+        ?.open(
+          "https://www.biorxiv.org/content/10.1101/2024.12.03.626696v3",
+          "_blank",
+        )
+        ?.focus();
+    } else {
+      setActiveTab(tab);
+    }
+  };
+
+  const handleOnSubmit = async (values: OptimizationInput) => {
+    const parseInput = async (
+      optimizationInput: OptimizationInput,
+    ): Promise<OptimizationInput> => {
+      let codingSequence = optimizationInput.sequence.codingSequence;
+      if (optimizationInput.sequence.codingSequenceType === "amino-acid") {
+        codingSequence = (
+          await convert({ sequence: codingSequence, organism: "homo-sapiens" })
+        ).sequence;
+      }
+      return {
+        ...optimizationInput,
+        sequence: {
+          ...optimizationInput.sequence,
+          codingSequenceType: "nucleic-acid",
+          codingSequence,
+        },
+      };
+    };
+
+    const analyzeSequence = async (sequence: string, organism: string) => {
+      if (sequence) {
+        return await analyze({ sequence, organism });
+      }
+      return null;
+    };
+
+    const optimizeAndAnalyze = async (
+      optimizationForm: OptimizationInput,
+    ): Promise<OptimizationOutput["outputs"][0]> => {
+      const { sequence, parameters } = optimizationForm;
+      const optimization = await optimize({
+        sequence: sequence.codingSequence,
+        parameters,
+      });
+      if (!optimization.success) {
+        throw optimization;
+      }
+
+      const cdsAnalysis = await analyze({
+        sequence: optimization.result.sequence.nucleic_acid_sequence,
+        organism: parameters[0].codon_usage_table,
+      });
+
+      const fullSequenceAnalysis = await analyze({
+        sequence: `${sequence.fivePrimeUtr}${optimization.result.sequence.nucleic_acid_sequence}${sequence.threePrimeUtr}${sequence.polyATail}`,
+        organism: parameters[0].codon_usage_table,
+      });
+
+      return { optimization, cdsAnalysis, fullSequenceAnalysis };
+    };
+
+    setOutputProps(undefined);
+    setOptimizationError(undefined);
+    try {
+      const formValues = await parseInput(values);
+      const { sequence, parameters, numberOfSequences } = formValues;
+      const organism = parameters[0].codon_usage_table;
+
+      const [
+        cdsAnalysis,
+        fivePrimeUtrAnalysis,
+        threePrimeUtrAnalysis,
+        fullSequenceAnalysis,
+        ...outputs
+      ] = await Promise.all([
+        analyze({
+          sequence: sequence.codingSequence,
+          organism,
+        }),
+        analyzeSequence(sequence.fivePrimeUtr, organism),
+        analyzeSequence(sequence.threePrimeUtr, organism),
+        analyze({
+          sequence: `${sequence.fivePrimeUtr}${sequence.codingSequence}${sequence.threePrimeUtr}${sequence.polyATail}`,
+          organism: organism,
+        }),
+        ...Array(numberOfSequences)
+          .fill(0)
+          .map(() => optimizeAndAnalyze(formValues)),
+      ]);
+
+      setOutputProps({
+        input: formValues,
+        output: {
+          input: {
+            cdsAnalysis,
+            fivePrimeUtrAnalysis,
+            threePrimeUtrAnalysis,
+            fullSequenceAnalysis,
+          },
+          outputs: outputs.sort((a, b) =>
+            (a.fullSequenceAnalysis.codon_adaptation_index ?? 0) >
+            (b.cdsAnalysis.codon_adaptation_index ?? 0)
+              ? -1
+              : 1,
+          ),
+        },
+      });
+      setActiveTab("output");
+    } catch (e) {
+      console.error(e);
+      setOutputProps(undefined);
+      const error = OptimizationError.safeParse(e);
+      if (error.success) {
+        setOptimizationError(error.data);
+      } else {
+        setOptimizationError("N/A");
+      }
+    } finally {
+    }
+  };
+
+  return (
+    <Tabs value={activeTab} onChange={handleTabsOnChange}>
+      <Tabs.List>
+        <Tabs.Tab value="input" leftSection={<ScribbleIcon size={16} />}>
+          Input
+        </Tabs.Tab>
+        <Tabs.Tab
+          value="output"
+          leftSection={<ClipboardTextIcon size={16} />}
+          disabled={!outputProps}
+        >
+          Output
+        </Tabs.Tab>
+        <Tabs.Tab
+          value="help"
+          leftSection={<QuestionIcon size={16} />}
+          ml="auto"
+        >
+          Help
+        </Tabs.Tab>
+        <Tabs.Tab
+          value="terms-and-conditions"
+          leftSection={<InfoIcon size={16} />}
+        >
+          Terms
+        </Tabs.Tab>
+        <Tabs.Tab value="paper" leftSection={<FileIcon size={16} />}>
+          Paper
+        </Tabs.Tab>
+      </Tabs.List>
+      <Box pt="md">
+        <Tabs.Panel value="input">
+          <InputForm onSubmit={handleOnSubmit} />
+        </Tabs.Panel>
+        <Tabs.Panel value="output">
+          {outputProps && <Output {...outputProps} />}
+        </Tabs.Panel>
+        <Tabs.Panel value="help">
+          <Suspense>
+            <Help />
+          </Suspense>
+        </Tabs.Panel>
+        <Tabs.Panel value="terms-and-conditions">
+          <Suspense>
+            <TermsAndConditions />
+          </Suspense>
+        </Tabs.Panel>
+      </Box>
+      {optimizationError && (
+        <Modal opened={true} onClose={() => setOptimizationError(undefined)}>
+          <Alert title="Optimisation failed" color="red">
+            Error resolving constraints. Sequence cannot be optimised. Please
+            verify your input sequence or adjust input parameters (e.g. increase
+            GC content/window).
+            <Stack ff="monospace">
+              {typeof optimizationError === "string"
+                ? optimizationError
+                : optimizationError.error.message
+                    .split("\n")
+                    .map((v) => <Text key={v}>{v}</Text>)}
+            </Stack>
+          </Alert>
+        </Modal>
+      )}
+    </Tabs>
+  );
+};

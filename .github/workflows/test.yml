@@ -31,10 +31,9 @@ jobs:
           tags: ${{ env.TAG }}
           target: dev
           cache-from: type=registry,ref=${{ steps.ecr.outputs.registry }}/app:buildcache
-      - run: docker run --rm $TAG pnpm biome check
-      - run: docker run --rm $TAG pnpm tsc --noEmit
-      - run: docker run --rm $TAG pnpm vitest run
-      - run: docker run --rm $TAG ruff check --diff
-      - run: docker run --rm $TAG pyright
-      - run: docker run --rm $TAG pytest
+      - run: docker run --rm $TAG pnpm check
+      - run: docker run --rm $TAG pnpm test
+      - run: docker run --rm $TAG uv run ruff check --diff
+      - run: docker run --rm $TAG uv run ty check
+      - run: docker run --rm $TAG uv run pytest
       - run: docker run --rm $TAG mRNArchitect optimize ACGACG
