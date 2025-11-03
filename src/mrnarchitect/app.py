@@ -61,8 +61,21 @@ class OptimizeRequest(msgspec.Struct):
     summary="Optimize sequence.",
     description="Run an optimization on the given sequence.",
 )
-async def post_optimize(data: OptimizeRequest) -> OptimizationResult:
-    return optimize(Sequence.create(data.sequence), parameters=data.parameters)
+async def post_optimize(data: OptimizeRequest, headers: dict) -> OptimizationResult:
+    result = optimize(Sequence.create(data.sequence), parameters=data.parameters)
+    # Log the optimization
+    print(
+        msgspec.json.encode(
+            {
+                "function": "optimize",
+                "ip": headers.get("x-forwarded-for")
+                or headers.get("X-Forwarded-For")
+                or None,
+                "sequence": data.sequence,
+            }
+        ).decode("utf-8")
+    )
+    return result
 
 
 class AnalyzeRequest(msgspec.Struct):
