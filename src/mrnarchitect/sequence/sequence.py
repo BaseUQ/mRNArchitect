@@ -765,6 +765,26 @@ class Sequence(msgspec.Struct, frozen=True):
             trna_weights[codon] for codon in self.codons if codon in trna_weights
         )
 
+    @functools.cache
+    def hamming_distance(self, sequence: "Sequence") -> int | None:
+        """Calculate the hamming distance between two sequences.
+
+        >>> Sequence("AAA").hamming_distance(Sequence("AAC"))
+        1
+
+        >>> Sequence("ACT").hamming_distance(Sequence("TGA"))
+        3
+
+        >>> Sequence("AAA").hamming_distance(Sequence("T"))
+
+        """
+        if len(self) != len(sequence):
+            return None
+
+        set_a = set([(i, v) for i, v in enumerate(self)])
+        set_b = set([(i, v) for i, v in enumerate(sequence)])
+        return len(set_a.difference(set_b))
+
     def analyze(
         self, codon_usage_table: CodonUsageTable | Organism = "homo-sapiens"
     ) -> Analysis:
