@@ -1,4 +1,4 @@
-from litestar import post
+from litestar import Router, post
 import msgspec
 
 from mrnarchitect.sequence.optimize import (
@@ -23,7 +23,7 @@ class ConvertResponse(msgspec.Struct):
 
 
 @post(
-    "/api/convert",
+    "/convert",
     summary="Convert sequence.",
     description="Convert a sequence from amino to nucleic acid.",
 )
@@ -40,7 +40,7 @@ class OptimizeRequest(msgspec.Struct):
 
 
 @post(
-    "/api/optimize",
+    "/optimize",
     summary="Optimize sequence.",
     description="Run an optimization on the given sequence.",
 )
@@ -67,7 +67,7 @@ class AnalyzeRequest(msgspec.Struct):
 
 
 @post(
-    "/api/analyze",
+    "/analyze",
     summary="Analyze sequence.",
     description="Analyze and return statistics about the given sequence.",
 )
@@ -86,7 +86,7 @@ class CompareResponse(msgspec.Struct):
 
 
 @post(
-    "/api/compare",
+    "/compare",
     summary="Compare sequences.",
     description="Compare and return comparison statistics between two sequences.",
 )
@@ -94,3 +94,14 @@ async def post_compare(data: CompareRequest) -> CompareResponse:
     sequence_a = Sequence.create(data.sequence_a)
     sequence_b = Sequence.create(data.sequence_b)
     return CompareResponse(hamming_distance=sequence_a.hamming_distance(sequence_b))
+
+
+api_router = Router(
+    path="/api",
+    route_handlers=[
+        post_analyze,
+        post_compare,
+        post_convert,
+        post_optimize,
+    ],
+)
