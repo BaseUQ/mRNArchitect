@@ -1,11 +1,4 @@
-import pathlib
-import os
-
-from litestar import Litestar, MediaType, get, post
-from litestar.config.compression import CompressionConfig
-from litestar.config.cors import CORSConfig
-from litestar.openapi import OpenAPIConfig
-from litestar.static_files import create_static_files_router
+from litestar import post
 import msgspec
 
 from mrnarchitect.sequence.optimize import (
@@ -17,16 +10,6 @@ from mrnarchitect.sequence import Sequence
 from mrnarchitect.sequence.sequence import Analysis
 from mrnarchitect.types import Organism
 from mrnarchitect.utils.fasta import SequenceType
-
-
-ASSETS_DIR = pathlib.Path("frontend/dist")
-ALLOW_ORIGINS = [it for it in os.getenv("ALLOW_ORIGINS", "").split(",") if it]
-
-
-@get("/", media_type=MediaType.HTML, include_in_schema=False)
-async def get_index() -> str:
-    with open(ASSETS_DIR / "index.html", "r") as f:
-        return f.read()
 
 
 class ConvertRequest(msgspec.Struct):
@@ -111,18 +94,3 @@ async def post_compare(data: CompareRequest) -> CompareResponse:
     sequence_a = Sequence.create(data.sequence_a)
     sequence_b = Sequence.create(data.sequence_b)
     return CompareResponse(hamming_distance=sequence_a.hamming_distance(sequence_b))
-
-
-app = Litestar(
-    route_handlers=[
-        get_index,
-        post_convert,
-        post_optimize,
-        post_analyze,
-        post_compare,
-        create_static_files_router(path="/", directories=[ASSETS_DIR]),
-    ],
-    compression_config=CompressionConfig(backend="gzip", gzip_compress_level=9),
-    cors_config=CORSConfig(allow_origins=ALLOW_ORIGINS) if ALLOW_ORIGINS else None,
-    openapi_config=OpenAPIConfig(title="mRNArchitect API", version="0.0.1"),
-)
