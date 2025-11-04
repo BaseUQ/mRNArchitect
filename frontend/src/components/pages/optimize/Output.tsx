@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { Fragment } from "react/jsx-runtime";
 import type { OptimizationParameter } from "~/api/types";
 import type { Sequence } from "~/types/sequence";
-import { nucleotideCDSLength } from "~/utils/sequence";
+import { aminoAcidLength, nucleotideLength } from "~/utils/sequence";
 import type { OptimizationInput, OptimizationOutput } from "./types";
 
 const parameterTitle = (
@@ -13,7 +13,7 @@ const parameterTitle = (
   parameter: OptimizationParameter,
 ): string => {
   const start = parameter.start_coordinate ?? 1;
-  const end = parameter.end_coordinate ?? nucleotideCDSLength(sequence);
+  const end = parameter.end_coordinate ?? nucleotideLength(sequence);
   return `Parameter region [${start}-${end}]`;
 };
 
@@ -30,10 +30,13 @@ const generateReport = ({
     `Sequence name\t${name}`,
     "",
     "---Input Sequence",
-    `CDS\t\t${sequence.codingSequence}`,
-    `5' UTR\t\t${sequence.fivePrimeUtr}`,
-    `3' UTR\t\t${sequence.threePrimeUtr}`,
-    `Poly(A) tail\t${sequence.polyATail}`,
+    `Full Length (nt)\t${nucleotideLength(sequence, true)}`,
+    `CDS Length (aa)\t\t${aminoAcidLength(sequence)}`,
+    `CDS Length (nt)\t\t${nucleotideLength(sequence)}`,
+    `CDS\t\t\t${sequence.codingSequence}`,
+    `5' UTR\t\t\t${sequence.fivePrimeUtr}`,
+    `3' UTR\t\t\t${sequence.threePrimeUtr}`,
+    `Poly(A) tail\t\t${sequence.polyATail}`,
   ];
 
   const parameterReports = parameters

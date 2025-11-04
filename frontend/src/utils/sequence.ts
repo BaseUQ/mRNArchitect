@@ -8,9 +8,23 @@ const NucleicAcidSequence = Sequence.safeExtend({
 
 type NucleicAcidSequence = z.infer<typeof NucleicAcidSequence>;
 
-export const nucleotideCDSLength = (sequence: Sequence) =>
-  sequence.codingSequence.length *
-  (sequence.codingSequenceType === "nucleic-acid" ? 1 : 3);
+export const nucleotideLength = (sequence: Sequence, fullSequence = false) => {
+  const cdsLength =
+    sequence.codingSequence.length *
+    (sequence.codingSequenceType === "nucleic-acid" ? 1 : 3);
+  if (!fullSequence) {
+    return cdsLength;
+  }
+  return (
+    cdsLength +
+    sequence.fivePrimeUtr.length +
+    sequence.threePrimeUtr.length +
+    sequence.polyATail.length
+  );
+};
+
+export const aminoAcidLength = (sequence: Sequence) =>
+  Math.floor(nucleotideLength(sequence, false) / 3);
 
 export const asNucleicAcid = async (
   sequence: Sequence,
