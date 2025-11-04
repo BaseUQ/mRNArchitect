@@ -11,7 +11,7 @@ export const ProgressLoader = ({
   children,
   estimatedTimeInSeconds,
 }: ProgressLoaderProps & PropsWithChildren) => {
-  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
+  const [elapsedSeconds, setElapsedSeconds] = useState<number>(1);
   useInterval(() => setElapsedSeconds((s) => s + 1), 1000, {
     autoInvoke: true,
   });
