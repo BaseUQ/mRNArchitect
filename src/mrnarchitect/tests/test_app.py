@@ -74,3 +74,15 @@ def test_analyze():
             "trna_adaptation_index": 0.3173599613405995,
             "uridine_depletion": 0.0,
         }
+
+
+def test_compare():
+    with TestClient(app=app) as client:
+        response = client.post(
+            "/api/compare",
+            json={"sequence_a": "ACG", "sequence_b": "AGC"},
+        )
+        assert response.status_code == 201
+        assert response.json() == {
+            "hamming_distance": 2,
+        }
