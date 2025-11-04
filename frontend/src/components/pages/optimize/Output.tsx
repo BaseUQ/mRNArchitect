@@ -33,10 +33,10 @@ const generateReport = ({
     `Full Length (nt)\t${nucleotideLength(sequence, true)}`,
     `CDS Length (aa)\t\t${aminoAcidLength(sequence)}`,
     `CDS Length (nt)\t\t${nucleotideLength(sequence)}`,
-    `CDS\t\t${sequence.codingSequence}`,
-    `5' UTR\t\t${sequence.fivePrimeUtr}`,
-    `3' UTR\t\t${sequence.threePrimeUtr}`,
-    `Poly(A) tail\t${sequence.polyATail}`,
+    `CDS\t\t\t${sequence.codingSequence}`,
+    `5' UTR\t\t\t${sequence.fivePrimeUtr}`,
+    `3' UTR\t\t\t${sequence.threePrimeUtr}`,
+    `Poly(A) tail\t\t${sequence.polyATail}`,
   ];
 
   const parameterReports = parameters
