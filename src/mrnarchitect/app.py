@@ -93,12 +93,33 @@ async def post_analyze(data: AnalyzeRequest) -> Analysis:
     return sequence.analyze(data.organism)
 
 
+class CompareRequest(msgspec.Struct):
+    sequence_a: str
+    sequence_b: str
+
+
+class CompareResponse(msgspec.Struct):
+    hamming_distance: int | None
+
+
+@post(
+    "/api/compare",
+    summary="Compare sequences.",
+    description="Compare and return comparison statistics between two sequences.",
+)
+async def post_compare(data: CompareRequest) -> CompareResponse:
+    sequence_a = Sequence.create(data.sequence_a)
+    sequence_b = Sequence.create(data.sequence_b)
+    return CompareResponse(hamming_distance=sequence_a.hamming_distance(sequence_b))
+
+
 app = Litestar(
     route_handlers=[
         get_index,
         post_convert,
         post_optimize,
         post_analyze,
+        post_compare,
         create_static_files_router(path="/", directories=[ASSETS_DIR]),
     ],
     compression_config=CompressionConfig(backend="gzip", gzip_compress_level=9),
