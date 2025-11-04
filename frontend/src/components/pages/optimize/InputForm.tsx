@@ -19,7 +19,7 @@ import {
 import { useForm } from "@mantine/form";
 import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useState } from "react";
-import type { OptimizationParameter } from "~/api/types";
+import type { OptimizationParameter } from "~/api";
 import type { Sequence } from "~/types/sequence";
 import { nucleotideLength } from "~/utils/sequence";
 import { ParameterInput } from "./inputs/ParameterInput";

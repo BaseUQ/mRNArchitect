@@ -3,7 +3,7 @@ import {
   type AnalyzeResponse,
   OptimizationParameter,
   type OptimizationResult,
-} from "~/api/types";
+} from "~/api";
 import { Sequence } from "~/types/sequence";
 
 export const OptimizationInput = z.object({
