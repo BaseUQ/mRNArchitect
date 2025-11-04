@@ -21,7 +21,7 @@ import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import type { OptimizationParameter } from "~/api/types";
 import type { Sequence } from "~/types/sequence";
-import { nucleotideCDSLength } from "~/utils/sequence";
+import { nucleotideLength } from "~/utils/sequence";
 import { ParameterInput } from "./inputs/ParameterInput";
 import { SequenceInput } from "./inputs/SequenceInput";
 import { ProgressLoader } from "./ProgressLoader";
@@ -60,7 +60,7 @@ const parameterTitle = (
   parameter: OptimizationParameter,
 ) => {
   const start = parameter.start_coordinate ?? 1;
-  const end = parameter.end_coordinate ?? nucleotideCDSLength(sequence);
+  const end = parameter.end_coordinate ?? nucleotideLength(sequence);
   return `Region [${start}-${end}]`;
 };
 
@@ -145,7 +145,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
       form.setFieldValue("parameters", [
         createDefaultParameter(
           1,
-          nucleotideCDSLength(form.getValues().sequence) || 90,
+          nucleotideLength(form.getValues().sequence) || 90,
         ),
       ]);
       setAccordionValue("0");
@@ -157,7 +157,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
     const numParameters = parameters.length;
     const startCoordinate = numParameters ? 1 : null;
     const endCoordinate = numParameters
-      ? nucleotideCDSLength(sequence) || 90
+      ? nucleotideLength(sequence) || 90
       : null;
     form.insertListItem(
       "parameters",
