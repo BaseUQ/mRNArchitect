@@ -53,40 +53,44 @@ export const ORGANISMS = [
 
 export const FIVE_PRIME_UTRS = [
   {
-    label: "Human alpha-globin",
+    label: "Alpha-globin (HBA; ENSG00000206172)",
     value: "ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC",
   },
   {
-    label: "Human beta-globin",
+    label: "Beta-globin (BBA; ENSG00000244734)",
     value: "TACATTTGCTTCTGACACAACTGTGTTCACTAGCAACCTCAAACAGACACC",
   },
   {
-    label: "Beta-actin",
+    label: "Actin-beta (ACTB; ENSG00000075624)",
     value: "CCCGCGAGCACAGAGCCTCGCCTTTGCCGATCCGCCGCCCGTCCACACCCGCCGCCAGCTCACC",
   },
   {
-    label: "Albumin",
+    label: "Albumin (ALB; ENSG00000163631)",
     value: "CTAGCTTTTCTCTTCTGTCAACCCCACACGCCTTTGGCACA",
   },
   {
-    label: "NELL2",
+    label: "Minimal 5'UTR (GGACT)",
+    value: "GAGACT",
+  },
+  {
+    label: "NELL2 (ENSG00000184613)",
     value:
       "AGAAGGATCCATCTAACATTTACTGAAATAAGGAAGATGCTTTATTCAATCTAAAAGTGAAAAAAGAACCTTTTAGACATTATTATTATAAA",
   },
   {
-    label: "Minimal",
-    value: "GAGACT",
+    label: "miR122 + Alpha-globin (miR-122; ENSG00000284440)",
+    value: "TGGAGTGTGACAATGGTGTTTGACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC",
   },
 ];
 
 export const THREE_PRIME_UTRS = [
   {
-    label: "Human alpha-globin",
+    label: "Alpha-globin (HBA; ENSG00000206172)",
     value:
       "GCTGGAGCCTCGGTGGCCATGCTTCTTGCCCCTTGGGCCTCCCCCCAGCCCCTCCTCCCCTTCCTGCACCCGTACCCCCGTGGTCTTTGAATAAAGTCTGAGTGGGCGGCA",
   },
   {
-    label: "Human alpha-globin +miR122",
+    label: "Alpha-globin + miR122 (ENSG00000284440)",
     value:
       "GCTGGAGCCTCGGTGGCCATGCTTCTTGCCCCTTGGGCCTCCCCCCAGCCCCTCCTCCCCTTCCTGCACCCGTACCCCCCAAACACCATTGTCACACTCCAGTGGTCTTTGAATAAAGTCTGAGTGGGCGGCA",
   },

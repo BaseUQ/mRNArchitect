@@ -1,11 +1,4 @@
-import pathlib
-import os
-
-from litestar import Litestar, MediaType, get, post
-from litestar.config.compression import CompressionConfig
-from litestar.config.cors import CORSConfig
-from litestar.openapi import OpenAPIConfig
-from litestar.static_files import create_static_files_router
+from litestar import Router, post
 import msgspec
 
 from mrnarchitect.sequence.optimize import (
@@ -19,16 +12,6 @@ from mrnarchitect.types import Organism
 from mrnarchitect.utils.fasta import SequenceType
 
 
-ASSETS_DIR = pathlib.Path("frontend/dist")
-ALLOW_ORIGINS = [it for it in os.getenv("ALLOW_ORIGINS", "").split(",") if it]
-
-
-@get("/", media_type=MediaType.HTML, include_in_schema=False)
-async def get_index() -> str:
-    with open(ASSETS_DIR / "index.html", "r") as f:
-        return f.read()
-
-
 class ConvertRequest(msgspec.Struct):
     sequence: str
     sequence_type: SequenceType = "auto-detect"
@@ -40,7 +23,7 @@ class ConvertResponse(msgspec.Struct):
 
 
 @post(
-    "/api/convert",
+    "/convert",
     summary="Convert sequence.",
     description="Convert a sequence from amino to nucleic acid.",
 )
@@ -57,7 +40,7 @@ class OptimizeRequest(msgspec.Struct):
 
 
 @post(
-    "/api/optimize",
+    "/optimize",
     summary="Optimize sequence.",
     description="Run an optimization on the given sequence.",
 )
@@ -84,7 +67,7 @@ class AnalyzeRequest(msgspec.Struct):
 
 
 @post(
-    "/api/analyze",
+    "/analyze",
     summary="Analyze sequence.",
     description="Analyze and return statistics about the given sequence.",
 )
@@ -93,15 +76,32 @@ async def post_analyze(data: AnalyzeRequest) -> Analysis:
     return sequence.analyze(data.organism)
 
 
-app = Litestar(
+class CompareRequest(msgspec.Struct):
+    sequence_a: str
+    sequence_b: str
+
+
+class CompareResponse(msgspec.Struct):
+    hamming_distance: int | None
+
+
+@post(
+    "/compare",
+    summary="Compare sequences.",
+    description="Compare and return comparison statistics between two sequences.",
+)
+async def post_compare(data: CompareRequest) -> CompareResponse:
+    sequence_a = Sequence.create(data.sequence_a)
+    sequence_b = Sequence.create(data.sequence_b)
+    return CompareResponse(hamming_distance=sequence_a.hamming_distance(sequence_b))
+
+
+api_router = Router(
+    path="/api",
     route_handlers=[
-        get_index,
+        post_analyze,
+        post_compare,
         post_convert,
         post_optimize,
-        post_analyze,
-        create_static_files_router(path="/", directories=[ASSETS_DIR]),
     ],
-    compression_config=CompressionConfig(backend="gzip", gzip_compress_level=9),
-    cors_config=CORSConfig(allow_origins=ALLOW_ORIGINS) if ALLOW_ORIGINS else None,
-    openapi_config=OpenAPIConfig(title="mRNArchitect API", version="0.0.1"),
 )
