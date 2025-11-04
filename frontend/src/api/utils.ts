@@ -1,4 +1,10 @@
 /**
+ * Generate API URL.
+ */
+export const apiUrl = (path: string) =>
+  `${import.meta.env.VITE_API ?? ""}${path}`;
+
+/**
  * Remove all whitespace/newlines and upper case the sequence.
  */
 export const sanitizeSequence = (v: string) =>
