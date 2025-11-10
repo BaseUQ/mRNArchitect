@@ -200,7 +200,7 @@ export const ParameterInput = ({
             </Stack>
           </Flex>
           <InputWrapper label="GC content (Global)">
-            <InputWrapper label="Minimum/maximum GC content" flex="1">
+            <InputWrapper label="Minimum/maximum GC content" flex="1" pl="sm">
               <RangeSlider
                 min={0}
                 max={1}
@@ -239,7 +239,11 @@ export const ParameterInput = ({
               gap="lg"
               pl="sm"
             >
-              <InputWrapper label="Minimum/maximum GC content" flex="1">
+              <InputWrapper
+                label="Minimum/maximum GC content"
+                flex="1"
+                w="100%"
+              >
                 <RangeSlider
                   min={0}
                   max={1}
