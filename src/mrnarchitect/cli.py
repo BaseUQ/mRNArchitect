@@ -2,9 +2,10 @@ import argparse
 
 import msgspec
 
+from .analyze import analyze
 from .constants import ORGANISMS
+from .optimize import OptimizationParameter, optimize
 from .sequence import Sequence
-from .sequence.optimize import optimize, OptimizationParameter
 
 
 def _parse_sequence(args):
@@ -54,7 +55,7 @@ def _optimize(args):
 
 def _analyze(args):
     sequence = _parse_sequence(args)
-    result = sequence.analyze(codon_usage_table=args.organism)
+    result = analyze(sequence=sequence, codon_usage_table=args.organism)
     _print(result, args)
 
 
