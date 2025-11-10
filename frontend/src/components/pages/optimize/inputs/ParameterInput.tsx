@@ -267,7 +267,7 @@ export const ParameterInput = ({
                       min,
                     );
                     form.setFieldValue(
-                      `parameters.${index}.gc_content_window__max`,
+                      `parameters.${index}.gc_content_window_max`,
                       max,
                     );
                   }}
@@ -277,8 +277,10 @@ export const ParameterInput = ({
                 label="GC content window size"
                 min={1}
                 step={1}
-                key={form.key(`parameters.${index}.gc_content_window`)}
-                {...form.getInputProps(`parameters.${index}.gc_content_window`)}
+                key={form.key(`parameters.${index}.gc_content_window_size`)}
+                {...form.getInputProps(
+                  `parameters.${index}.gc_content_window_size`,
+                )}
               />
             </Flex>
           </InputWrapper>
