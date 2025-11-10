@@ -113,9 +113,11 @@ class OptimizationParameter(
     avoid_ribosome_slip: bool = False
     avoid_manufacture_restriction_sites: bool = False
     avoid_micro_rna_seed_sites: bool = False
-    gc_content_min: float | None = None
-    gc_content_max: float | None = None
-    gc_content_window: int | None = None
+    gc_content_global_min: float | None = None
+    gc_content_global_max: float | None = None
+    gc_content_window_min: float | None = None
+    gc_content_window_max: float | None = None
+    gc_content_window_size: int | None = None
     avoid_restriction_sites: list[str] = msgspec.field(default_factory=list)
     avoid_sequences: list[str] = msgspec.field(default_factory=list)
     avoid_poly_a: int | None = None
@@ -130,11 +132,22 @@ class OptimizationParameter(
     def __post_init__(self):
         super().__post_init__()
         if (
-            self.gc_content_min is not None
-            and self.gc_content_max is not None
-            and self.gc_content_min > self.gc_content_max
+            self.gc_content_global_min is not None
+            and self.gc_content_global_max is not None
+            and self.gc_content_global_min > self.gc_content_global_max
         ):
-            raise ValueError("GC content minimum must be less than maximum.")
+            raise ValueError(
+                "GC content global minimum must be less than global maximum."
+            )
+
+        if (
+            self.gc_content_window_min is not None
+            and self.gc_content_window_max is not None
+            and self.gc_content_window_min > self.gc_content_window_max
+        ):
+            raise ValueError(
+                "GC content window minimum must be less than window maximum."
+            )
 
     def dnachisel(self, nucleic_acid_sequence: str) -> tuple[list, list]:
         location = self.dnachisel_location
@@ -151,23 +164,31 @@ class OptimizationParameter(
         constraints: list = [EnforceTranslation()]
         objectives: list = []
 
-        if self.gc_content_min is not None and self.gc_content_max is not None:
+        if (
+            self.gc_content_global_min is not None
+            and self.gc_content_global_max is not None
+        ):
             constraints.append(
                 EnforceGCContent(
-                    mini=self.gc_content_min,  # type: ignore
-                    maxi=self.gc_content_max,
+                    mini=self.gc_content_global_min,  # type: ignore
+                    maxi=self.gc_content_global_max,
                     location=location,
                 )
             )
-            if self.gc_content_window is not None:
-                constraints.append(
-                    EnforceGCContent(
-                        mini=self.gc_content_min,  # type: ignore
-                        maxi=self.gc_content_max,
-                        window=self.gc_content_window,
-                        location=location,
-                    )
+        if (
+            self.gc_content_window_min is not None
+            and self.gc_content_window_max is not None
+            and self.gc_content_window_size is not None
+        ):
+            constraints.append(
+                EnforceGCContent(
+                    mini=self.gc_content_window_min,  # type: ignore
+                    maxi=self.gc_content_window_max,
+                    window=self.gc_content_window_size,
+                    location=location,
                 )
+            )
+
         if self.hairpin_stem_size is not None and self.hairpin_window is not None:
             constraints.append(
                 AvoidHairpins(
@@ -338,9 +359,11 @@ DEFAULT_OPTIMIZATION_PARAMETER = OptimizationParameter(
     avoid_ribosome_slip=False,
     avoid_manufacture_restriction_sites=False,
     avoid_micro_rna_seed_sites=False,
-    gc_content_min=0.4,
-    gc_content_max=0.7,
-    gc_content_window=100,
+    gc_content_global_min=0.4,
+    gc_content_global_max=0.7,
+    gc_content_window_min=0.4,
+    gc_content_window_max=0.7,
+    gc_content_window_size=100,
     avoid_restriction_sites=[],
     avoid_sequences=[],
     avoid_poly_a=9,
