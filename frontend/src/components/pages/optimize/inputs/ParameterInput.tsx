@@ -207,7 +207,10 @@ export const ParameterInput = ({
               gap="lg"
               pl="sm"
             >
-              <InputWrapper label="Minimum/maximum GC content" flex="1">
+              <InputWrapper
+                label="Minimum/maximum GC content (Window)"
+                flex="1"
+              >
                 <RangeSlider
                   min={0}
                   max={1}
@@ -220,18 +223,18 @@ export const ParameterInput = ({
                     { value: 0.75, label: "0.75" },
                     { value: 1, label: "1" },
                   ]}
-                  key={form.key(`parameters.${index}.minMaxGCContent`)}
+                  key={form.key(`parameters.${index}.minMaxGCContentWindow`)}
                   value={[
-                    form.getValues().parameters[index].gc_content_min,
-                    form.getValues().parameters[index].gc_content_max,
+                    form.getValues().parameters[index].gc_content_window_min,
+                    form.getValues().parameters[index].gc_content_window_max,
                   ]}
                   onChange={([min, max]) => {
                     form.setFieldValue(
-                      `parameters.${index}.gc_content_min`,
+                      `parameters.${index}.gc_content_window_min`,
                       min,
                     );
                     form.setFieldValue(
-                      `parameters.${index}.gc_content_max`,
+                      `parameters.${index}.gc_content_window__max`,
                       max,
                     );
                   }}
