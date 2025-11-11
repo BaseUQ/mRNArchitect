@@ -771,7 +771,7 @@ class Sequence(msgspec.Struct, frozen=True):
         )
 
     @functools.cache
-    def hamming_distance(self, sequence: "Sequence") -> int | None:
+    def hamming_distance(self, sequence: "Sequence") -> int:
         """Calculate the hamming distance between two sequences.
 
         >>> Sequence("AAA").hamming_distance(Sequence("AAC"))
@@ -781,10 +781,14 @@ class Sequence(msgspec.Struct, frozen=True):
         3
 
         >>> Sequence("AAA").hamming_distance(Sequence("T"))
-
+        Traceback (most recent call last):
+         ...
+        RuntimeError: Cannot calculate hamming distance between sequences of different lengths.
         """
         if len(self) != len(sequence):
-            return None
+            raise RuntimeError(
+                "Cannot calculate hamming distance between sequences of different lengths."
+            )
 
         set_a = set([(i, v) for i, v in enumerate(self)])
         set_b = set([(i, v) for i, v in enumerate(sequence)])
