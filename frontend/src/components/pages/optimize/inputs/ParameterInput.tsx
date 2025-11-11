@@ -199,9 +199,9 @@ export const ParameterInput = ({
               />
             </Stack>
           </Flex>
-          <InputWrapper label="GC content (global)">
+          <InputWrapper label="GC content">
             <InputWrapper
-              label="Minimum/maximum GC content"
+              label="Min/max GC content (global)"
               flex="1"
               pl="sm"
               pb="sm"
@@ -236,59 +236,53 @@ export const ParameterInput = ({
               />
             </InputWrapper>
           </InputWrapper>
-          <InputWrapper label="GC content (window)">
-            <Flex
-              direction="column"
-              justify="flex-start"
-              align="start"
-              gap="lg"
-              pl="sm"
-            >
-              <InputWrapper
-                label="Minimum/maximum GC content"
-                flex="1"
-                w="100%"
-              >
-                <RangeSlider
-                  min={0}
-                  max={1}
-                  step={0.05}
-                  minRange={0}
-                  marks={[
-                    { value: 0, label: "0" },
-                    { value: 0.25, label: "0.25" },
-                    { value: 0.5, label: "0.5" },
-                    { value: 0.75, label: "0.75" },
-                    { value: 1, label: "1" },
-                  ]}
-                  key={form.key(`parameters.${index}.minMaxGCContentWindow`)}
-                  value={[
-                    form.getValues().parameters[index].gc_content_window_min,
-                    form.getValues().parameters[index].gc_content_window_max,
-                  ]}
-                  onChange={([min, max]) => {
-                    form.setFieldValue(
-                      `parameters.${index}.gc_content_window_min`,
-                      min,
-                    );
-                    form.setFieldValue(
-                      `parameters.${index}.gc_content_window_max`,
-                      max,
-                    );
-                  }}
-                />
-              </InputWrapper>
-              <NumberInput
-                label="GC content window size"
-                min={1}
-                step={1}
-                key={form.key(`parameters.${index}.gc_content_window_size`)}
-                {...form.getInputProps(
-                  `parameters.${index}.gc_content_window_size`,
-                )}
+          <Flex
+            direction="column"
+            justify="flex-start"
+            align="start"
+            gap="lg"
+            pl="sm"
+          >
+            <InputWrapper label="Min/max GC content (window)" flex="1" w="100%">
+              <RangeSlider
+                min={0}
+                max={1}
+                step={0.05}
+                minRange={0}
+                marks={[
+                  { value: 0, label: "0" },
+                  { value: 0.25, label: "0.25" },
+                  { value: 0.5, label: "0.5" },
+                  { value: 0.75, label: "0.75" },
+                  { value: 1, label: "1" },
+                ]}
+                key={form.key(`parameters.${index}.minMaxGCContentWindow`)}
+                value={[
+                  form.getValues().parameters[index].gc_content_window_min,
+                  form.getValues().parameters[index].gc_content_window_max,
+                ]}
+                onChange={([min, max]) => {
+                  form.setFieldValue(
+                    `parameters.${index}.gc_content_window_min`,
+                    min,
+                  );
+                  form.setFieldValue(
+                    `parameters.${index}.gc_content_window_max`,
+                    max,
+                  );
+                }}
               />
-            </Flex>
-          </InputWrapper>
+            </InputWrapper>
+            <NumberInput
+              label="GC content window size"
+              min={1}
+              step={1}
+              key={form.key(`parameters.${index}.gc_content_window_size`)}
+              {...form.getInputProps(
+                `parameters.${index}.gc_content_window_size`,
+              )}
+            />
+          </Flex>
           <MultiSelect
             label="Avoid cut sites"
             placeholder="Choose sites..."
