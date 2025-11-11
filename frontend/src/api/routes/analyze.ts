@@ -23,6 +23,13 @@ export const AnalyzeResponse = z.object({
     structure: z.string().nonempty(),
     energy: z.number(),
   }),
+  gc_ratio_window: z.object({
+    window_size: z.int(),
+    min_gc_ratio: z.number(),
+    min_gc_start: z.number(),
+    max_gc_ratio: z.number(),
+    max_gc_start: z.number(),
+  }),
   debug: z.object({
     time_seconds: z.number(),
   }),
