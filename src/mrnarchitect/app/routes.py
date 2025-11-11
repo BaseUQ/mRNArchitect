@@ -1,15 +1,14 @@
-from litestar import Router, post
 import msgspec
+from litestar import Router, post
 
-from mrnarchitect.sequence.optimize import (
-    optimize,
+from mrnarchitect.analyze import Analysis, analyze
+from mrnarchitect.optimize import (
     OptimizationParameter,
     OptimizationResult,
+    optimize,
 )
-from mrnarchitect.sequence import Sequence
-from mrnarchitect.sequence.sequence import Analysis
+from mrnarchitect.sequence import Sequence, SequenceType
 from mrnarchitect.types import Organism
-from mrnarchitect.utils.fasta import SequenceType
 
 
 class ConvertRequest(msgspec.Struct):
@@ -64,6 +63,7 @@ async def post_optimize(data: OptimizeRequest, headers: dict) -> OptimizationRes
 class AnalyzeRequest(msgspec.Struct):
     sequence: str
     organism: Organism = "homo-sapiens"
+    gc_content_window_size: int | None = None
 
 
 @post(
@@ -73,7 +73,7 @@ class AnalyzeRequest(msgspec.Struct):
 )
 async def post_analyze(data: AnalyzeRequest) -> Analysis:
     sequence = Sequence.create(data.sequence)
-    return sequence.analyze(data.organism)
+    return analyze(sequence, data.organism)
 
 
 class CompareRequest(msgspec.Struct):

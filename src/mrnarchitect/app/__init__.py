@@ -1,5 +1,5 @@
-import pathlib
 import os
+import pathlib
 
 from litestar import Litestar
 from litestar.config.compression import CompressionConfig
@@ -8,7 +8,6 @@ from litestar.openapi import OpenAPIConfig
 from litestar.static_files import create_static_files_router
 
 from .routes import api_router
-
 
 ASSETS_DIR = pathlib.Path("frontend/dist")
 ALLOW_ORIGINS = [it for it in os.getenv("ALLOW_ORIGINS", "").split(",") if it]
