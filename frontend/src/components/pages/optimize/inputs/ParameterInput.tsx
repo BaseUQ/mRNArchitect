@@ -199,7 +199,7 @@ export const ParameterInput = ({
               />
             </Stack>
           </Flex>
-          <InputWrapper label="GC content (Global)">
+          <InputWrapper label="GC content (global)">
             <InputWrapper
               label="Minimum/maximum GC content"
               flex="1"
@@ -236,7 +236,7 @@ export const ParameterInput = ({
               />
             </InputWrapper>
           </InputWrapper>
-          <InputWrapper label="GC content (Window)">
+          <InputWrapper label="GC content (window)">
             <Flex
               direction="column"
               justify="flex-start"
