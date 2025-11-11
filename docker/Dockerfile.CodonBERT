@@ -1,0 +1,28 @@
+FROM debian:13-slim
+
+RUN apt-get update -qy && apt-get install -qy gcc g++ git git-lfs wget
+
+# Install Miniconda3
+RUN wget -qO /tmp/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+  chmod +x /tmp/miniconda.sh && \
+  /tmp/miniconda.sh -b -p /opt/miniconda
+ENV PATH="/opt/miniconda/bin:$PATH"
+
+RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main && \
+  conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
+
+
+RUN mkdir /opt/CodonBERT
+WORKDIR /opt/CodonBERT
+RUN git clone https://github.com/FPPGroup/CodonBERT.git .
+
+RUN conda create -n codonbert_env python=3.10 -y 
+RUN eval "$(conda shell.bash activate codonbert_env)"
+RUN conda install bioconda::emboss   # not for macos-arm64
+RUN pip install torch --index-url https://download.pytorch.org/whl/cpu
+RUN pip install ViennaRNA==2.6.4 biopython==1.81 einops==0.6.0 numpy==1.26.4 pandas==2.2.0 scikit-learn==1.2.1 tensorboardx==2.6 tqdm==4.65.0
+ENTRYPOINT ["conda", "run", "-n", "codonbert_env"]
+
+
+
+
