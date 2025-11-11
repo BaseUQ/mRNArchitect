@@ -776,7 +776,9 @@ class Sequence(msgspec.Struct, frozen=True):
         3
 
         >>> Sequence("AAA").hamming_distance(Sequence("T"))
-
+        Traceback (most recent call last):
+         ...
+        RuntimeError: Cannot calculate hamming distance between sequences of different lengths.
         """
         if len(self) != len(sequence):
             raise RuntimeError(
