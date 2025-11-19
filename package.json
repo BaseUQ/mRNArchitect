@@ -16,6 +16,7 @@
     "start": "uv run --no-project litestar --app mrnarchitect.app:app run --host 0.0.0.0 --port 8080",
     "check": "biome check",
     "fix": "biome check --fix",
-    "test": "pnpm vitest run --dir frontend"
+    "test": "pnpm vitest run --dir frontend",
+    "jupyter": "uv run jupyter lab --ip 0.0.0.0 --port 8888 --notebook-dir=./notebooks/ --IdentityProvider.token=\"\" --ServerApp.password=\"\""
   }
 }
