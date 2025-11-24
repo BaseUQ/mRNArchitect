@@ -1,6 +1,6 @@
 import pytest
 
-from mrnarchitect.sequence.sequence import Sequence
+from mrnarchitect.sequence import Sequence
 
 TEST_DATA = {
     "ENSG00000176893": (

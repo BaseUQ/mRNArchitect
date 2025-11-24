@@ -16,9 +16,11 @@ export const OptimizationParameter = z
     avoid_ribosome_slip: z.boolean(),
     avoid_manufacture_restriction_sites: z.boolean(),
     avoid_micro_rna_seed_sites: z.boolean(),
-    gc_content_min: z.number().min(0).max(1),
-    gc_content_max: z.number().min(0).max(1),
-    gc_content_window: z.int(REQUIRED_MESSAGE).min(1),
+    gc_content_global_min: z.number().min(0).max(1),
+    gc_content_global_max: z.number().min(0).max(1),
+    gc_content_window_min: z.number().min(0).max(1),
+    gc_content_window_max: z.number().min(0).max(1),
+    gc_content_window_size: z.int(REQUIRED_MESSAGE).min(1),
     avoid_restriction_sites: z.array(z.string()),
     avoid_sequences: z.array(
       z

@@ -1,7 +1,7 @@
 import pathlib
 import typing
 
-from mrnarchitect.sequence.sequence import Sequence, SequenceType
+from mrnarchitect.sequence import Sequence, SequenceType
 
 
 def parse_fasta_file(

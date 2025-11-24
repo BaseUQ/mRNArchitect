@@ -73,6 +73,13 @@ def test_analyze():
             "t_ratio": 0.3333333333333333,
             "trna_adaptation_index": 0.3173599613405995,
             "uridine_depletion": 0.0,
+            "gc_ratio_window": {
+                "window_size": 100,
+                "max_gc_ratio": 0.4444444444444444,
+                "max_gc_start": 0,
+                "min_gc_ratio": 0.4444444444444444,
+                "min_gc_start": 0,
+            },
         }
 
 
