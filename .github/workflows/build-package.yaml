@@ -34,7 +34,7 @@ jobs:
 
           echo "Create release $NEW_TAG"
           gh release create $NEW_TAG --draft --generate-notes --title $NEW_TAG
-          gh release upload dist/mrnarchitect-$NEW_TAG.tar.gz
+          gh release upload $NEW_TAG dist/mrnarchitect-$NEW_TAG.tar.gz
 
           echo "Publish release $NEW_TAG"
           gh release edit $NEW_TAG --draft=false --latest
