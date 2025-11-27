@@ -12,11 +12,12 @@ jobs:
   test:
     name: build-package
     runs-on: ubuntu-latest
-    env:
-      TAG: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
-      - run: |
+      - uses: astral-sh/setup-uv@v6
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
           PREVIOUS_TAG=$(gh release view --jq .tagName --json tagName)
 
           echo "Bump version"
