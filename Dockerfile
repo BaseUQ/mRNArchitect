@@ -44,18 +44,15 @@ WORKDIR /app
 ENV UV_COMPILE_BYTECODE=1
 RUN --mount=type=bind,source=uv.lock,target=uv.lock \
   --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-  --mount=type=cache,target=/root/.cache/uv \
   uv sync --locked --no-dev --no-install-project --compile-bytecode
 ENV PATH="/app/.venv/bin:$PATH"
 
 RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
   --mount=type=bind,source=package.json,target=package.json \
-  --mount=type=cache,target=/root/.pnpm-store \
   pnpm install --frozen-lockfile
 
 COPY --chown=node:node . .
-RUN --mount=type=cache,target=/root/.cache/uv \
-  uv sync --locked --no-dev
+RUN uv sync --locked --no-dev
 
 
 FROM base AS e2e
@@ -73,10 +70,15 @@ FROM base AS dev
 
 RUN --mount=type=bind,source=uv.lock,target=uv.lock \
   --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-  --mount=type=cache,target=/root/.cache/uv \
   uv sync --locked --group dev --compile-bytecode
 
 CMD ["pnpm", "run", "dev"]
+
+FROM dev AS data
+
+RUN --mount=type=bind,source=uv.lock,target=uv.lock \
+  --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+  uv sync --locked --group data --compile-bytecode
 
 
 FROM base
