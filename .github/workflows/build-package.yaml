@@ -26,6 +26,8 @@ jobs:
           NEW_TAG=$(uv version --short)
 
           echo "Commit new version $NEW_TAG back to git"
+          git config --global user.email "ci-cd-bot@basefacility.org.au"
+          git config --global user.name "ci-cd-bot"
           git add pyproject.toml uv.lock
           git commit -m "[cd] bump version from $PREVIOUS_TAG to $NEW_TAG"
           git push
