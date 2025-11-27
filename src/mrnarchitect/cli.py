@@ -1,10 +1,12 @@
 import argparse
+import importlib.metadata
 
 import msgspec
 
 from .constants import ORGANISMS
 from .sequence import Sequence
 from .sequence.optimize import optimize, OptimizationParameter
+from .utils.version import VERSION
 
 
 def _parse_sequence(args):
@@ -63,6 +65,10 @@ def _convert(args):
     else:
         result = sequence.amino_acid_sequence
     _print(result, args)
+
+
+def _version(_):
+    print(VERSION)
 
 
 def cli(args=None):
@@ -184,6 +190,11 @@ def cli(args=None):
     )
     convert.add_argument("--format", type=str, choices=["yaml", "json"], default="yaml")
     convert.set_defaults(func=_convert)
+
+    version = subparsers.add_parser(
+        "version", help="Print the current version of mRNArchitect."
+    )
+    version.set_defaults(func=_version)
 
     parsed_args = parser.parse_args(args)
     parsed_args.func(parsed_args)

@@ -1,0 +1,37 @@
+name: build-package
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+
+jobs:
+  test:
+    name: build-package
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          PREVIOUS_TAG=$(gh release view --jq .tagName --json tagName)
+
+          echo "Bump version"
+          uv sync
+          uv version --bump patch
+          NEW_TAG=$(uv version --short)
+
+          echo "Commit new version $NEW_TAG back to git"
+          git add pyproject.toml uv.lock
+          git commit -m "[cd] bump version from $PREVIOUS_TAG to $NEW_TAG"
+          git push
+
+          echo "Create release $NEW_TAG"
+          gh release create $NEW_TAG --draft --generate-notes --title $NEW_TAG
+          gh release upload dist/mrnarchitect-$NEW_TAG.tar.gz
+
+          echo "Publish release $NEW_TAG"
+          gh release edit $NEW_TAG --draft=false --latest
