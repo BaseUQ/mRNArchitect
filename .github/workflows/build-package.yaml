@@ -24,6 +24,7 @@ jobs:
           uv sync
           uv version --bump patch
           NEW_TAG=$(uv version --short)
+          uv build
 
           echo "Commit new version $NEW_TAG back to git"
           git config --global user.email "ci-cd-bot@github.com"
