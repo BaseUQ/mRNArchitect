@@ -6,7 +6,6 @@ import msgspec
 from .constants import ORGANISMS
 from .sequence import Sequence
 from .sequence.optimize import optimize, OptimizationParameter
-from .utils.version import VERSION
 
 
 def _parse_sequence(args):
@@ -68,7 +67,7 @@ def _convert(args):
 
 
 def _version(_):
-    print(VERSION)
+    print(importlib.metadata.version("mrnarchitect"))
 
 
 def cli(args=None):
