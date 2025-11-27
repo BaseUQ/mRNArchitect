@@ -34,8 +34,9 @@ jobs:
           git push
 
           echo "Create release $NEW_TAG"
+          ls -lah dist
           gh release create $NEW_TAG --draft --generate-notes --title $NEW_TAG
-          gh release upload $NEW_TAG dist/mrnarchitect-$NEW_TAG.tar.gz
+          gh release upload $NEW_TAG dist/mrnarchitect-$NEW_TAG.tar.gz dist/mrnarchitect-$NEW_TAG-py3-none-any.whl
 
           echo "Publish release $NEW_TAG"
           gh release edit $NEW_TAG --draft=false --latest
