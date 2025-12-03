@@ -761,6 +761,10 @@ class Sequence(msgspec.Struct, frozen=True):
 
         trna_weights = load_trna_adaptation_index_dataset(organism)
 
+        if not trna_weights:
+            # tRNA data for the given orgnanism does not exist
+            return None
+
         return statistics.geometric_mean(
             trna_weights[codon] for codon in self.codons if codon in trna_weights
         )
