@@ -2,7 +2,7 @@ from dnachisel import NoSolutionError
 from dnachisel.Location import Location
 from dnachisel.Specification import SpecEvaluation, Specification
 
-from mrnarchitect.sequence.sequence import Sequence
+from mrnarchitect.sequence import Sequence
 from mrnarchitect.types import Organism
 
 

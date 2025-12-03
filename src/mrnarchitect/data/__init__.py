@@ -131,3 +131,44 @@ def load_trna_adaptation_index_dataset(
         codon: weight / max_weight if weight else geomean_weight
         for codon, weight in weights.items()
     }
+
+
+@functools.cache
+def load_microrna_seed_sites() -> list[str]:
+    """Load microRNA seed sites from file.
+
+    >>> len(load_microrna_seed_sites())
+    50
+
+    >>> all(len(it) == 7 for it in load_microrna_seed_sites())
+    True
+
+    >>> all("U" not in it for it in load_microrna_seed_sites())
+    True
+    """
+    with open(pathlib.Path(__file__).parent / "microRNAs.txt", "r") as f:
+        lines = f.readlines()
+        return [
+            line.strip().split()[2].replace("U", "T")
+            for line in lines[1:]  # ignore header
+        ]
+
+
+@functools.cache
+def load_manufacture_restriction_sites() -> list[str]:
+    """Load manufacture restriction sites.
+
+    >>> len(load_manufacture_restriction_sites())
+    4
+
+    >>> all("U" not in it for it in load_manufacture_restriction_sites())
+    True
+    """
+    with open(
+        pathlib.Path(__file__).parent / "manufacture-restriction-sites.txt", "r"
+    ) as f:
+        lines = f.readlines()
+        return [
+            line.strip().split()[1].replace("U", "T")
+            for line in lines[1:]  # ignore header
+        ]

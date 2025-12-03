@@ -3,9 +3,10 @@ import importlib.metadata
 
 import msgspec
 
+from .analyze import analyze
 from .constants import ORGANISMS
+from .optimize import OptimizationParameter, optimize
 from .sequence import Sequence
-from .sequence.optimize import optimize, OptimizationParameter
 
 
 def _parse_sequence(args):
@@ -33,9 +34,11 @@ def _optimize(args):
                 avoid_ribosome_slip=args.avoid_ribosome_slip,
                 avoid_micro_rna_seed_sites=args.avoid_micro_rna_seed_sites,
                 avoid_manufacture_restriction_sites=args.avoid_manufacture_restriction_sites,
-                gc_content_min=args.gc_content_min,
-                gc_content_max=args.gc_content_max,
-                gc_content_window=args.gc_content_window,
+                gc_content_global_min=args.gc_content_global_min,
+                gc_content_global_max=args.gc_content_global_max,
+                gc_content_window_min=args.gc_content_window_min,
+                gc_content_window_max=args.gc_content_window_max,
+                gc_content_window_size=args.gc_content_window_size,
                 avoid_restriction_sites=args.avoid_restriction_sites or [],
                 avoid_sequences=args.avoid_sequences or [],
                 avoid_poly_a=args.avoid_poly_a,
@@ -53,7 +56,7 @@ def _optimize(args):
 
 def _analyze(args):
     sequence = _parse_sequence(args)
-    result = sequence.analyze(codon_usage_table=args.organism)
+    result = analyze(sequence=sequence, codon_usage_table=args.organism)
     _print(result, args)
 
 
@@ -120,19 +123,34 @@ def cli(args=None):
         help="If set, will avoid manufacture restriction sites.",
     )
     optimize.add_argument(
-        "--gc-content-min",
+        "--gc-content-global-min",
         type=float,
         default=0.4,
-        help="The minimum GC-ratio (global and windowed).",
+        help="The minimum GC-ratio (global).",
     )
     optimize.add_argument(
-        "--gc-content-max",
+        "--gc-content-global-max",
         type=float,
         default=0.7,
-        help="The maximum GC-ratio (global and windowed).",
+        help="The maximum GC-ratio (global).",
     )
     optimize.add_argument(
-        "--gc-content-window", type=int, default=100, help="The GC-ratio window size."
+        "--gc-content-window-min",
+        type=float,
+        default=0.4,
+        help="The minimum GC-ratio (windowed).",
+    )
+    optimize.add_argument(
+        "--gc-content-window-max",
+        type=float,
+        default=0.7,
+        help="The maximum GC-ratio (windowed).",
+    )
+    optimize.add_argument(
+        "--gc-content-window-size",
+        type=int,
+        default=100,
+        help="The GC-ratio window size.",
     )
     optimize.add_argument("--avoid-restriction-sites", type=str, action="append")
     optimize.add_argument("--avoid-sequences", type=str, action="append")
