@@ -1,24 +1,23 @@
-from collections import Counter, defaultdict
 import functools
 import re
 import statistics
-import timeit
 import typing
+from collections import Counter, defaultdict
 
 import msgspec
 
-from ..constants import (
+from mrnarchitect.constants import (
     AMINO_ACIDS,
     CODONS,
     CodonTable,
 )
+from mrnarchitect.data import load_codon_usage_table, load_trna_adaptation_index_dataset
 from mrnarchitect.organism import (
-    codon_usage_bias,
     CodonUsage,
     CodonUsageTable,
+    codon_usage_bias,
 )
 from mrnarchitect.types import AminoAcid, Codon, Organism
-from mrnarchitect.data import load_codon_usage_table, load_trna_adaptation_index_dataset
 
 
 class MinimumFreeEnergy(msgspec.Struct, kw_only=True):
@@ -38,22 +37,12 @@ class WindowedMinimumFreeEnergy(msgspec.Struct, kw_only=True):
     standard_deviation: float
 
 
-class Analysis(msgspec.Struct, kw_only=True):
-    class Debug(msgspec.Struct, kw_only=True):
-        time_seconds: float
-
-    a_ratio: float
-    c_ratio: float
-    g_ratio: float
-    t_ratio: float
-    at_ratio: float
-    ga_ratio: float
-    gc_ratio: float
-    uridine_depletion: float | None
-    codon_adaptation_index: float | None
-    trna_adaptation_index: float | None
-    minimum_free_energy: MinimumFreeEnergy
-    debug: Debug
+class GCWindowStats(msgspec.Struct, kw_only=True):
+    window_size: int
+    min_gc_ratio: float
+    min_gc_start: int
+    max_gc_ratio: float
+    max_gc_start: int
 
 
 SequenceType = typing.Literal["nucleic-acid", "amino-acid", "auto-detect"]
@@ -362,6 +351,22 @@ class Sequence(msgspec.Struct, frozen=True):
             return None
         c = Counter(c[2] for c in self.codons)
         return (c["C"] + c["G"]) / (c["A"] + c["C"] + c["G"] + c["T"])
+
+    @functools.cache
+    def gc_ratio_window(self, window_size: int = 100) -> GCWindowStats:
+        gcs = [
+            {"start": i, "gc_ratio": self[i : i + window_size].gc_ratio}
+            for i in range(0, max(len(self) - window_size, 1))
+        ]
+        min_gc = min(gcs, key=lambda s: s["gc_ratio"])
+        max_gc = max(gcs, key=lambda s: s["gc_ratio"])
+        return GCWindowStats(
+            window_size=window_size,
+            min_gc_ratio=min_gc["gc_ratio"],
+            min_gc_start=min_gc["start"],
+            max_gc_ratio=max_gc["gc_ratio"],
+            max_gc_start=max_gc["start"],
+        )
 
     @property
     @functools.cache
@@ -792,24 +797,3 @@ class Sequence(msgspec.Struct, frozen=True):
         set_a = set([(i, v) for i, v in enumerate(self)])
         set_b = set([(i, v) for i, v in enumerate(sequence)])
         return len(set_a.difference(set_b))
-
-    def analyze(
-        self, codon_usage_table: CodonUsageTable | Organism = "homo-sapiens"
-    ) -> Analysis:
-        """Collect and return a set of statistics about the sequence."""
-        start = timeit.default_timer()
-        minimum_free_energy = self.minimum_free_energy
-        return Analysis(
-            a_ratio=self.a_ratio,
-            c_ratio=self.c_ratio,
-            g_ratio=self.g_ratio,
-            t_ratio=self.t_ratio,
-            at_ratio=self.at_ratio,
-            ga_ratio=self.ga_ratio,
-            gc_ratio=self.gc_ratio,
-            uridine_depletion=self.uridine_depletion,
-            codon_adaptation_index=self.codon_adaptation_index(codon_usage_table),
-            trna_adaptation_index=self.trna_adaptation_index(codon_usage_table),
-            minimum_free_energy=minimum_free_energy,
-            debug=Analysis.Debug(time_seconds=timeit.default_timer() - start),
-        )

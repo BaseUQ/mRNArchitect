@@ -32,6 +32,9 @@ build-backend = "uv_build"
 
 [tool.ruff]
 
+[tool.ruff.lint]
+extend-select = ["I"]
+
 [tool.ty.rules]
 unresolved-attribute = "ignore"
 
@@ -42,4 +45,4 @@ include = ["src"]
 include = ["tools"]
 
 [tool.pytest.ini_options]
-addopts = "--doctest-modules --ignore tools/scripts"
+addopts = "--doctest-modules --ignore tools/scripts --ignore docker"

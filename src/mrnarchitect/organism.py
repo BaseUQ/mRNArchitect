@@ -13,7 +13,6 @@ from .constants import (
 )
 from .types import AminoAcid, Codon, Organism
 
-
 ORGANISM_TO_KAZUSA_ID_MAP: dict[Organism, int] = {
     "homo-sapiens": 9606,
     "mus-musculus": 10090,

@@ -1,4 +1,4 @@
-from mrnarchitect.sequence.sequence import Sequence
+from mrnarchitect.sequence import Sequence
 
 
 def hydrate(sequence: Sequence, full: bool = True) -> dict:
