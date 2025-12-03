@@ -86,8 +86,8 @@ class CodonUsageTable(msgspec.Struct, frozen=True):
             for amino_acid in AMINO_ACIDS
         }
 
-    def save(self):
-        with open(f"data/organisms/{self.id}.json", "wb") as f:
+    def save(self, path: str):
+        with open(path, "wb") as f:
             f.write(msgspec.json.encode(self))
 
 
