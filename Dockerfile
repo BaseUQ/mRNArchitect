@@ -74,6 +74,12 @@ RUN --mount=type=bind,source=uv.lock,target=uv.lock \
 
 CMD ["pnpm", "run", "dev"]
 
+FROM dev AS data
+
+RUN --mount=type=bind,source=uv.lock,target=uv.lock \
+  --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+  uv sync --locked --group data --compile-bytecode
+
 
 FROM dev AS data
 
