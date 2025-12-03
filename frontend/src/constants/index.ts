@@ -49,6 +49,8 @@ export const EXAMPLE_SEQUENCES = [
 export const ORGANISMS = [
   { label: "Human", value: "homo-sapiens" },
   { label: "Mouse", value: "mus-musculus" },
+  { label: "Salmo trutta", value: "salmo-trutta" },
+  { label: "Salmo salar", value: "salmo-salar" },
 ];
 
 export const FIVE_PRIME_UTRS = [

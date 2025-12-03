@@ -64,7 +64,7 @@ def load_codon_usage_table(
 @functools.cache
 def load_trna_adaptation_index_dataset(
     organism: Organism = "homo-sapiens",
-) -> dict[str, float]:
+) -> dict[str, float] | None:
     """Load the tAI weights for an organism.
     see: https://github.com/smsaladi/tAI/blob/master/tAI/tAI.py
     """
@@ -84,6 +84,9 @@ def load_trna_adaptation_index_dataset(
             .replace("C", "G")
             .replace("c", "C")[::-1]
         )
+
+    if organism not in ORGANISM_TO_FILE:
+        return None
 
     with open(
         pathlib.Path(__file__).parent / "tAI" / ORGANISM_TO_FILE[organism],
