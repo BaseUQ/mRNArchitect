@@ -27,6 +27,8 @@ class MinimumFreeEnergy(msgspec.Struct, kw_only=True):
     """Minimum free energy (MFE)."""
     average_energy: float
     """Normalized MFE (or AMFE)."""
+    paired_nt_ratio: float
+    """The ratio of paired nucleotides to the sequence length."""
 
 
 class WindowedMinimumFreeEnergy(msgspec.Struct, kw_only=True):
@@ -413,13 +415,18 @@ class Sequence(msgspec.Struct, frozen=True):
         """Calculate the minimum free energy of the sequence (Zukker).
 
         >>> Sequence("ACTCTTCTGGTCCCCACAGACTCAGAGAGAACCCACC").minimum_free_energy
-        MinimumFreeEnergy(structure='.((((.((((((......))).)))))))........', energy=-10.199999809265137, average_energy=-0.2756756705206794)
+        MinimumFreeEnergy(structure='.((((.((((((......))).)))))))........', energy=-10.199999809265137, average_energy=-0.2756756705206794, paired_nt_ratio=0.5405405405405406)
         """
         import RNA
 
         mfe = RNA.fold_compound(str(self)).mfe()
+        structure, energy = mfe[0], mfe[1]
         return MinimumFreeEnergy(
-            structure=mfe[0], energy=mfe[1], average_energy=mfe[1] / len(self)
+            structure=structure,
+            energy=energy,
+            average_energy=energy / len(self),
+            paired_nt_ratio=(structure.count("(") + structure.count(")"))
+            / len(structure),
         )
 
     @functools.cache

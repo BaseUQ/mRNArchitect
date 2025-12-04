@@ -69,6 +69,7 @@ def test_analyze():
                 "average_energy": 0.0,
                 "energy": 0.0,
                 "structure": ".........",
+                "paired_nt_ratio": 0.0,
             },
             "t_ratio": 0.3333333333333333,
             "trna_adaptation_index": 0.3173599613405995,

@@ -22,6 +22,7 @@ export const AnalyzeResponse = z.object({
   minimum_free_energy: z.object({
     structure: z.string().nonempty(),
     energy: z.number(),
+    paired_nt_ratio: z.number(),
   }),
   gc_ratio_window: z.object({
     window_size: z.int(),
