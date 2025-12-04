@@ -103,6 +103,7 @@ const generateReport = ({
       `3' UTR MFE (kcal/mol)\t${output.input.threePrimeUtrAnalysis?.minimum_free_energy.energy.toFixed(2) ?? "-"}\t${output.input.threePrimeUtrAnalysis?.minimum_free_energy.energy.toFixed(2) ?? "-"}`,
       `Total MFE (kcal/mol)\t${output.input.fullSequenceAnalysis?.minimum_free_energy.energy.toFixed(2) ?? "-"}\t${fullSequenceAnalysis?.minimum_free_energy.energy.toFixed(2) ?? "-"}`,
       `Total Structure\t\t${output.input.fullSequenceAnalysis.minimum_free_energy.structure}`,
+      `Total Paired nt Ratio\t${output.input.fullSequenceAnalysis.minimum_free_energy.paired_nt_ratio.toFixed(2)}`,
       "",
       "---Logs",
       ...optimization.result.constraints.trim().split("\n"),
