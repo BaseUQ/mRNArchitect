@@ -1,3 +1,3 @@
-from .codon_table import AMINO_ACIDS, CODONS, ORGANISMS, CodonTable
+from .codon_table import AMINO_ACIDS, CODONS, CodonTable
 
-__all__ = ["CodonTable", "CODONS", "AMINO_ACIDS", "ORGANISMS"]
+__all__ = ["CodonTable", "CODONS", "AMINO_ACIDS"]

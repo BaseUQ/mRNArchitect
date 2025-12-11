@@ -4,9 +4,10 @@ import importlib.metadata
 import msgspec
 
 from .analyze import analyze
-from .constants import ORGANISMS
 from .optimize import OptimizationParameter, optimize
 from .sequence import Sequence
+
+ORGANISMS = ["homo-sapiens", "mus-musculus"]
 
 
 def _parse_sequence(args):

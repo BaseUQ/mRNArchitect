@@ -4,7 +4,6 @@ import msgspec
 
 from mrnarchitect.organism import CodonUsageTable
 from mrnarchitect.sequence import GCWindowStats, MinimumFreeEnergy, Sequence
-from mrnarchitect.types import Organism
 
 
 class Analysis(msgspec.Struct, kw_only=True):
@@ -28,7 +27,7 @@ class Analysis(msgspec.Struct, kw_only=True):
 
 def analyze(
     sequence: Sequence,
-    codon_usage_table: CodonUsageTable | Organism = "homo-sapiens",
+    codon_usage_table: CodonUsageTable | str = "homo-sapiens",
     gc_content_window_size: int = 100,
 ):
     start = timeit.default_timer()

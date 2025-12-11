@@ -94,3 +94,21 @@ def test_compare():
         assert response.json() == {
             "hamming_distance": 2,
         }
+
+
+def test_search_organisms():
+    with TestClient(app=app) as client:
+        response = client.post(
+            "/api/search-organisms",
+            json={"terms": "homo sapiens"},
+        )
+        assert response.status_code == 201
+        assert response.json() == {
+            "organisms": [
+                {
+                    "slug": "homo-sapiens",
+                    "name": "Homo sapiens",
+                    "kazusa_id": "9606",
+                }
+            ]
+        }

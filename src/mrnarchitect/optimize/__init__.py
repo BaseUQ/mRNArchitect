@@ -23,7 +23,6 @@ from mrnarchitect.data import (
 )
 from mrnarchitect.organism import CodonUsageTable
 from mrnarchitect.sequence import Sequence
-from mrnarchitect.types import Organism
 
 from .specifications.constraints import CAIRange
 from .specifications.objectives import OptimizeTAI, TargetPseudoMFE
@@ -66,7 +65,7 @@ class OptimizationParameter(
     Location, frozen=True, kw_only=True, forbid_unknown_fields=True
 ):
     enforce_sequence: bool = False
-    codon_usage_table: CodonUsageTable | Organism | None = None
+    codon_usage_table: CodonUsageTable | str | None = None
     optimize_cai: bool = False
     optimize_mfe: float | None = None
     optimize_tai: float | None = None

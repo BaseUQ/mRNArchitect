@@ -1,8 +1,5 @@
-import csv
 import functools
-import re
-import typing
-import urllib.request
+import pathlib
 
 import msgspec
 
@@ -11,11 +8,11 @@ from .constants import (
     CODONS,
     CodonTable,
 )
-from .types import AminoAcid, Codon, Organism
+from .types import AminoAcid, Codon
 
-ORGANISM_TO_KAZUSA_ID_MAP: dict[Organism, int] = {
-    "homo-sapiens": 9606,
-    "mus-musculus": 10090,
+ORGANISM_TO_KAZUSA_ID_MAP: dict[str, str] = {
+    "homo-sapiens": "9606",
+    "mus-musculus": "10090",
 }
 
 
@@ -85,47 +82,10 @@ class CodonUsageTable(msgspec.Struct, frozen=True):
             for amino_acid in AMINO_ACIDS
         }
 
-    def save(self, path: str):
+    def save(self, path: pathlib.Path):
+        path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, "wb") as f:
             f.write(msgspec.json.encode(self))
-
-
-def load_codon_table_from_kazusa(kazusa_id: int) -> CodonUsageTable:
-    contents = (
-        urllib.request.urlopen(
-            f"https://www.kazusa.or.jp/codon/cgi-bin/showcodon.cgi?species={kazusa_id}&aa=1&style=GCG"
-        )
-        .read()
-        .decode("utf-8")
-    )
-    if (match := re.search(r"(?:<PRE>)([\s\S]*)(?:</PRE>)", contents)) is None:
-        raise RuntimeError(f"Could not parse table: {id}")
-    table_string = match.group(1)
-    table_rows = list(
-        csv.DictReader(
-            [line for line in table_string.split("\n") if line.strip()],
-            delimiter=" ",
-            skipinitialspace=True,
-        )
-    )
-
-    codon_usages: list[CodonUsage] = [
-        CodonUsage(
-            codon=typing.cast(Codon, row["Codon"].upper().replace("U", "T")),
-            number=int(float(row["Number"])),
-            frequency=float(row["Number"])
-            / sum(
-                float(r["Number"]) for r in table_rows if r["AmAcid"] == row["AmAcid"]
-            ),
-        )
-        for row in table_rows
-    ]
-    usage: dict[Codon, CodonUsage] = {it.codon: it for it in codon_usages}
-
-    return CodonUsageTable(
-        id=str(kazusa_id),
-        usage=usage,
-    )
 
 
 def codon_usage_bias(f: CodonUsageTable, c: CodonUsageTable):

@@ -3,13 +3,12 @@ from dnachisel.Specification import SpecEvaluation, Specification
 
 from mrnarchitect.organism import CodonUsageTable
 from mrnarchitect.sequence import Sequence
-from mrnarchitect.types import Organism
 
 
 class CAIRange(Specification):
     def __init__(
         self,
-        codon_usage_table: CodonUsageTable | Organism,
+        codon_usage_table: CodonUsageTable | str,
         location: Location | None = None,
         cai_min: float = 0.0,
         cai_max: float = 1.0,
