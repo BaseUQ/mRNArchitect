@@ -19,7 +19,7 @@ COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.9.1 /lambda-adapter /opt
 
 # Install ViennaRNA
 # see: https://www.tbi.univie.ac.at/RNA/#binary_packages
-RUN wget -qO viennarna.deb https://www.tbi.univie.ac.at/RNA/download/debian/debian_12/viennarna_2.7.0-1_amd64.deb && \
+RUN wget -qO viennarna.deb https://www.tbi.univie.ac.at/RNA/download/debian/debian_12/viennarna_2.7.1-1_amd64.deb && \
   apt-get update -qy && \
   apt-get install -qy -f ./viennarna.deb && \
   rm -rf viennarna.deb /var/lib/apt/lists/*
