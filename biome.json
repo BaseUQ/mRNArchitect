@@ -17,7 +17,8 @@
       "!**/.vinxi",
       "!**/.venv",
       "!**/data",
-      "!**/dist"
+      "!**/dist",
+      "!**/src"
     ]
   },
   "formatter": {
