@@ -1,7 +1,7 @@
 import pytest
 
+from mrnarchitect.codon_table import codon_usage_bias
 from mrnarchitect.data import load_codon_usage_table
-from mrnarchitect.organism import codon_usage_bias
 from mrnarchitect.sequence import Sequence
 
 TEST_SEQUENCES = {

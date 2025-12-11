@@ -7,14 +7,14 @@ from mrnarchitect.optimize import (
     OptimizationResult,
     optimize,
 )
+from mrnarchitect.organism import Organism, search_organisms
 from mrnarchitect.sequence import Sequence, SequenceType
-from mrnarchitect.types import Organism
 
 
 class ConvertRequest(msgspec.Struct):
     sequence: str
     sequence_type: SequenceType = "auto-detect"
-    organism: Organism = "homo-sapiens"
+    organism: str = "homo-sapiens"
 
 
 class ConvertResponse(msgspec.Struct):
@@ -62,7 +62,7 @@ async def post_optimize(data: OptimizeRequest, headers: dict) -> OptimizationRes
 
 class AnalyzeRequest(msgspec.Struct):
     sequence: str
-    organism: Organism = "homo-sapiens"
+    organism: str = "homo-sapiens"
     gc_content_window_size: int | None = None
 
 
@@ -96,6 +96,25 @@ async def post_compare(data: CompareRequest) -> CompareResponse:
     return CompareResponse(hamming_distance=sequence_a.hamming_distance(sequence_b))
 
 
+class SearchOrganismsRequest(msgspec.Struct):
+    terms: str
+
+
+class SearchOrganismsResponse(msgspec.Struct):
+    organisms: list[Organism]
+
+
+@post(
+    "/search-organisms",
+    summary="Search organisms.",
+    description="Search for organism by Kazusa ID or latin name.",
+)
+async def post_search_organisms(
+    data: SearchOrganismsRequest,
+) -> SearchOrganismsResponse:
+    return SearchOrganismsResponse(organisms=search_organisms(data.terms))
+
+
 api_router = Router(
     path="/api",
     route_handlers=[
@@ -103,5 +122,6 @@ api_router = Router(
         post_compare,
         post_convert,
         post_optimize,
+        post_search_organisms,
     ],
 )
