@@ -21,7 +21,7 @@ from mrnarchitect.data import (
     load_manufacture_restriction_sites,
     load_microrna_seed_sites,
 )
-from mrnarchitect.organism import CodonUsageTable
+from mrnarchitect.organism import Organism
 from mrnarchitect.sequence import Sequence
 
 from .specifications.constraints import CAIRange
@@ -65,7 +65,7 @@ class OptimizationParameter(
     Location, frozen=True, kw_only=True, forbid_unknown_fields=True
 ):
     enforce_sequence: bool = False
-    codon_usage_table: CodonUsageTable | str | None = None
+    organism: Organism | str | None = None
     optimize_cai: bool = False
     optimize_mfe: float | None = None
     optimize_tai: float | None = None
@@ -216,25 +216,21 @@ class OptimizationParameter(
         ]
         constraints.extend(custom_pattern_constraints)
 
-        if (
-            self.codon_usage_table
-            and self.cai_min is not None
-            and self.cai_max is not None
-        ):
+        if self.organism and self.cai_min is not None and self.cai_max is not None:
             constraints.append(
                 CAIRange(
-                    codon_usage_table=load_codon_usage_table(self.codon_usage_table),
+                    codon_usage_table=load_codon_usage_table(self.organism),
                     cai_min=self.cai_min,
                     cai_max=self.cai_max,
                     location=location,
                 )
             )
 
-        if self.codon_usage_table and self.optimize_cai:
+        if self.organism and self.optimize_cai:
             objectives.append(
                 CodonOptimize(
                     codon_usage_table=load_codon_usage_table(
-                        self.codon_usage_table
+                        self.organism
                     ).to_dnachisel_dict(),
                     method="use_best_codon",
                     location=location,
@@ -313,7 +309,7 @@ def _optimize(
 
 DEFAULT_OPTIMIZATION_PARAMETER = OptimizationParameter(
     enforce_sequence=False,
-    codon_usage_table="homo-sapiens",
+    organism="homo-sapiens",
     optimize_cai=True,
     avoid_repeat_length=10,
     enable_uridine_depletion=False,
@@ -344,7 +340,7 @@ def optimize(
 ) -> OptimizationResult:
     """Optimize the sequence based on the configuration parameters.
 
-    >>> str(optimize(Sequence("ACGACCATTAAA"), parameters=[OptimizationParameter(codon_usage_table="homo-sapiens", optimize_cai=True)]).result.sequence)
+    >>> str(optimize(Sequence("ACGACCATTAAA"), parameters=[OptimizationParameter(organism="homo-sapiens", optimize_cai=True)]).result.sequence)
     'ACCACCATCAAG'
     """
     start = timeit.default_timer()

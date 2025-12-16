@@ -1409,7 +1409,6 @@ name = "mrnarchitect"
 version = "0.4.10"
 source = { editable = "." }
 dependencies = [
-    { name = "beautifulsoup4" },
     { name = "biopython" },
     { name = "boto3" },
     { name = "dnachisel" },
@@ -1434,7 +1433,6 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "beautifulsoup4", specifier = ">=4.14.2" },
     { name = "biopython", specifier = ">=1.85" },
     { name = "boto3", specifier = ">=1.40.55" },
     { name = "dnachisel", specifier = ">=3.2.16" },

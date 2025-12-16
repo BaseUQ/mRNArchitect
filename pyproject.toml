@@ -6,7 +6,6 @@ readme = "README.md"
 authors = [{ name = "Jonathon Waterhouse", email = "jon@wtrhs.com" }]
 requires-python = ">=3.13,<3.14"
 dependencies = [
-  "beautifulsoup4>=4.14.2",
   "biopython>=1.85",
   "boto3>=1.40.55",
   "dnachisel>=3.2.16",

@@ -8,15 +8,15 @@ from mrnarchitect.organism import Organism, search_organisms
     [
         [
             "homo sap",
-            [Organism(slug="homo-sapiens", name="Homo sapiens", kazusa_id="9606")],
+            [Organism(slug="homo-sapiens", name="Homo sapiens", id="9606")],
         ],
         [
             "9606",
-            [Organism(slug="homo-sapiens", name="Homo sapiens", kazusa_id="9606")],
+            [Organism(slug="homo-sapiens", name="Homo sapiens", id="9606")],
         ],
         [
             ["homo", "sap"],
-            [Organism(slug="homo-sapiens", name="Homo sapiens", kazusa_id="9606")],
+            [Organism(slug="homo-sapiens", name="Homo sapiens", id="9606")],
         ],
     ],
 )

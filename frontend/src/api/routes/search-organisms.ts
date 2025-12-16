@@ -1,4 +1,5 @@
 import z from "zod/v4";
+import { Organism } from "../types";
 import { apiUrl } from "../utils";
 
 export const SearchOrganismsRequest = z.object({
@@ -8,13 +9,7 @@ export const SearchOrganismsRequest = z.object({
 export type SearchOrganismsRequest = z.infer<typeof SearchOrganismsRequest>;
 
 export const SearchOrganismsResponse = z.object({
-  organisms: z.array(
-    z.object({
-      slug: z.string().nonempty(),
-      name: z.string().nonempty(),
-      kazusa_id: z.string().nonempty(),
-    }),
-  ),
+  organisms: z.array(Organism)
 });
 
 export type SearchOrganismsResponse = z.infer<typeof SearchOrganismsResponse>;

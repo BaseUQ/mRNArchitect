@@ -3,7 +3,6 @@ import {
   Group,
   InputWrapper,
   MultiSelect,
-  NativeSelect,
   NumberInput,
   Radio,
   RangeSlider,
@@ -13,8 +12,8 @@ import {
   TagsInput,
 } from "@mantine/core";
 import type { UseFormReturnType } from "@mantine/form";
+import { OrganismSelect } from "~/components/inputs/OrganismSelect";
 import type { OptimizationInput } from "~/components/pages/optimize/types";
-import { ORGANISMS } from "~/constants";
 import RESTRICTION_SITES from "~/data/restriction-sites.json";
 
 export const ParameterInput = ({
@@ -127,11 +126,11 @@ export const ParameterInput = ({
               </Group>
             </Radio.Group>
           )}
-          <NativeSelect
+          <OrganismSelect
             label="Organism"
-            data={ORGANISMS}
-            key={form.key(`parameters.${index}.codon_usage_table`)}
-            {...form.getInputProps(`parameters.${index}.codon_usage_table`)}
+            key={form.key(`parameters.${index}.organism`)}
+            value={form.getValues().parameters[index].organism}
+            onChange={(value) => form.setFieldValue(`parameters.${index}.organism`, value)}
           />
           <NumberInput
             label="Avoid repeat length"

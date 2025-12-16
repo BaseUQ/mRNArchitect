@@ -108,7 +108,7 @@ def test_search_organisms():
                 {
                     "slug": "homo-sapiens",
                     "name": "Homo sapiens",
-                    "kazusa_id": "9606",
+                    "id": "9606",
                 }
             ]
         }

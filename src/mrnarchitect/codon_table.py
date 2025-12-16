@@ -54,7 +54,7 @@ class CodonUsageTable(msgspec.Struct, frozen=True):
                 for codon, usage in self.usage.items()
                 if codon in CodonTable.codons(amino_acid)
             ],
-            key=lambda x: x.number,
+            key=lambda x: x.frequency,
         )
 
     @functools.cache
@@ -65,12 +65,12 @@ class CodonUsageTable(msgspec.Struct, frozen=True):
                 for codon, usage in self.usage.items()
                 if codon in CodonTable.codons(amino_acid)
             ],
-            key=lambda x: x.number,
+            key=lambda x: x.frequency,
         )
 
     def weight(self, codon: Codon) -> float:
         amino_acid = CodonTable.amino_acid(codon)
-        return self.usage[codon].number / self.most_frequent(amino_acid).number
+        return self.usage[codon].frequency / self.most_frequent(amino_acid).frequency
 
     def to_dnachisel_dict(self) -> dict[str, dict[str, float]]:
         return {

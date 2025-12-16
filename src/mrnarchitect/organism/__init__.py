@@ -10,13 +10,12 @@ import typing
 import urllib.request
 
 import msgspec
-from bs4 import BeautifulSoup
 
 from mrnarchitect.codon_table import CodonUsage, CodonUsageTable
-from mrnarchitect.constants import CODONS
+from mrnarchitect.constants import AMINO_ACID_TO_CODONS_MAP, AMINO_ACIDS, CODONS
 from mrnarchitect.types import Codon
 
-CODON_TABLES_DIRECTORY = pathlib.Path(__file__).parent / "codon_tables"
+CODON_USAGE_TABLES_CSV = pathlib.Path(__file__).parent / "codon_usage.csv"
 TRNA_DATASETS_DIRECTORY = pathlib.Path(__file__).parent / "trna_datasets"
 ORGANISMS_DB = pathlib.Path(__file__).parent / "organisms.db"
 
@@ -30,60 +29,85 @@ SLUG_TO_TRNA_DATABASE_FILE: dict[str, str] = {
 class Organism(msgspec.Struct, frozen=True):
     slug: str
     name: str
-    kazusa_id: str
+    id: str
 
     @property
+    @functools.cache
     def codon_usage_table(self) -> CodonUsageTable:
-        return load_codon_usage_table(self.kazusa_id)
-        # return load_codon_usage_table()
+        return load_codon_usage_table_from_database(self.slug)
 
     @property
+    @functools.cache
     def trna_dataset(self) -> dict[str, float] | None:
         return load_trna_adaptation_index_dataset(self.slug)
 
 
-def rebuild_database():
-    organisms: list[dict] = []
-    for c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
-        contents = (
-            urllib.request.urlopen(f"https://www.kazusa.or.jp/codon/{c}.html")
-            .read()
-            .decode("utf-8")
-        )
+def build_database(overwrite: bool = False) -> int | None:
+    def _is_float(s: str) -> bool:
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False
 
-        soup = BeautifulSoup(contents)
-        for a in soup("a"):
-            href = next(iter(a.get_attribute_list("href")), None)
-            if not href or not href.startswith("/codon/cgi-bin/showcodon.cgi?species="):
-                continue
-            id = href.split("=")[1]
-            full_name = a.get_text()
-            if id and full_name:
-                name = full_name.rsplit("[", maxsplit=1)[0].strip()
-                organisms.append(
-                    {
-                        "slug": "-".join(name.strip().split()).lower(),
-                        "name": name.strip(),
-                        "kazusa_id": id.strip(),
-                    }
+    def _load_codon_usage_table(row: dict[str, str]) -> CodonUsageTable:
+        # Rename rows with `U` nucletides with `T` for consistency
+        for codon in CODONS:
+            row[codon] = row.pop(codon.replace("T", "U"))
+        usage: dict[Codon, CodonUsage] = {}
+        num_codons = int(row["Ncodons"])
+        for aa in AMINO_ACIDS:
+            frequency_sum = sum(
+                float(row[codon]) for codon in AMINO_ACID_TO_CODONS_MAP[aa]
+            )
+            for codon in AMINO_ACID_TO_CODONS_MAP[aa]:
+                frequency = float(row[codon])
+                usage[codon] = CodonUsage(
+                    codon=codon,
+                    number=int(num_codons * frequency),
+                    frequency=frequency / frequency_sum if frequency_sum else 0.0,
                 )
+        return CodonUsageTable(id=row["SpeciesID"], usage=usage)
 
     if ORGANISMS_DB.exists():
-        ORGANISMS_DB.unlink()
+        if overwrite:
+            ORGANISMS_DB.unlink()
+        else:
+            return
+
+    with open(CODON_USAGE_TABLES_CSV, "r") as f:
+        reader = csv.DictReader(f)
+        rows = [
+            {
+                "slug": "-".join(row["SpeciesName"].strip().split()).lower(),
+                "name": row["SpeciesName"].strip(),
+                "id": row["SpeciesID"].strip(),
+                "codon_usage_table": msgspec.json.encode(_load_codon_usage_table(row)),
+            }
+            for row in reader
+            # Skip mictochondrion rows
+            if not row["SpeciesName"].startswith("mitochondrion")
+            # Validate codon frequencies
+            and all(_is_float(row[key]) for key in row.keys() if len(key) == 3)
+        ]
+
     connection = sqlite3.connect(ORGANISMS_DB)
     cursor = connection.cursor()
-    cursor.execute("CREATE VIRTUAL TABLE organism USING fts5(slug, name, kazusa_id)")
-    for organisms_batch in itertools.batched(organisms, 100):
+    cursor.execute(
+        "CREATE VIRTUAL TABLE organism USING fts5(slug, name, id, codon_usage_table UNINDEXED)"
+    )
+    for row_batch in itertools.batched(rows, 100):
         cursor.executemany(
-            "INSERT INTO organism VALUES(:slug, :name, :kazusa_id)",
-            organisms_batch,
+            "INSERT INTO organism VALUES(:slug, :name, :id, :codon_usage_table)",
+            row_batch,
         )
-        print(f"Commited {len(organisms_batch)}")
         connection.commit()
     connection.close()
+    return len(rows)
 
 
-def load_organism_from_slug(slug: str) -> Organism:
+def load_codon_usage_table_from_database(slug: str) -> CodonUsageTable:
+    build_database()
     connection = sqlite3.connect(ORGANISMS_DB)
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
@@ -93,10 +117,25 @@ def load_organism_from_slug(slug: str) -> Organism:
     )
     row = res.fetchone()
     connection.close()
-    return Organism(slug=row["slug"], name=row["name"], kazusa_id=row["kazusa_id"])
+    return msgspec.json.decode(row["codon_usage_table"], type=CodonUsageTable)
+
+
+def load_organism_from_database(slug: str) -> Organism:
+    build_database()
+    connection = sqlite3.connect(ORGANISMS_DB)
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
+    res = cursor.execute(
+        "SELECT * FROM organism WHERE slug = ?",
+        (slug,),
+    )
+    row = res.fetchone()
+    connection.close()
+    return Organism(slug=row["slug"], name=row["name"], id=row["id"])
 
 
 def search_organisms(terms: str | list[str], limit: int = 10) -> list[Organism]:
+    build_database()
     if isinstance(terms, str):
         terms = terms.split()
     connection = sqlite3.connect(ORGANISMS_DB)
@@ -111,21 +150,7 @@ def search_organisms(terms: str | list[str], limit: int = 10) -> list[Organism]:
     )
     rows = res.fetchall()
     connection.close()
-    return [
-        Organism(slug=row["slug"], name=row["name"], kazusa_id=row["kazusa_id"])
-        for row in rows
-    ]
-
-
-def load_codon_usage_table(kazusa_id: str) -> CodonUsageTable:
-    organism_file = CODON_TABLES_DIRECTORY / f"{kazusa_id}.json"
-    if organism_file.exists():
-        with open(organism_file, "rb") as f:
-            return msgspec.json.decode(f.read(), type=CodonUsageTable)
-
-    codon_usage_table = load_codon_usage_table_from_kazusa(kazusa_id)
-    codon_usage_table.save(organism_file)
-    return codon_usage_table
+    return [Organism(slug=row["slug"], name=row["name"], id=row["id"]) for row in rows]
 
 
 def load_codon_usage_table_from_kazusa(kazusa_id: str) -> CodonUsageTable:

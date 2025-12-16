@@ -54,6 +54,9 @@ RUN --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
 COPY --chown=node:node . .
 RUN uv sync --locked --no-dev
 
+# Build and cache the organism database
+RUN uv run mRNArchitect build-organism-database
+
 
 FROM base AS e2e
 

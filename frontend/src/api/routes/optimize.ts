@@ -1,4 +1,5 @@
 import z from "zod/v4";
+import { Organism } from "../types";
 import { apiUrl, sanitizeNucleicAcidSequence } from "../utils";
 
 const REQUIRED_MESSAGE = "Field cannot be empty.";
@@ -8,7 +9,7 @@ export const OptimizationParameter = z
     start_coordinate: z.int(REQUIRED_MESSAGE).min(1).nullable(),
     end_coordinate: z.int(REQUIRED_MESSAGE).min(1).nullable(),
     enforce_sequence: z.boolean(),
-    codon_usage_table: z.string(),
+    organism: Organism,
     optimize_cai: z.boolean(),
     optimize_tai: z.number().nullable(),
     avoid_repeat_length: z.int(REQUIRED_MESSAGE).min(0),

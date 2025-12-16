@@ -17,6 +17,7 @@ from mrnarchitect.constants import (
     CodonTable,
 )
 from mrnarchitect.data import load_codon_usage_table, load_trna_adaptation_index_dataset
+from mrnarchitect.organism import Organism
 from mrnarchitect.types import AminoAcid, Codon
 
 
@@ -69,7 +70,7 @@ class Sequence(msgspec.Struct, frozen=True):
         cls,
         sequence: "Sequence | str",
         sequence_type: SequenceType = "auto-detect",
-        codon_usage_table: CodonUsageTable | str = "homo-sapiens",
+        codon_usage_table: CodonUsageTable | Organism | str = "homo-sapiens",
     ) -> "Sequence":
         """Create a new Sequence.
 
@@ -389,7 +390,7 @@ class Sequence(msgspec.Struct, frozen=True):
         """Calculate the Codon Adaptation Index of the sequence using the provided codon table.
 
         >>> Sequence("ATACGG").codon_adaptation_index()
-        0.5812433943953039
+        0.5810162902573306
 
         >>> Sequence("A").codon_adaptation_index()
 

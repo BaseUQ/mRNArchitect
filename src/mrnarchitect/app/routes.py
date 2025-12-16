@@ -14,7 +14,7 @@ from mrnarchitect.sequence import Sequence, SequenceType
 class ConvertRequest(msgspec.Struct):
     sequence: str
     sequence_type: SequenceType = "auto-detect"
-    organism: str = "homo-sapiens"
+    organism: Organism | str = "homo-sapiens"
 
 
 class ConvertResponse(msgspec.Struct):
@@ -62,7 +62,7 @@ async def post_optimize(data: OptimizeRequest, headers: dict) -> OptimizationRes
 
 class AnalyzeRequest(msgspec.Struct):
     sequence: str
-    organism: str = "homo-sapiens"
+    organism: Organism | str = "homo-sapiens"
     gc_content_window_size: int | None = None
 
 

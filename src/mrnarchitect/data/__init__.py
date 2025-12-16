@@ -6,7 +6,7 @@ from mrnarchitect.codon_table import CodonUsageTable
 from mrnarchitect.constants import CODONS
 from mrnarchitect.organism import (
     Organism,
-    load_organism_from_slug,
+    load_organism_from_database,
 )
 
 
@@ -51,7 +51,7 @@ def load_codon_usage_table(
     if isinstance(organism, CodonUsageTable):
         return organism
     if isinstance(organism, str):
-        return load_organism_from_slug(organism).codon_usage_table
+        return load_organism_from_database(organism).codon_usage_table
     return organism.codon_usage_table
 
 
@@ -63,7 +63,7 @@ def load_trna_adaptation_index_dataset(
     see: https://github.com/smsaladi/tAI/blob/master/tAI/tAI.py
     """
 
-    return load_organism_from_slug(organism).trna_dataset
+    return load_organism_from_database(organism).trna_dataset
 
 
 @functools.cache
