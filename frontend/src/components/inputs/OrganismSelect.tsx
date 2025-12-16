@@ -93,7 +93,7 @@ return (
           <Combobox.Search
             value={searchValue}
             onChange={(event) => setSearchValue(event.currentTarget.value)}
-            placeholder="Search organisms"
+            placeholder="Search organisms (by latin name)"
           />
           <Combobox.Options>
             {options}
