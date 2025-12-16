@@ -12,3 +12,6 @@ node_modules/
 *.egg-info/
 .virtual_documents/
 .ipynb_checkpoints/
+
+# Organism database
+organisms.db

@@ -52,7 +52,7 @@ const generateReport = ({
           ...[
             //`Optimise CAI\t\t\t\t${c.optimizeCai}`,
             //`Optimise tAI\t\t\t\t${c.optimizeTai}`,
-            `Organism\t\t\t\t${c.codon_usage_table}`,
+            `Organism\t\t\t\t${c.organism.slug}`,
             `Avoid repeat length\t\t\t${c.avoid_repeat_length}`,
             `Enable uridine depletion\t\t${c.enable_uridine_depletion}`,
             `Avoid ribosome slip\t\t\t${c.avoid_ribosome_slip}`,

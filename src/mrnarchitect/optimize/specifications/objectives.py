@@ -3,14 +3,13 @@ from dnachisel.Location import Location
 from dnachisel.Specification import SpecEvaluation, Specification
 
 from mrnarchitect.sequence import Sequence
-from mrnarchitect.types import Organism
 
 
 class OptimizeTAI(Specification):
     def __init__(
         self,
         target_tai: float = 1.0,
-        organism: Organism = "homo-sapiens",
+        organism: str = "homo-sapiens",
         location: Location | None = None,
         boost: float = 1.0,
     ):

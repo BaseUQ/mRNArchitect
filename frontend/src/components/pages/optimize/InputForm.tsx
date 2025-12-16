@@ -26,6 +26,7 @@ import { ParameterInput } from "./inputs/ParameterInput";
 import { SequenceInput } from "./inputs/SequenceInput";
 import { ProgressLoader } from "./ProgressLoader";
 import { OptimizationInput } from "./types";
+import { DEFAULT_ORGANISMS } from "~/constants";
 
 const createDefaultParameter = (
   startCoordinate: number | null = null,
@@ -34,7 +35,7 @@ const createDefaultParameter = (
   start_coordinate: startCoordinate,
   end_coordinate: endCoordinate,
   enforce_sequence: false,
-  codon_usage_table: "homo-sapiens",
+  organism: DEFAULT_ORGANISMS[0],
   optimize_cai: true,
   optimize_tai: null,
   avoid_repeat_length: 10,

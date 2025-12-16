@@ -4,9 +4,11 @@ import importlib.metadata
 import msgspec
 
 from .analyze import analyze
-from .constants import ORGANISMS
 from .optimize import OptimizationParameter, optimize
+from .organism import build_database
 from .sequence import Sequence
+
+ORGANISMS = ["homo-sapiens", "mus-musculus"]
 
 
 def _parse_sequence(args):
@@ -28,7 +30,7 @@ def _optimize(args):
         parameters = [
             OptimizationParameter(
                 optimize_cai=True,
-                codon_usage_table=args.organism,
+                organism=args.organism,
                 avoid_repeat_length=args.avoid_repeat_length,
                 enable_uridine_depletion=args.enable_uridine_depletion,
                 avoid_ribosome_slip=args.avoid_ribosome_slip,
@@ -67,6 +69,11 @@ def _convert(args):
     else:
         result = sequence.amino_acid_sequence
     _print(result, args)
+
+
+def _build_organism_database(_):
+    print("Building and caching organism database...")
+    print(f"Done: {build_database(True)} organisms")
 
 
 def _version(_):
@@ -207,6 +214,11 @@ def cli(args=None):
     )
     convert.add_argument("--format", type=str, choices=["yaml", "json"], default="yaml")
     convert.set_defaults(func=_convert)
+
+    build_organism_database = subparsers.add_parser(
+        "build-organism-database", help="Build and cache the organism database."
+    )
+    build_organism_database.set_defaults(func=_build_organism_database)
 
     version = subparsers.add_parser(
         "version", help="Print the current version of mRNArchitect."

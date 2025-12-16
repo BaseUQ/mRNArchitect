@@ -1,15 +1,11 @@
 import typing
 
-from mrnarchitect.types import AminoAcid, AminoAcid3, AminoAcidName, Codon, Organism
+from mrnarchitect.types import AminoAcid, AminoAcid3, AminoAcidName, Codon
 
 AMINO_ACIDS = set(typing.get_args(AminoAcid))
 
 
 CODONS = set(typing.get_args(Codon))
-
-
-ORGANISMS = set(typing.get_args(Organism))
-"""The known organisms."""
 
 
 AMINO_ACID_SET: list[tuple[AminoAcidName, AminoAcid3, AminoAcid]] = [

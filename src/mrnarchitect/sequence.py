@@ -6,18 +6,19 @@ from collections import Counter, defaultdict
 
 import msgspec
 
+from mrnarchitect.codon_table import (
+    CodonUsage,
+    CodonUsageTable,
+    codon_usage_bias,
+)
 from mrnarchitect.constants import (
     AMINO_ACIDS,
     CODONS,
     CodonTable,
 )
 from mrnarchitect.data import load_codon_usage_table, load_trna_adaptation_index_dataset
-from mrnarchitect.organism import (
-    CodonUsage,
-    CodonUsageTable,
-    codon_usage_bias,
-)
-from mrnarchitect.types import AminoAcid, Codon, Organism
+from mrnarchitect.organism import Organism
+from mrnarchitect.types import AminoAcid, Codon
 
 
 class MinimumFreeEnergy(msgspec.Struct, kw_only=True):
@@ -69,7 +70,7 @@ class Sequence(msgspec.Struct, frozen=True):
         cls,
         sequence: "Sequence | str",
         sequence_type: SequenceType = "auto-detect",
-        codon_usage_table: CodonUsageTable | Organism = "homo-sapiens",
+        codon_usage_table: CodonUsageTable | Organism | str = "homo-sapiens",
     ) -> "Sequence":
         """Create a new Sequence.
 
@@ -127,7 +128,7 @@ class Sequence(msgspec.Struct, frozen=True):
     def from_amino_acid_sequence(
         cls,
         amino_acid_sequence: str,
-        codon_usage_table: CodonUsageTable | Organism = "homo-sapiens",
+        codon_usage_table: CodonUsageTable | str = "homo-sapiens",
     ) -> "Sequence":
         """Create a Sequence from an amino acid sequence.
         The nucleic acid sequence will be codon optimized for the given `organism`.
@@ -142,9 +143,7 @@ class Sequence(msgspec.Struct, frozen=True):
         )
 
     @classmethod
-    def from_aa(
-        cls, amino_acid_sequence, organism: Organism = "homo-sapiens"
-    ) -> "Sequence":
+    def from_aa(cls, amino_acid_sequence, organism: str = "homo-sapiens") -> "Sequence":
         """Alias from Sequence.from_amino_acid_sequence(...)"""
         return cls.from_amino_acid_sequence(amino_acid_sequence, organism)
 
@@ -386,12 +385,12 @@ class Sequence(msgspec.Struct, frozen=True):
 
     @functools.cache
     def codon_adaptation_index(
-        self, codon_usage_table: CodonUsageTable | Organism = "homo-sapiens"
+        self, codon_usage_table: CodonUsageTable | str = "homo-sapiens"
     ) -> float | None:
         """Calculate the Codon Adaptation Index of the sequence using the provided codon table.
 
         >>> Sequence("ATACGG").codon_adaptation_index()
-        0.5812433943953039
+        0.5810162902573306
 
         >>> Sequence("A").codon_adaptation_index()
 
@@ -647,7 +646,7 @@ class Sequence(msgspec.Struct, frozen=True):
 
     @functools.cache
     def rare_codon_ratio(
-        self, codon_usage_table: CodonUsageTable | Organism = "homo-sapiens"
+        self, codon_usage_table: CodonUsageTable | str = "homo-sapiens"
     ) -> float | None:
         """Get the ratio of rare codons in the sequence.
         A rare codon is defined as any codon that is NOT the most frequent codon
@@ -701,7 +700,7 @@ class Sequence(msgspec.Struct, frozen=True):
 
     @functools.cache
     def codon_usage_bias(
-        self, codon_usage_table: CodonUsageTable | Organism = "homo-sapiens"
+        self, codon_usage_table: CodonUsageTable | str = "homo-sapiens"
     ) -> float | None:
         """Codon usage bias of this sequence with respect to the given organism.
         see: https://onlinelibrary.wiley.com/doi/10.1046/j.1365-2958.1998.01008.x
@@ -715,7 +714,7 @@ class Sequence(msgspec.Struct, frozen=True):
     @functools.cache
     def codon_bias_index(
         self,
-        codon_usage_table: CodonUsageTable | Organism = "homo-sapiens",
+        codon_usage_table: CodonUsageTable | str = "homo-sapiens",
     ) -> float | None:
         """Codon usage index of this sequence with repect to the given organism.
         Note that as per the link below, codons for "M" and "W" are not included
@@ -764,9 +763,7 @@ class Sequence(msgspec.Struct, frozen=True):
         return (n_pfr - n_rand) / (n_tot - n_rand)
 
     @functools.cache
-    def trna_adaptation_index(
-        self, organism: Organism = "homo-sapiens"
-    ) -> float | None:
+    def trna_adaptation_index(self, organism: str = "homo-sapiens") -> float | None:
         """Calculate the tRNA Adaptation Index of the sequence."""
         if not self.is_amino_acid_sequence:
             return None

@@ -140,5 +140,3 @@ Codon = typing.Literal[
     "TTT",
 ]
 """The three letter codon (DNA-style, i.e with "T" instead of "U")."""
-
-Organism = typing.Literal["homo-sapiens", "mus-musculus", "salmo-trutta", "salmo-salar"]
