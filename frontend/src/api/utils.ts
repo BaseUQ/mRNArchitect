@@ -1,8 +1,17 @@
 /**
  * Generate API URL.
  */
-export const apiUrl = (path: string) =>
-  `${import.meta.env.VITE_API ?? ""}${path}`;
+export const apiUrl = (path: string) => {
+  const url = `${import.meta.env.VITE_API ?? ""}${path}`;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const user = urlParams.get("user");
+  if (user) {
+    return `${url}?user=${encodeURIComponent(user)}`;
+  }
+
+  return url;
+};
 
 /**
  * Remove all whitespace/newlines and upper case the sequence.

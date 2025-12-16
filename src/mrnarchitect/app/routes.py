@@ -1,3 +1,5 @@
+import hashlib
+
 import msgspec
 from litestar import Router, post
 
@@ -43,7 +45,9 @@ class OptimizeRequest(msgspec.Struct):
     summary="Optimize sequence.",
     description="Run an optimization on the given sequence.",
 )
-async def post_optimize(data: OptimizeRequest, headers: dict) -> OptimizationResult:
+async def post_optimize(
+    data: OptimizeRequest, headers: dict, user: str | None = None
+) -> OptimizationResult:
     result = optimize(Sequence.create(data.sequence), parameters=data.parameters)
     # Log the optimization
     print(
@@ -53,7 +57,9 @@ async def post_optimize(data: OptimizeRequest, headers: dict) -> OptimizationRes
                 "ip": headers.get("x-forwarded-for")
                 or headers.get("X-Forwarded-For")
                 or None,
-                "sequence": data.sequence,
+                "user": user,
+                "sequence_hash": hashlib.sha256(data.sequence.encode()).hexdigest(),
+                "parameters": data.parameters,
             }
         ).decode("utf-8")
     )
