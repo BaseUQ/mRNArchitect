@@ -43,5 +43,4 @@ jobs:
     needs: [deploy-production]
     uses: ./.github/workflows/e2e.yml
     with:
-      playwright-base-url: https://app.basefacility.org.au
-
+      playwright-base-url: https://app.basefacility.org.au?bypass-redirect=1
