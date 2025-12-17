@@ -20,8 +20,12 @@ const App = () => {
     if (window.self === window.top) {
       // Check if the host is the production URL.
       if (window.location.hostname === "app.basefacility.org.au") {
-        // Redirect to the basefacility.org.au/software page.
-        window.location.href = "https://basefacility.org.au/software";
+        // Check if the `bypass-redirect` parameter is not set.
+        const url = new URL(window.location.href);
+        if (!url.searchParams.get("bypass-redirect")) {
+          // Redirect to the basefacility.org.au/software page.
+          window.location.href = "https://basefacility.org.au/software";
+        }
       }
     }
   }, []);
