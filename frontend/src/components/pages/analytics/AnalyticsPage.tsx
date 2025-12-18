@@ -1,7 +1,6 @@
 import { Button, Fieldset, Stack, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useContext } from "react";
-import z from "zod/v4";
 import { UserDetails, UserDetailsContext } from "~/context/UserDetails";
 
 export const AnalyticsPage = () => {

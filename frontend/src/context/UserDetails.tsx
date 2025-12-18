@@ -68,7 +68,7 @@ export const UserDetailsProvider = ({
       name: params.get("name") ?? userDetails.name,
       organization: params.get("organization") ?? userDetails.organization,
     });
-  }, []);
+  }, [userDetails]);
 
   return (
     <UserDetailsContext
