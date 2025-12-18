@@ -59,6 +59,7 @@ async def post_optimize(
                 or None,
                 "user": user,
                 "sequence": {
+                    "sequence": data.sequence,
                     "hash": hashlib.sha256(data.sequence.encode()).hexdigest(),
                     "nt_length": len(data.sequence),
                 },
