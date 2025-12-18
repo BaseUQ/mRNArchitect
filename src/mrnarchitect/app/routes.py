@@ -58,7 +58,15 @@ async def post_optimize(
                 or headers.get("X-Forwarded-For")
                 or None,
                 "user": user,
-                "sequence_hash": hashlib.sha256(data.sequence.encode()).hexdigest(),
+                "sequence": {
+                    "hash": hashlib.sha256(data.sequence.encode()).hexdigest(),
+                    "nt_length": len(data.sequence),
+                },
+                "optimized_sequence_hash": hashlib.sha256(
+                    str(result.result.sequence).encode()
+                ).hexdigest()
+                if result.result
+                else None,
                 "parameters": data.parameters,
             }
         ).decode("utf-8")
