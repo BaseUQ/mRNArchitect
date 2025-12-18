@@ -44,13 +44,23 @@ const setUserDetailsLocalStorage = (userDetails: UserDetails) => {
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(userDetails));
 };
 
+const initializeUserDetails = (): UserDetails => {
+  const userDetails = getUserDetailsLocalStorage();
+  const params = new URLSearchParams(window.location.search);
+  return {
+    email: params.get("email") ?? userDetails.email,
+    name: params.get("name") ?? userDetails.name,
+    organization: params.get("organization") ?? userDetails.organization,
+  };
+};
+
 export const UserDetailsProvider = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
   const [userDetails, setUserDetails] = useState<UserDetails>(
-    getUserDetailsLocalStorage(),
+    initializeUserDetails(),
   );
 
   const clearUserDetails = () =>
@@ -58,16 +68,6 @@ export const UserDetailsProvider = ({
 
   useEffect(() => {
     setUserDetailsLocalStorage(userDetails);
-  }, [userDetails]);
-
-  // Load user details from query params on first load
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    setUserDetails({
-      email: params.get("email") ?? userDetails.email,
-      name: params.get("name") ?? userDetails.name,
-      organization: params.get("organization") ?? userDetails.organization,
-    });
   }, [userDetails]);
 
   return (
