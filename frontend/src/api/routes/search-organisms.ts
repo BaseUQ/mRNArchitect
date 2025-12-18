@@ -1,6 +1,6 @@
 import z from "zod/v4";
 import { Organism } from "../types";
-import { apiUrl } from "../utils";
+import { api } from "../utils";
 
 export const SearchOrganismsRequest = z.object({
   terms: z.string().nonempty(),
@@ -9,13 +9,13 @@ export const SearchOrganismsRequest = z.object({
 export type SearchOrganismsRequest = z.infer<typeof SearchOrganismsRequest>;
 
 export const SearchOrganismsResponse = z.object({
-  organisms: z.array(Organism)
+  organisms: z.array(Organism),
 });
 
 export type SearchOrganismsResponse = z.infer<typeof SearchOrganismsResponse>;
 
 export const searchOrganisms = (data: SearchOrganismsRequest) =>
-  fetch(apiUrl("/api/search-organisms"), {
+  api("/api/search-organisms", {
     method: "POST",
     body: JSON.stringify(data),
   })

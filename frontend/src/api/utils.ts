@@ -1,7 +1,22 @@
+import { getUserDetailsLocalStorage } from "~/context/UserDetails";
+
+export const api = (input: string, init?: RequestInit) => {
+  const userDetails = getUserDetailsLocalStorage();
+
+  return fetch(apiUrl(input), {
+    ...init,
+    headers: {
+      "X-mRNArchitect-Email": userDetails.email,
+      "X-mRNArchitect-Name": userDetails.name,
+      "X-mRNArchitect-Organization": userDetails.organization,
+    },
+  });
+};
+
 /**
  * Generate API URL.
  */
-export const apiUrl = (path: string) => {
+const apiUrl = (path: string) => {
   const url = `${import.meta.env.VITE_API ?? ""}${path}`;
 
   const urlParams = new URLSearchParams(window.location.search);

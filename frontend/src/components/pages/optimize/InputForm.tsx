@@ -20,13 +20,13 @@ import { useForm } from "@mantine/form";
 import { PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 import type { OptimizationParameter } from "~/api";
+import { DEFAULT_ORGANISMS } from "~/constants";
 import type { Sequence } from "~/types/sequence";
 import { nucleotideLength } from "~/utils/sequence";
 import { ParameterInput } from "./inputs/ParameterInput";
 import { SequenceInput } from "./inputs/SequenceInput";
 import { ProgressLoader } from "./ProgressLoader";
 import { OptimizationInput } from "./types";
-import { DEFAULT_ORGANISMS } from "~/constants";
 
 const createDefaultParameter = (
   startCoordinate: number | null = null,

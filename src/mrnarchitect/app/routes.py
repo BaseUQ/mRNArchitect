@@ -46,7 +46,8 @@ class OptimizeRequest(msgspec.Struct):
     description="Run an optimization on the given sequence.",
 )
 async def post_optimize(
-    data: OptimizeRequest, headers: dict, user: str | None = None
+    data: OptimizeRequest,
+    headers: dict,
 ) -> OptimizationResult:
     result = optimize(Sequence.create(data.sequence), parameters=data.parameters)
     # Log the optimization
@@ -57,7 +58,11 @@ async def post_optimize(
                 "ip": headers.get("x-forwarded-for")
                 or headers.get("X-Forwarded-For")
                 or None,
-                "user": user,
+                "user": {
+                    "email": headers.get("x-mrnarchitect-email"),
+                    "name": headers.get("x-mrnarchitect-name"),
+                    "organization": headers.get("x-mrnarchitect-organization"),
+                },
                 "sequence": {
                     "sequence": data.sequence,
                     "hash": hashlib.sha256(data.sequence.encode()).hexdigest(),
