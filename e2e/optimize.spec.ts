@@ -3,23 +3,14 @@ import { expect, test } from "@playwright/test";
 const EGFP_NUCLEIC_ACID_SEQUENCE =
   "ATGGTGAGCAAGGGCGAGGAGCTGTTCACCGGCGTGGTGCCCATCCTGGTGGAGCTGGACGGCGACGTGAACGGCCACAAGTTCAGCGTGAGCGGCGAGGGAGAGGGCGACGCCACCTATGGCAAGCTGACCCTGAAGTTCATCTGCACCACCGGCAAGCTGCCCGTGCCCTGGCCCACACTGGTGACCACCCTGACCTACGGCGTGCAGTGCTTCAGCAGATACCCCGACCACATGAAGCAGCACGATTTCTTCAAGAGCGCCATGCCCGAGGGCTACGTGCAGGAGAGAACCATCTTCTTCAAGGACGACGGCAACTACAAGACCAGAGCCGAGGTGAAGTTCGAGGGCGACACCCTGGTGAACAGAATCGAGCTGAAGGGCATCGACTTCAAGGAGGATGGCAACATCCTGGGCCACAAGCTGGAGTACAACTACAACAGCCACAACGTGTACATCATGGCCGACAAGCAGAAGAACGGCATCAAGGTGAACTTCAAGATCAGACACAACATCGAGGACGGCAGCGTGCAGCTGGCCGACCACTACCAGCAGAACACCCCCATCGGCGACGGCCCCGTGCTGCTGCCCGACAACCACTACCTGAGCACCCAGAGCGCCCTGAGCAAGGACCCCAACGAGAAGAGAGACCACATGGTGCTGCTGGAGTTCGTGACCGCCGCCGGCATCACCCTGGGCATGGACGAGCTGTACAAG";
 
-// test("run optimization - pre-fill random example", async ({ page }) => {
-//   await page.goto("/");
-//   await page.waitForTimeout(1_000); // brief wait for the form to load, should make this better
-//   await page.getByRole("button", { name: "Pre-fill random example" }).click();
-//   await expect(page.getByLabel("Coding sequence textarea")).not.toBeEmpty();
-//   await page.getByRole("button", { name: "Optimise sequence" }).click();
-//
-//   await expect(page.getByRole("tab", { name: "Output" })).toHaveAttribute(
-//     "aria-selected",
-//     "true",
-//     { timeout: 30_000 },
-//   );
-// });
-
 test("run optimization - eGFP nucleic acid", async ({ page }) => {
   await page.goto("/");
   await page.waitForTimeout(1_000); // brief wait for the form to load, should make this better
+
+  await page.getByRole("textbox", { name: "Email" }).fill("test@example.com");
+  await page.getByRole("textbox", { name: "Name" }).fill("Test name");
+  await page.getByRole("textbox", { name: "Organisation" }).fill("Test org");
+  await page.getByRole("button", { name: "Continue", exact: false }).click();
 
   await page
     .getByRole("textbox", { name: "Coding sequence textarea" })
