@@ -1,5 +1,5 @@
 import z from "zod/v4";
-import { apiUrl } from "../utils";
+import { api } from "../utils";
 
 export const AnalyzeRequest = z.object({
   sequence: z.string().nonempty(),
@@ -39,7 +39,7 @@ export const AnalyzeResponse = z.object({
 export type AnalyzeResponse = z.infer<typeof AnalyzeResponse>;
 
 export const analyze = (data: AnalyzeRequest) =>
-  fetch(apiUrl("/api/analyze"), {
+  api("/api/analyze", {
     method: "POST",
     body: JSON.stringify(data),
   })

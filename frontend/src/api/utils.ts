@@ -1,7 +1,19 @@
+export const api = (input: string, init?: RequestInit)=> {
+  const email = localStorage.get("mrnachitect-user");
+  const name = localStorage.get("mrnarchitect-name");
+  const organization = localStorage.get("mrnarchitect-organization");
+  return fetch(apiUrl(input), {...init, headers: {
+    "X-mRNArchitect-Email": email,
+    "X-mRNArchitect-Name": name,
+    "X-mRNArchitect-Organization": organization,
+  }})
+};
+
+
 /**
  * Generate API URL.
  */
-export const apiUrl = (path: string) => {
+const apiUrl = (path: string) => {
   const url = `${import.meta.env.VITE_API ?? ""}${path}`;
 
   const urlParams = new URLSearchParams(window.location.search);

@@ -1,6 +1,6 @@
 import z from "zod/v4";
 import { Organism } from "../types";
-import { apiUrl, sanitizeNucleicAcidSequence } from "../utils";
+import { api, sanitizeNucleicAcidSequence } from "../utils";
 
 const REQUIRED_MESSAGE = "Field cannot be empty.";
 
@@ -124,7 +124,7 @@ export const OptimizationResponse = z.union([
 export type OptimizationResponse = z.infer<typeof OptimizationResponse>;
 
 export const optimize = (data: OptimizationRequest) =>
-  fetch(apiUrl("/api/optimize"), {
+  api("/api/optimize", {
     method: "POST",
     body: JSON.stringify(data),
   })
