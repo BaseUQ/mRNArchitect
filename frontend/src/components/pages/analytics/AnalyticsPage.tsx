@@ -1,4 +1,4 @@
-import { Button, Fieldset, Stack, TextInput } from "@mantine/core";
+import { Button, Fieldset, Stack, Text, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useContext } from "react";
 import { UserDetails, UserDetailsContext } from "~/context/UserDetails";
@@ -51,6 +51,16 @@ export const AnalyticsPage = () => {
             key={form.key("organization")}
             {...form.getInputProps("organization")}
           />
+          <Text size="sm" mt="md">
+            By using mRNArchitect you agree to our{" "}
+            <a
+              target="_blank"
+              href="https://www.uq.edu.au/legal/copyright-privacy-disclaimer/"
+            >
+              Privacy Policy
+            </a>
+            {"."}
+          </Text>
         </Fieldset>
         <Button type="submit" fullWidth>
           Continue to mRNArchitect
