@@ -48,7 +48,7 @@ export const OrganismSelect = ({ label, value, onChange }: OrganismSelectProps) 
     }
 
     const options = organisms.map((it) => (
-      <Combobox.Option key={it.slug} value={it.slug}>
+      <Combobox.Option key={it.slug} value={it.slug} bg={it.slug === value.slug ? "ghostwhite" : undefined}>
         <Group gap="xs">
           {it.slug === value.slug && <CheckIcon size={12} />}
           <span>{it.name}</span>
@@ -67,9 +67,9 @@ export const OrganismSelect = ({ label, value, onChange }: OrganismSelectProps) 
 return (
       <Combobox
         store={combobox}
-        width={250}
         position="bottom-start"
         withArrow
+        shadow="md"
         onOptionSubmit={(val) => {
           onChange(
             organisms.find((it) => it.slug === val)!
