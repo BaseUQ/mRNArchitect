@@ -9,7 +9,7 @@ export const SearchOrganismsRequest = z.object({
 export type SearchOrganismsRequest = z.infer<typeof SearchOrganismsRequest>;
 
 export const SearchOrganismsResponse = z.object({
-  organisms: z.array(Organism)
+  organisms: z.array(Organism),
 });
 
 export type SearchOrganismsResponse = z.infer<typeof SearchOrganismsResponse>;

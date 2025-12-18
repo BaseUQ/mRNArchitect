@@ -130,7 +130,9 @@ export const ParameterInput = ({
             label="Organism"
             key={form.key(`parameters.${index}.organism`)}
             value={form.getValues().parameters[index].organism}
-            onChange={(value) => form.setFieldValue(`parameters.${index}.organism`, value)}
+            onChange={(value) =>
+              form.setFieldValue(`parameters.${index}.organism`, value)
+            }
           />
           <NumberInput
             label="Avoid repeat length"

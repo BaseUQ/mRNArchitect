@@ -18,7 +18,7 @@
       "!**/.venv",
       "!**/data",
       "!**/dist",
-      "!**/src"
+      "!/src"
     ]
   },
   "formatter": {

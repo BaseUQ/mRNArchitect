@@ -47,7 +47,7 @@ export const EXAMPLE_SEQUENCES = [
 ];
 
 export const DEFAULT_ORGANISMS = [
-  { name: "Homo sapiens", slug: "homo-sapiens", id: "9606"},
+  { name: "Homo sapiens", slug: "homo-sapiens", id: "9606" },
   { name: "Mus musculus", slug: "mus-musculus", id: "10090" },
   { name: "Salmo trutta", slug: "salmo-trutta", id: "8032" },
   { name: "Salmo salar", slug: "salmo-salar", id: "8030" },

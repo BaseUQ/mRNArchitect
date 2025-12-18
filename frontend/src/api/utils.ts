@@ -1,14 +1,17 @@
-export const api = (input: string, init?: RequestInit)=> {
-  const email = localStorage.get("mrnachitect-user");
-  const name = localStorage.get("mrnarchitect-name");
-  const organization = localStorage.get("mrnarchitect-organization");
-  return fetch(apiUrl(input), {...init, headers: {
-    "X-mRNArchitect-Email": email,
-    "X-mRNArchitect-Name": name,
-    "X-mRNArchitect-Organization": organization,
-  }})
-};
+import { getUserDetailsLocalStorage } from "~/context/UserDetails";
 
+export const api = (input: string, init?: RequestInit) => {
+  const userDetails = getUserDetailsLocalStorage();
+
+  return fetch(apiUrl(input), {
+    ...init,
+    headers: {
+      "X-mRNArchitect-Email": userDetails.email,
+      "X-mRNArchitect-Name": userDetails.name,
+      "X-mRNArchitect-Organization": userDetails.organization,
+    },
+  });
+};
 
 /**
  * Generate API URL.
