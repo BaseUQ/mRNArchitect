@@ -6,7 +6,7 @@ on:
         description: "The playwright baseURL setting."
         type: string
         required: false
-        default: ''
+        default: ""
 
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -36,5 +36,5 @@ jobs:
           target: e2e
           cache-from: type=registry,ref=${{ steps.ecr.outputs.registry }}/app:buildcache
       - run: |
-          docker run --rm -e CI=true -e PLAYWRIGHT_BASE_URL=${{ inputs.playwright-base-url }} $TAG \
+          docker run --rm -e CI=true -e PLAYWRIGHT_BASE_URL="${{ inputs.playwright-base-url }}" $TAG \
             pnpm playwright test
