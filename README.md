@@ -25,7 +25,7 @@ To use the web interface, you may build and run the provided docker image.
 > docker compose up
 ```
 
-Then browse to [http://localhost:8080] to start optimizing.
+Then browse to [http://localhost:5173]() to start optimizing.
 
 The CLI may tool may also be run via docker.
 
