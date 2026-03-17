@@ -45,9 +45,9 @@ const createDefaultParameter = (
   avoid_micro_rna_seed_sites: false,
   gc_content_global_min: 0.4,
   gc_content_global_max: 0.7,
-  gc_content_window_min: 0.4,
+  gc_content_window_min: 0.3,
   gc_content_window_max: 0.7,
-  gc_content_window_size: 100,
+  gc_content_window_size: 40,
   avoid_restriction_sites: [],
   avoid_sequences: [],
   avoid_poly_t: 9,
@@ -265,7 +265,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
                 <ProgressLoader
                   estimatedTimeInSeconds={
                     (form.getValues().sequence.codingSequence.length ?? 100) /
-                      15 +
+                    15 +
                     60
                   }
                 >

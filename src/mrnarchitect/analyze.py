@@ -28,7 +28,7 @@ class Analysis(msgspec.Struct, kw_only=True):
 def analyze(
     sequence: Sequence,
     codon_usage_table: CodonUsageTable | Organism | str = "homo-sapiens",
-    gc_content_window_size: int = 100,
+    gc_content_window_size: int = 40,
 ):
     start = timeit.default_timer()
     minimum_free_energy = sequence.minimum_free_energy

@@ -354,7 +354,7 @@ class Sequence(msgspec.Struct, frozen=True):
         return (c["C"] + c["G"]) / (c["A"] + c["C"] + c["G"] + c["T"])
 
     @functools.cache
-    def gc_ratio_window(self, window_size: int = 100) -> GCWindowStats:
+    def gc_ratio_window(self, window_size: int = 40) -> GCWindowStats:
         gcs = [
             {"start": i, "gc_ratio": self[i : i + window_size].gc_ratio}
             for i in range(0, max(len(self) - window_size, 1))

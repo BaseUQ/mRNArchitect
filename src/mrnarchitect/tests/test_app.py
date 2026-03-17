@@ -75,7 +75,7 @@ def test_analyze():
             "trna_adaptation_index": 0.3173599613405995,
             "uridine_depletion": 0.0,
             "gc_ratio_window": {
-                "window_size": 100,
+                "window_size": 40,
                 "max_gc_ratio": 0.4444444444444444,
                 "max_gc_start": 0,
                 "min_gc_ratio": 0.4444444444444444,

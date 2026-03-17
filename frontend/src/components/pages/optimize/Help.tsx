@@ -155,11 +155,20 @@ export const Help = () => {
                 </Fragment>,
               ],
               [
-                "GC content",
-                <Fragment key="gc-content">
-                  Defines the minimum or maximum fraction of the mRNA sequence
-                  comprising G/C nucleotides that is associated with stability
-                  and hairpins of the mRNA. We recommend 0.4 and 0.7.
+                "GC content (global)",
+                <Fragment key="gc-content-global">
+                  Defines the minimum and maximum fraction of G/C nucleotides
+                  within the entire mRNA sequence, which is associated with
+                  stability and propensity to form secondary structures such as
+                  hairpins. A recommended range is 0.4 to 0.7.
+                </Fragment>,
+              ],
+              [
+                "GC content (window)",
+                <Fragment key="gc-content-window">
+                  Defines the minimum and maximum fraction of G/C nucleotides
+                  within a sliding window of the mRNA sequence. A recommended
+                  range is 0.3 to 0.7 for a window size of 40 nucleotides.
                 </Fragment>,
               ],
               [
