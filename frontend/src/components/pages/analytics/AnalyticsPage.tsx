@@ -55,6 +55,7 @@ export const AnalyticsPage = () => {
             By using mRNArchitect you agree to our{" "}
             <a
               target="_blank"
+              rel="noopener noreferrer"
               href="https://www.uq.edu.au/legal/copyright-privacy-disclaimer/"
             >
               Privacy Policy
