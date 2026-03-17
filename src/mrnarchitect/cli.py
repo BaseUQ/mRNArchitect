@@ -144,7 +144,7 @@ def cli(args=None):
     optimize.add_argument(
         "--gc-content-window-min",
         type=float,
-        default=0.4,
+        default=0.3,
         help="The minimum GC-ratio (windowed).",
     )
     optimize.add_argument(
@@ -156,7 +156,7 @@ def cli(args=None):
     optimize.add_argument(
         "--gc-content-window-size",
         type=int,
-        default=100,
+        default=40,
         help="The GC-ratio window size.",
     )
     optimize.add_argument("--avoid-restriction-sites", type=str, action="append")
