@@ -265,7 +265,7 @@ export const InputForm = ({ onSubmit }: InputFormProps) => {
                 <ProgressLoader
                   estimatedTimeInSeconds={
                     (form.getValues().sequence.codingSequence.length ?? 100) /
-                    15 +
+                      15 +
                     60
                   }
                 >
