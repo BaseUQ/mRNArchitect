@@ -1,6 +1,7 @@
 services:
   app:
     restart: always
+    platform: linux/amd64 # Required for running the same image as lambda locally
     build:
       context: .
       dockerfile: Dockerfile
