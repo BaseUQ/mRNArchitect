@@ -32,24 +32,27 @@ export const AnalyticsPage = () => {
   return (
     <form onSubmit={form.onSubmit((values) => handleOnSubmit(values))}>
       <Stack gap="xs">
-        <Fieldset legend="User details">
+        <Fieldset
+          legend="Please enter your details to use mRNArchitect"
+          styles={{
+            legend: { fontSize: "16px", fontWeight: 500 },
+          }}
+        >
           <TextInput
             label="Name"
-            required
             key={form.key("name")}
             {...form.getInputProps("name")}
+          />
+          <TextInput
+            label="Organisation"
+            key={form.key("organization")}
+            {...form.getInputProps("organization")}
           />
           <TextInput
             label="Email"
             required
             key={form.key("email")}
             {...form.getInputProps("email")}
-          />
-          <TextInput
-            label="Organisation"
-            required
-            key={form.key("organization")}
-            {...form.getInputProps("organization")}
           />
           <Text size="sm" mt="md">
             By using mRNArchitect you agree to our{" "}
